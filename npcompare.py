@@ -3,7 +3,7 @@ import npparser
 import sys
 import numpy as np
 
-class NPUSEComparer():
+class NPComparer():
 
     def compareh(self, h1, h2):
         h1 = np.array(h1)
@@ -14,7 +14,7 @@ class NPUSEComparer():
         v1 = v1.upper()
         v2 = v2.upper()
         if v1 == v2:
-            return 1
+            return 1.0
         if v1 in v2:
             return min(0.9, len(v1) / 10)
         if v2 in v1:
@@ -39,29 +39,30 @@ class NPUSEComparer():
                 elif score == 0 and p1["l"][cid]["main"]:
                     w = 0.1
             res.append([score, w])
-
         return res
 
-    # def total(self, wscores):
-    #     return sum([t[0]*t[1] for t in wscores])
+    def compare(self, p1, p2):
+        wscores = self.comparep(p1, p2)
+        return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("pid1", help="Product id")
-parser.add_argument("pid2", help="Product id to compare")
-args = parser.parse_args()
-p = npparser.NPParser()
-p.load("data/data.h.pickle")
-p1 = p.db[args.pid1]
-if p1 == None:
-    print(f"{args.pid1} does not exist")
-    sys.exit(1)
-p2 = p.db[args.pid2]
-if p2 == None:
-    print(f"{args.pid2} does not exist")
-    sys.exit(2)
-comparer = NPUSEComparer()
-res = comparer.comparep(p1, p2)
-print(res)
-#print(comparer.total(res))
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("pid1", help="Product id")
+    parser.add_argument("pid2", help="Product id to compare")
+    args = parser.parse_args()
+    p = npparser.NPParser()
+    p.load("data/data.h.pickle")
+    p1 = p.db[args.pid1]
+    if p1 == None:
+        print(f"{args.pid1} does not exist")
+        sys.exit(1)
+    p2 = p.db[args.pid2]
+    if p2 == None:
+        print(f"{args.pid2} does not exist")
+        sys.exit(2)
+    comparer = NPComparer()
+    res = comparer.comparep(p1, p2)
+    print(res)
+    print(comparer.compare(p1, p2))
 
 

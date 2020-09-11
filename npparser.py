@@ -113,7 +113,7 @@ if __name__ == '__main__':
     print("NP Products Parser")
     print("==================")
     p = NPParser()
-    p.parse("data/data.csv")
+    p.parse("data/mock100.csv")
     #p.normalize()
     p.save()
     p.save(method="json")
