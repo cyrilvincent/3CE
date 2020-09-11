@@ -3,6 +3,7 @@ import pickle
 import json
 import time
 import use
+import cyrilload
 
 class NPParser:
 
@@ -50,41 +51,13 @@ class NPParser:
     def save(self, prefix="", method="pickle"):
         t = time.perf_counter()
         name = self.path.split(".")[0]
-        if prefix != "":
-            name += f".{prefix}"
-        if method == "pickle":
-            name += ".pickle"
-        elif method == "json":
-            name += ".json"
-        elif method == "pretty":
-            name += ".pretty.json"
-        else:
-            raise ValueError(f"Unknown method {method}")
-        print(f"Save {name}")
-        if method == "pickle":
-            with open(name,"wb") as f:
-                pickle.dump(self.db, f)
-        else:
-            with open(name,"w") as f:
-                if method == "pretty" and self.nbp > 1000:
-                    f.write("Too big!")
-                else:
-                    json.dump(self.db, f,indent = 4 if method == "pretty" else None)
+        cyrilload.save(self.db, name,prefix,method)
         print(f"Saved in {time.perf_counter() - t:.1f} s")
 
     def load(self, path):
         t = time.perf_counter()
         self.path = path
-        ext = path.split(".")[-1]
-        print(f"Load {path}")
-        if ext == "pickle":
-            with open(path,"rb") as f:
-                self.db = pickle.load(f)
-        elif ext == "json":
-            with open(path) as f:
-                self.db = json.load(f)
-        else:
-            raise ValueError(f"Unknow extension {ext}")
+        self.db = cyrilload.load(path)
         self.nbp = len(self.db.keys())
         print(f"Loaded in {time.perf_counter() - t:.1f} s")
 
@@ -113,15 +86,17 @@ if __name__ == '__main__':
     print("NP Products Parser")
     print("==================")
     p = NPParser()
-    p.parse("data/mock100.csv")
+    p.parse("data/data.csv")
     #p.normalize()
     p.save()
     p.save(method="json")
     p.save(method="pretty")
     p.h() #275s / 10000
     p.save(prefix="h")
-    p.save(prefix="h", method="json")
-    p.save(prefix="h", method="pretty")
+    if len(p.db.keys()) < 10000:
+        p.save(prefix="h", method="json")
+        if len(p.db.keys()) < 1000:
+            p.save(prefix="h", method="pretty")
 
 
 

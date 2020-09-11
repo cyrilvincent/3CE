@@ -1,33 +1,50 @@
-import npparser
-import sys
-import numpy as np
 import time
-import pickle
 import npcompare
+import cyrilload
 
 class NPNearest:
 
     def __init__(self, path):
         t = time.perf_counter()
-        print(f"Load {path}")
-        with open(path, "rb") as f:
-            self.db = pickle.load(f)
+        self.db = cyrilload.load(path)
+        self.cache = {}
+        self.comp = npcompare.NPComparer()
+        self.search(list(self.db.keys())[0])
         print(f"Loaded in {time.perf_counter() - t:.1f} s")
 
     def get_by_id(self, pid):
         return self.db[pid]
 
-    def search(self, p, take=10):
+    def searchl(self, p, ps):
         res = []
-        comp = npcompare.NPComparer()
-        for k in self.db.keys():
-            p2 = self.get_by_id(k)
-            if p != p2:
-                score = comp.compare(p, p2)
-                if score > 0.5:
-                    res.append([k, score])
-        res.sort(key = lambda x : x[1], reverse = True)
-        return res[:take]
+        for pid in ps:
+            p2 = self.get_by_id(pid)
+            score = self.comp.compare2(p, p2)
+            res.append([pid, score])
+        return res
+
+    def search(self, pid, take=10):
+        if pid in self.cache.keys():
+            return self.cache[pid]
+        else:
+            p = self.get_by_id(pid)
+            res1 = []
+            for k in self.db.keys():
+                p2 = self.get_by_id(k)
+                if p != p2:
+                    score = self.comp.compare(p, p2)
+                    if score > 0.5:
+                        res1.append([k, score])
+            res1.sort(key = lambda x : x[1], reverse = True)
+            res1 = res1[:(take * 2)]
+            res2 = self.searchl(p, [p2[0] for p2 in res1])
+            res = []
+            for x in zip(res1, res2):
+                v = (x[0][1] + x[1][1]) / 2
+                res.append([x[0][0], v])
+            res = res[:take]
+            self.cache[pid] = res
+            return res
 
 if __name__ == '__main__':
     print("NPNearest")
@@ -35,7 +52,6 @@ if __name__ == '__main__':
     np = NPNearest("data/mock.h.pickle")
     while True:
         pid = input("PID: ")
-        p = np.get_by_id(pid)
-        res = np.search(p)
+        res = np.search(pid)
         print(res)
 
