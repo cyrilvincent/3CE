@@ -3,7 +3,6 @@ import sys
 import numpy as np
 import cyrilload
 import difflib
-from pprint import pprint
 
 class NPComparer():
 
@@ -37,12 +36,16 @@ class NPComparer():
             score = 0
             if h1 != None and h2 != None:
                 score = self.comph(h1, h2)
+                if p1["l"][cid]["main"]:
+                    w = 1.0 if score > 0.5 else 0.1
             elif h1 == None and h2 == None and cid in p2["l"]:
                 score = self.compv(p1["l"][cid]["val"], p2["l"][cid]["val"])
                 if score == 1 and p1["l"][cid]["main"]:
                     w = 1.0
                 elif score == 0 and p1["l"][cid]["main"]:
                     w = 0.1
+            elif p1["l"][cid]["main"]:
+                w = 0.1
             res.append([score, w])
         return res
 
@@ -55,6 +58,8 @@ class NPComparer():
             if cid in p2["l"]:
                 v2 = p2["l"][cid]["val"].upper()
             score = self.compvl(v1, v2)
+            if p1["l"][cid]["main"] and score < 0.5:
+                w = 0.1
             if len(v1) == 2:
                 w /= 2
             elif len(v1) == 1:
@@ -81,11 +86,34 @@ class NPComparer():
         ss = d.compare(s1.splitlines(1), s2.splitlines(1))
         return list(ss)
 
+def display(p1, p2, res):
+    limit = 40
+    i = 0
+    ks = list(p1["l"].keys())
+    for r in res:
+        k = ks[i]
+        s = f"CID:{k} match {res[i][0] * 100:.0f}% * {res[i][1]:0.2f} \""
+        if k in p1['l']:
+            s += f"{p1['l'][k]['val'][:limit]}"
+            if len(p1['l'][k]['val']) > limit:
+                s+="..."
+        s += '" vs "'
+        if k in p2['l']:
+            s += f"{p2['l'][k]['val'][:limit]}"
+            if len(p2['l'][k]['val']) > limit:
+                s+="..."
+        s += '"'
+        print(s)
+        i += 1
+
 if __name__ == '__main__':
+    print("NPCompare")
+    print("=========")
     parser = argparse.ArgumentParser()
     parser.add_argument("pid1", help="Product id")
     parser.add_argument("pid2", help="Product id to compare")
     args = parser.parse_args()
+
     db = cyrilload.load("data/data.h.pickle")
     p1 = db[args.pid1]
     if p1 == None:
@@ -97,11 +125,15 @@ if __name__ == '__main__':
         sys.exit(2)
     comparer = NPComparer()
     res = comparer.compp(p1, p2)
-    print(res)
-    print(comparer.compare(p1, p2))
+    print("Deep Learning Google DAN USE model:")
+    display(p1,p2,res)
+    print(f"USE Score: {comparer.compare(p1, p2)*100:.0f}%")
+    print()
+    print("Machine Learning Gestalt model:")
     res = comparer.comparepl(p1, p2)
-    print(res)
-    print(comparer.comparel(p1, p2))
-    pprint(comparer.diff(p1, p2))
+    display(p1,p2,res)
+    print(f"Gestalt Score: {comparer.comparel(p1, p2) * 100:.0f}%")
+    print()
+    print(f"Final Score: {max(comparer.compare(p1, p2), comparer.comparel(p1, p2)) * 100:.0f}%")
 
 

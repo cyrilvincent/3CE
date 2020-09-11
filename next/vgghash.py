@@ -31,7 +31,7 @@ generator = datagen.flow_from_directory(
 
 bn = model.predict(generator)
 print("Save CSV")
-with open('images/vggbn.csv', 'w', newline='') as f:
+with open('../images/vggbn.csv', 'w', newline='') as f:
     idx = 0
     for row in bn:
         s = generator.filenames[idx]
@@ -51,7 +51,7 @@ with open('images/vggbn.csv', 'w', newline='') as f:
 def diff(f1, f2):
     score = 0
     for i1, i2 in zip(f1, f2):
-        score += abs(i1 - i2) ** 2
+        score += (i1 - i2) ** 2
     return score ** 0.5
 
 print(diff(bn[0], bn[0]))

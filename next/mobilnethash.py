@@ -30,7 +30,7 @@ generator = datagen.flow_from_directory(
 
 bn = model.predict(generator)
 print("Save CSV")
-with open('images/mnbn.csv', 'w', newline='') as f:
+with open('../images/mnbn.csv', 'w', newline='') as f:
     idx = 0
     for row in bn:
         s = generator.filenames[idx]

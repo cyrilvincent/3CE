@@ -9,7 +9,8 @@ class NPNearest:
         self.db = cyrilload.load(path)
         self.cache = {}
         self.comp = npcompare.NPComparer()
-        self.search(list(self.db.keys())[0])
+        for k in list(self.db.keys())[:2]:
+            self.search(k)
         print(f"Loaded in {time.perf_counter() - t:.1f} s")
 
     def get_by_id(self, pid):
@@ -40,7 +41,7 @@ class NPNearest:
             res2 = self.searchl(p, [p2[0] for p2 in res1])
             res = []
             for x in zip(res1, res2):
-                v = (x[0][1] + x[1][1]) / 2
+                v = max(x[0][1], x[1][1])
                 res.append([x[0][0], v])
             res.sort(key=lambda x: x[1], reverse=True)
             res = res[:take]
@@ -53,6 +54,12 @@ if __name__ == '__main__':
     np = NPNearest("data/mock.h.pickle")
     while True:
         pid = input("PID: ")
-        res = np.search(pid)
-        print(res)
+        try:
+            res = np.search(pid)
+        except KeyError:
+            print(f"Product {pid} does not exist")
+            res=[]
+        print(f"Found {len(res)} product(s)")
+        for p in res:
+            print(f"PID {p[0]} at {p[1]*100:.0f}%")
 

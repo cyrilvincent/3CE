@@ -3,7 +3,6 @@ import pickle
 
 def load(path):
     ext = path.split(".")[-1]
-    db = None
     print(f"Load {path}")
     if ext == "pickle":
         with open(path, "rb") as f:
@@ -12,7 +11,7 @@ def load(path):
         with open(path) as f:
             db = json.load(f)
     else:
-        raise ValueError(f"Unknow extension {ext}")
+        raise ValueError(f"Unknown extension {ext}")
     return db
 
 def save(db, name, prefix="", method="pickle"):

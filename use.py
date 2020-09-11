@@ -7,7 +7,7 @@ import os
 #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 """
-Universal Sentence Encoder
+Google Universal Sentence Encoder
 """
 class USE:
 
