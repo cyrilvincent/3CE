@@ -35,3 +35,7 @@ print(1 - (res / len("La télécommande n'est pas bonne.")) )
 res = levenshtein("La télécommande n'est pas bonne.","La télécommande n'est pas bonne. xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 print(res)
 print(1 - (res / len("La télécommande n'est pas bonne. xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")) )
+
+#Autre méthode (trimer les caractères et la ponctuation et faire un in)
+#Autre méthode : prendre les 10 mots les plus longs et voir s'il sont dans l'autre phrase
+#Plagiat simple mais efficace : https://forum.ubuntu-fr.org/viewtopic.php?id=1235071

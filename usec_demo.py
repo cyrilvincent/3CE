@@ -87,6 +87,18 @@ messages = [
   # Asking about age
   "I like my baby",
   "what is your age?",
+
+  "There is no hard limit on how long the paragraph is. embeddings also support short paragraphs. Roughly, the longer the more 'diluted' the embedding will be.",
+
+  ( "There is no hard limit on how long the paragraph is. Roughly, the longer "
+    "Universal Sentence Encoder embeddings also support short paragraphs. "
+   "the more 'diluted' the embedding will be."),
+
+  ("Universal Sentence Encoder embeddings also support short paragraphs. "
+   "There is no hard limit on how long the paragraph is. Roughly, the longer "
+   "the more 'diluted' the embedding will be."),
+
+ "Universal Sentence Encoder embeddings also support short paragraphs. There is no hard limit on how long the paragraph is. Roughly, the longer the more 'diluted' the embedding will be."
 ]
 
 run_and_plot(messages)
@@ -95,6 +107,10 @@ message_embeddings = message_embeddings.numpy()
 print(np.inner(message_embeddings[0],message_embeddings[0]))
 print(np.inner(message_embeddings[0],message_embeddings[1]))
 print(np.inner(message_embeddings[1],message_embeddings[0]))
+print(np.inner(message_embeddings[-1],message_embeddings[-2]))
+print(np.inner(message_embeddings[-2],message_embeddings[-3]))
+print(np.inner(message_embeddings[-1],message_embeddings[-4]))
 corr = np.inner(message_embeddings, message_embeddings)
 print(corr)
+print(type(messages[-2]))
 
