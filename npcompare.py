@@ -60,7 +60,9 @@ class NPComparer():
             score = self.compvl(v1, v2)
             if p1["l"][cid]["main"] and score < 0.5:
                 w = 0.1
-            if len(v1) == 2:
+            elif p1["l"][cid]["main"] and score > 0.5:
+                w = 1.0
+            elif len(v1) == 2:
                 w /= 2
             elif len(v1) == 1:
                 w /= 4

@@ -87,7 +87,7 @@ if __name__ == '__main__':
     print("==================")
     p = NPParser()
     p.parse("data/data.csv")
-    #p.normalize()
+    p.normalize()
     p.save()
     p.save(method="json")
     p.save(method="pretty")
