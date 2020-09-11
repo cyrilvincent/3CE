@@ -19,7 +19,7 @@ class NPNearest:
         res = []
         for pid in ps:
             p2 = self.get_by_id(pid)
-            score = self.comp.compare2(p, p2)
+            score = self.comp.comparel(p, p2)
             res.append([pid, score])
         return res
 
@@ -42,6 +42,7 @@ class NPNearest:
             for x in zip(res1, res2):
                 v = (x[0][1] + x[1][1]) / 2
                 res.append([x[0][0], v])
+            res.sort(key=lambda x: x[1], reverse=True)
             res = res[:take]
             self.cache[pid] = res
             return res
