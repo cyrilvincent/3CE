@@ -16,12 +16,13 @@ class NPNearest:
     def get_by_id(self, pid):
         return self.db[pid]
 
-    def searchl(self, p, ps):
+    def searchl(self, pid, pid2s):
         res = []
-        for pid in ps:
-            p2 = self.get_by_id(pid)
+        for pid2 in pid2s:
+            p = self.get_by_id(pid)
+            p2 = self.get_by_id(pid2)
             score = self.comp.comparel(p, p2)
-            res.append([pid, score])
+            res.append([pid2, score])
         return res
 
     def search(self, pid, take=10):
@@ -32,13 +33,15 @@ class NPNearest:
             res1 = []
             for k in self.db.keys():
                 p2 = self.get_by_id(k)
-                if p != p2:
+                if p.id != p2.id:
                     score = self.comp.compare(p, p2)
                     if score > 0.5:
                         res1.append([k, score])
             res1.sort(key = lambda x : x[1], reverse = True)
             res1 = res1[:(take * 4)]
-            res2 = self.searchl(p, [p2[0] for p2 in res1])
+            print(res1)
+            res2 = self.searchl(p.id, [p2[0] for p2 in res1])
+            print(res2)
             res = []
             for x in zip(res1, res2):
                 v = max(x[0][1], x[1][1])
@@ -54,11 +57,11 @@ if __name__ == '__main__':
     np = NPNearest("data/mock.h.pickle")
     while True:
         pid = input("PID: ")
-        try:
-            res = np.search(pid)
-        except KeyError:
-            print(f"Product {pid} does not exist")
-            res=[]
+        #try:
+        res = np.search(pid)
+        # except KeyError:
+        #     print(f"Product {pid} does not exist")
+        #     res=[]
         print(f"Found {len(res)} product(s)")
         for p in res:
             print(f"PID {p[0]} at {p[1]*100:.0f}%")

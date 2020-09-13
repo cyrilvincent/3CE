@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import cyrilload
 import difflib
+from entities import Product, Cat
 
 class NPComparer():
 
@@ -26,22 +27,25 @@ class NPComparer():
         sm = difflib.SequenceMatcher(lambda x: x in " \t.!?,;\n", v1.upper(), v2.upper())
         return sm.ratio()
 
-    def compp(self, p1, p2):
+    def compp(self, p1:Product, p2:Product):
         res = []
-        for cid in p1["l"].keys():
-            h1 = p1["l"][cid]["h"]
+        #for cid in p1["l"].keys():
+        for c in p1.l:
+            h1 = c.h #p1["l"][cid]["h"]
             h2 = None
-            w = p1["l"][cid]["w"]
-            if cid in p2["l"]:
-                h2 = p2["l"][cid]["h"]
+            w = c.w #p1["l"][cid]["w"]
+            if p2.contains(c): #if cid in p2["l"]:
+                h2 = p2.get_cat_by_id(c.id).h #p2["l"][cid]["h"]
             score = 0
-            main = p1["l"][cid]["main"]
+            main = c.main #p1["l"][cid]["main"]
             if h1 != None and h2 != None:
                 score = self.comph(h1, h2)
                 if main:
                     w = 1.0 if score > 0.5 else 0.1
-            elif (h1 == None or h2 == None) and cid in p2["l"]:
-                score = self.compv(p1["l"][cid]["val"], p2["l"][cid]["val"])
+            #elif (h1 == None or h2 == None) and cid in p2["l"]:
+            elif (h1 == None or h2 == None) and p2.get_cat_by_id(c.id) != None:
+                #score = self.compv(p1["l"][cid]["val"], p2["l"][cid]["val"])
+                score = self.compv(c.val, p2.get_cat_by_id(c.id).val)
                 if score == 1 and main:
                     w = 1.0
                 elif score == 0 and main:
@@ -51,18 +55,24 @@ class NPComparer():
             res.append([score, w])
         return res
 
-    def comparepl(self, p1, p2):
+    def comparepl(self, p1:Product, p2:Product):
         res = []
-        for cid in p1["l"].keys():
-            v1 = p1["l"][cid]["val"].upper()
+        #for cid in p1["l"].keys():
+        for c in p1.l:
+            v1 = c.val.upper() #p1["l"][cid]["val"].upper()
             v2 = ""
-            w = p1["l"][cid]["w"]
-            if cid in p2["l"]:
-                v2 = p2["l"][cid]["val"].upper()
+            w = c.w #p1["l"][cid]["w"]
+            #if cid in p2["l"]:
+            if p2.contains(c):
+                v2 = p2.get_cat_by_id(c.id).val.upper() #p2["l"][cid]["val"].upper()
             score = self.compvl(v1, v2)
-            if p1["l"][cid]["main"] and score < 0.8:
+            # if p1["l"][cid]["main"] and score < 0.8:
+            #     w = 0.1
+            # elif p1["l"][cid]["main"] and score > 0.99:
+            #     w = 1.0
+            if c.main and score < 0.8:
                 w = 0.1
-            elif p1["l"][cid]["main"] and score > 0.99:
+            elif c.main and score > 0.99:
                 w = 1.0
             elif len(v1) == 2:
                 w /= 2
@@ -79,33 +89,42 @@ class NPComparer():
         wscores = self.comparepl(p1, p2)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
-    def diff(self, p1, p2):
-        s1 = ""
-        s2 = ""
-        for k in p1["l"].keys():
-            s1 += p1["l"][k]["val"] + "\n"
-        for k in p2["l"].keys():
-            s2 += p1["l"][k]["val"] + "\n"
-        d = difflib.Differ()
-        ss = d.compare(s1.splitlines(1), s2.splitlines(1))
-        return list(ss)
+    # def diff(self, p1, p2):
+    #     s1 = ""
+    #     s2 = ""
+    #     for k in p1["l"].keys():
+    #         s1 += p1["l"][k]["val"] + "\n"
+    #     for k in p2["l"].keys():
+    #         s2 += p1["l"][k]["val"] + "\n"
+    #     d = difflib.Differ()
+    #     ss = d.compare(s1.splitlines(1), s2.splitlines(1))
+    #     return list(ss)
 
-def display(p1, p2, res):
+def display(p1:Product, p2:Product, res):
+    print(res)
     limit = 40
     i = 0
     total = sum([w[1] for w in res])
-    ks = list(p1["l"].keys())
+    #ks = list(p1["l"].keys())
     for r in res:
-        k = ks[i]
-        s = f"CID:{k} match {res[i][0] * 100:.0f}% * {res[i][1] / total:0.2f} \""
-        if k in p1['l']:
-            s += f"{p1['l'][k]['val'][:limit]}"
-            if len(p1['l'][k]['val']) > limit:
-                s+="..."
+        #k = ks[i]
+        c = p1.l[i]
+        # s = f"CID:{k} match {res[i][0] * 100:.0f}% * {res[i][1] / total:0.2f} \""
+        s = f"CID:{c.id} match {res[i][0] * 100:.0f}% * {res[i][1] / total:0.2f} \""
+        # if k in p1['l']:
+        #     s += f"{p1['l'][k]['val'][:limit]}"
+        #     if len(p1['l'][k]['val']) > limit:
+        #         s+="..."
+        s += f"{c.val[:limit]}"
+        if len(c.val[:limit]) > limit:
+            s += "..."
         s += '" vs "'
-        if k in p2['l']:
-            s += f"{p2['l'][k]['val'][:limit]}"
-            if len(p2['l'][k]['val']) > limit:
+        #if k in p2['l']:
+        if p2.contains(c):
+            #s += f"{p2['l'][k]['val'][:limit]}"
+            s += p2.get_cat_by_id(c.id).val[:limit]
+            #if len(p2['l'][k]['val']) > limit:
+            if len(p2.get_cat_by_id(c.id).val) > limit:
                 s+="..."
         s += '"'
         print(s)

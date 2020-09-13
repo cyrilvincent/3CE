@@ -1,5 +1,6 @@
 import json
 import pickle
+import jsonpickle
 
 def load(path):
     ext = path.split(".")[-1]
@@ -19,7 +20,7 @@ def save(db, name, prefix="", method="pickle"):
         name += f".{prefix}"
     if method == "pickle":
         name += ".pickle"
-    elif method == "json":
+    elif method == "json" or method == "jsonpickle":
         name += ".json"
     elif method == "pretty":
         name += ".pretty.json"
@@ -31,4 +32,8 @@ def save(db, name, prefix="", method="pickle"):
             pickle.dump(db, f)
     else:
         with open(name,"w") as f:
-            json.dump(db, f,indent = 4 if method == "pretty" else None)
+            if method == "json":
+                json.dump(db, f,indent = 4 if method == "pretty" else None)
+            else:
+                s = jsonpickle.dumps(db, unpicklable=False,indent=4)
+                f.write(s)
