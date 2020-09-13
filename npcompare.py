@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import cyrilload
 import difflib
-from entities import Product, Cat
+from entities import Product, Car
 
 class NPComparer():
 
@@ -18,9 +18,9 @@ class NPComparer():
         if v1 == v2:
             return 1.0
         if v1 in v2:
-            return min(0.9, len(v1) / 10)
+            return min(0.75, len(v1) / 10)
         if v2 in v1:
-            return min(0.8, len(v2) / 10)
+            return min(0.5, len(v2) / 10)
         return 0
 
     def compvl(self, v1, v2):
@@ -35,21 +35,20 @@ class NPComparer():
             h2 = None
             w = c.w #p1["l"][cid]["w"]
             if p2.contains(c): #if cid in p2["l"]:
-                h2 = p2.get_cat_by_id(c.id).h #p2["l"][cid]["h"]
+                h2 = p2.get_car_by_id(c.id).h #p2["l"][cid]["h"]
             score = 0
             main = c.main #p1["l"][cid]["main"]
             if h1 != None and h2 != None:
                 score = self.comph(h1, h2)
-                # if main:
-                #     w = 1.0 if score > 0.95 else 0.1
+                if main and score > 0.99: #
+                    w = 2
             #elif (h1 == None or h2 == None) and cid in p2["l"]:
 
             # A changer si main contient un espace
-            elif (h1 == None or h2 == None) and p2.get_cat_by_id(c.id) != None:
-                #score = self.compv(p1["l"][cid]["val"], p2["l"][cid]["val"])
-                score = self.compv(c.val, p2.get_cat_by_id(c.id).val)
+            elif (h1 == None or h2 == None) and p2.get_car_by_id(c.id) != None:
+                score = self.compv(c.val, p2.get_car_by_id(c.id).val)
                 if score == 1 and main:
-                    w = 1.0
+                    w = 2.0
                 elif score == 0 and main:
                     w = 0.1
             elif main:
@@ -66,7 +65,7 @@ class NPComparer():
             w = c.w #p1["l"][cid]["w"]
             #if cid in p2["l"]:
             if p2.contains(c):
-                v2 = p2.get_cat_by_id(c.id).val.upper() #p2["l"][cid]["val"].upper()
+                v2 = p2.get_car_by_id(c.id).val.upper() #p2["l"][cid]["val"].upper()
             score = self.compvl(v1, v2)
             # if p1["l"][cid]["main"] and score < 0.8:
             #     w = 0.1
@@ -75,7 +74,7 @@ class NPComparer():
             if c.main and score < 0.8:
                 w = 0.1
             elif c.main and score > 0.99:
-                w = 1.0
+                w = 2.0
             elif len(v1) == 2:
                 w /= 2
             elif len(v1) == 1:
@@ -115,8 +114,8 @@ def display(p1:Product, p2:Product, res):
             s += "..."
         s += '" vs "'
         if p2.contains(c):
-            s += p2.get_cat_by_id(c.id).val[:limit]
-            if len(p2.get_cat_by_id(c.id).val) > limit:
+            s += p2.get_car_by_id(c.id).val[:limit]
+            if len(p2.get_car_by_id(c.id).val) > limit:
                 s+="..."
         s += '"'
         print(s)

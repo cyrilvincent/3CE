@@ -1,15 +1,18 @@
 from PIL import Image
 import imagehash
 import numpy as np
+import os
 
-im = Image.open('../images/0/ski.jpg')
-ah = imagehash.average_hash(im)
-dh = imagehash.dhash(im)
-ph = imagehash.phash(im)
-wh = imagehash.whash(im) #Haar
-wdh = imagehash.whash(im, mode="db4") #Daubechies
-ch = imagehash.colorhash(im)
-print(ah,ph,dh,wh,wdh,ch)
+size = os.stat('../images/0/ski.jpg')[6]
+im:Image = Image.open('../images/0/ski.jpg')
+ah = imagehash.average_hash(im) #8x8
+dh = imagehash.dhash(im) #8x8
+ph = imagehash.phash(im) #8x8
+wh = imagehash.whash(im) #Haar 8x8
+wdh = imagehash.whash(im, mode="db4") #Daubechies 14x14
+ch = imagehash.colorhash(im) #14*3
+print(ah,ph,dh,wh,wdh,ch, size)
+size2 = os.stat('../images/0/ski2.jpg')[6]
 im2 = Image.open('../images/0/ski2.jpg')
 ah2 = imagehash.average_hash(im2)
 ph2 = imagehash.phash(im2)
@@ -17,8 +20,8 @@ dh2 = imagehash.dhash(im2)
 wh2 = imagehash.whash(im2)
 wdh2 = imagehash.whash(im2, mode="db4")
 ch2 = imagehash.colorhash(im2)
-print(ah2,ph2,dh2,wh2,wdh2,ch2)
-print(ah - ah2, ph - ph2, dh - dh2, wh - wh2, wdh - wdh2, ch - ch2)
+print(ah2,ph2,dh2,wh2,wdh2,ch2, size2)
+print((ah - ah2) / len(ah.hash)**2, (ph - ph2) / len(ph.hash)**2, (dh - dh2) / len(dh.hash)**2, (wh - wh2) / len(wh.hash)**2, (wdh - wdh2) / len(wdh.hash)**2, ch - ch, size - size2)
 im2 = Image.open('../images/0/ski3.jpg')
 ah2 = imagehash.average_hash(im2)
 ph2 = imagehash.phash(im2)
@@ -27,7 +30,7 @@ wh2 = imagehash.whash(im2)
 wdh2 = imagehash.whash(im2, mode="db4")
 ch2 = imagehash.colorhash(im2)
 print(ah2,ph2,dh2,wh2,wdh2,ch2)
-print(ah - ah2, ph - ph2, dh - dh2, wh - wh2, wdh - wdh2, ch - ch2)
+print((ah - ah2) / len(ah.hash)**2, (ph - ph2) / len(ph.hash)**2, (dh - dh2) / len(dh.hash)**2, (wh - wh2) / len(wh.hash)**2, (wdh - wdh2) / len(wdh.hash)**2, ch - ch, size - size2)
 im2 = Image.open('../images/1/mug.jpg')
 ah2 = imagehash.average_hash(im2)
 ph2 = imagehash.phash(im2)
@@ -36,7 +39,7 @@ wh2 = imagehash.whash(im2)
 wdh2 = imagehash.whash(im2, mode="db4")
 ch2 = imagehash.colorhash(im2)
 print(ah2,ph2,dh2,wh2,wdh2,ch2)
-print(ah - ah2, ph - ph2, dh - dh2, wh - wh2, wdh - wdh2, ch - ch2)
+print((ah - ah2) / len(ah.hash)**2, (ph - ph2) / len(ph.hash)**2, (dh - dh2) / len(dh.hash)**2, (wh - wh2) / len(wh.hash)**2, (wdh - wdh2) / len(wdh.hash)**2, ch - ch, size - size2)
 im = Image.open('../images/0/ski2.jpg')
 ah = imagehash.average_hash(im)
 dh = imagehash.dhash(im)

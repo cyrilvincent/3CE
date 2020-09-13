@@ -4,7 +4,7 @@ import json
 import time
 import use
 import cyrilload
-from entities import Product, Cat
+from entities import Product, Car
 from typing import Dict
 
 class NPParser:
@@ -35,7 +35,7 @@ class NPParser:
                     #         "w":float(row["weight"]),
                     #         "h":None
                     #     }
-                    c = Cat(row["cid"],s,float(row["weight"]),main)
+                    c = Car(row["cid"], s, float(row["weight"]), main)
                     main = False #Move after if
                     #self.db[pid]["l"][row["cid"]] = c
                     self.db[pid].l.append(c)
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     p.normalize()
     p.save()
     p.save(method="jsonpickle")
-    p.h() #230s / 10000
+    p.h() #230s / 10000*5 soit 38 minutes pour 100K*5
     p.save(prefix="h")
     if len(p.db.keys()) < 1000:
         p.save(prefix="h", method="jsonpickle")

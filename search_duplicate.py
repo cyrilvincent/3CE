@@ -1,16 +1,14 @@
 import cyrilload
 
-def search_duplicate(db, ncar = 0):
+def search_duplicate(db, cid = 0):
     dico = {}
     for pid in db.keys():
-        try:
-            c = db[pid].l[ncar]
+        c = db[pid].get_car_by_id(cid)
+        if c != None:
             if c.val in dico:
                 dico[c.val].append(pid)
             else:
                 dico[c.val] = [pid]
-        except:
-            pass
     res = dict(dico)
     for val in dico.keys():
         if len(dico[val]) < 2:
@@ -23,8 +21,8 @@ if __name__ == '__main__':
     print("===================")
     db = cyrilload.load("data/data.pickle")
     pid = list(db.keys())[0]
-    print(f"Carac at the position {0} found cid {db[pid].l[0].id}")
-    res = search_duplicate(db, ncar)
+    print(f"Carac at the position {ncar} found cid={db[pid].l[ncar].id}")
+    res = search_duplicate(db, db[pid].l[ncar].id)
     print(res)
     for k in res.keys():
         print(f'pid: {res[k]} => "{k[:40]}"')

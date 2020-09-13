@@ -16,9 +16,7 @@ print(score)
 m = npcompare.NPComparer()
 score = m.compvl(args.s1, args.s2)
 print(score)
-m = difflib.Differ()
-ss = m.compare(args.s1.splitlines(1), args.s2.splitlines(1))
-pprint(list(ss))
+
 
 
 
