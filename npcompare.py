@@ -20,6 +20,7 @@ class NPComparer():
             return min(0.9, len(v1) / 10)
         if v2 in v1:
             return min(0.8, len(v2) / 10)
+        return 0
 
     def compvl(self, v1, v2):
         sm = difflib.SequenceMatcher(lambda x: x in " \t.!?,;\n", v1.upper(), v2.upper())
@@ -34,17 +35,18 @@ class NPComparer():
             if cid in p2["l"]:
                 h2 = p2["l"][cid]["h"]
             score = 0
+            main = p1["l"][cid]["main"]
             if h1 != None and h2 != None:
                 score = self.comph(h1, h2)
-                if p1["l"][cid]["main"]:
+                if main:
                     w = 1.0 if score > 0.5 else 0.1
-            elif h1 == None and h2 == None and cid in p2["l"]:
+            elif (h1 == None or h2 == None) and cid in p2["l"]:
                 score = self.compv(p1["l"][cid]["val"], p2["l"][cid]["val"])
-                if score == 1 and p1["l"][cid]["main"]:
+                if score == 1 and main:
                     w = 1.0
-                elif score == 0 and p1["l"][cid]["main"]:
+                elif score == 0 and main:
                     w = 0.1
-            elif p1["l"][cid]["main"]:
+            elif main:
                 w = 0.1
             res.append([score, w])
         return res
@@ -58,9 +60,9 @@ class NPComparer():
             if cid in p2["l"]:
                 v2 = p2["l"][cid]["val"].upper()
             score = self.compvl(v1, v2)
-            if p1["l"][cid]["main"] and score < 0.5:
+            if p1["l"][cid]["main"] and score < 0.8:
                 w = 0.1
-            elif p1["l"][cid]["main"] and score > 0.5:
+            elif p1["l"][cid]["main"] and score > 0.99:
                 w = 1.0
             elif len(v1) == 2:
                 w /= 2
@@ -91,10 +93,11 @@ class NPComparer():
 def display(p1, p2, res):
     limit = 40
     i = 0
+    total = sum([w[1] for w in res])
     ks = list(p1["l"].keys())
     for r in res:
         k = ks[i]
-        s = f"CID:{k} match {res[i][0] * 100:.0f}% * {res[i][1]:0.2f} \""
+        s = f"CID:{k} match {res[i][0] * 100:.0f}% * {res[i][1] / total:0.2f} \""
         if k in p1['l']:
             s += f"{p1['l'][k]['val'][:limit]}"
             if len(p1['l'][k]['val']) > limit:

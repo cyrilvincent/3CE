@@ -37,7 +37,7 @@ class NPNearest:
                     if score > 0.5:
                         res1.append([k, score])
             res1.sort(key = lambda x : x[1], reverse = True)
-            res1 = res1[:(take * 2)]
+            res1 = res1[:(take * 4)]
             res2 = self.searchl(p, [p2[0] for p2 in res1])
             res = []
             for x in zip(res1, res2):
