@@ -43,6 +43,8 @@ class NPComparer():
                 # if main:
                 #     w = 1.0 if score > 0.95 else 0.1
             #elif (h1 == None or h2 == None) and cid in p2["l"]:
+
+            # A changer si main contient un espace
             elif (h1 == None or h2 == None) and p2.get_cat_by_id(c.id) != None:
                 #score = self.compv(p1["l"][cid]["val"], p2["l"][cid]["val"])
                 score = self.compv(c.val, p2.get_cat_by_id(c.id).val)
@@ -136,6 +138,7 @@ if __name__ == '__main__':
     if p2 == None:
         print(f"{args.pid2} does not exist")
         sys.exit(2)
+    print(f"Compare products {p1.id} and {p2.id}")
     comparer = NPComparer()
     res = comparer.compp(p1, p2)
     print("Deep Learning Google DAN USE model:")

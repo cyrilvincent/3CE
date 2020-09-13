@@ -36,7 +36,7 @@ class NPParser:
                     #         "h":None
                     #     }
                     c = Cat(row["cid"],s,float(row["weight"]),main)
-                    main = False
+                    main = False #Move after if
                     #self.db[pid]["l"][row["cid"]] = c
                     self.db[pid].l.append(c)
                     self.nbc += 1
@@ -88,7 +88,7 @@ class NPParser:
             #         cs[cid]["h"] = hs[j].tolist()
             #     j+=1
             for c in self.db[p].l:
-                if " " in c.val:
+                if " " in c.val: # A changer si main contient un espace
                     #c.h = model.hs([c.val])[0].tolist()
                     c.h = model.h(c.val)
             i+=1
@@ -102,13 +102,10 @@ if __name__ == '__main__':
     p.normalize()
     p.save()
     p.save(method="jsonpickle")
-    #p.save(method="pretty")
     p.h() #230s / 10000
     p.save(prefix="h")
     if len(p.db.keys()) < 1000:
         p.save(prefix="h", method="jsonpickle")
-        # if len(p.db.keys()) < 1000:
-        #     p.save(prefix="h", method="pretty")
 
 
 
