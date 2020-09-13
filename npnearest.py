@@ -57,11 +57,11 @@ if __name__ == '__main__':
     np = NPNearest("data/mock.h.pickle")
     while True:
         pid = input("PID: ")
-        #try:
-        res = np.search(pid)
-        # except KeyError:
-        #     print(f"Product {pid} does not exist")
-        #     res=[]
+        try:
+            res = np.search(pid)
+        except KeyError:
+            print(f"Product {pid} does not exist")
+            res=[]
         print(f"Found {len(res)} product(s)")
         for p in res:
             print(f"PID {p[0]} at {p[1]*100:.0f}%")

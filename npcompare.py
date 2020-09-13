@@ -8,8 +8,8 @@ from entities import Product, Cat
 class NPComparer():
 
     def comph(self, h1, h2):
-        h1 = np.array(h1)
-        h2 = np.array(h2)
+        # h1 = np.array(h1)
+        # h2 = np.array(h2)
         return np.inner(h1, h2)
 
     def compv(self, v1, v2):
@@ -40,8 +40,8 @@ class NPComparer():
             main = c.main #p1["l"][cid]["main"]
             if h1 != None and h2 != None:
                 score = self.comph(h1, h2)
-                if main:
-                    w = 1.0 if score > 0.5 else 0.1
+                # if main:
+                #     w = 1.0 if score > 0.95 else 0.1
             #elif (h1 == None or h2 == None) and cid in p2["l"]:
             elif (h1 == None or h2 == None) and p2.get_cat_by_id(c.id) != None:
                 #score = self.compv(p1["l"][cid]["val"], p2["l"][cid]["val"])
@@ -105,25 +105,15 @@ def display(p1:Product, p2:Product, res):
     limit = 40
     i = 0
     total = sum([w[1] for w in res])
-    #ks = list(p1["l"].keys())
     for r in res:
-        #k = ks[i]
         c = p1.l[i]
-        # s = f"CID:{k} match {res[i][0] * 100:.0f}% * {res[i][1] / total:0.2f} \""
         s = f"CID:{c.id} match {res[i][0] * 100:.0f}% * {res[i][1] / total:0.2f} \""
-        # if k in p1['l']:
-        #     s += f"{p1['l'][k]['val'][:limit]}"
-        #     if len(p1['l'][k]['val']) > limit:
-        #         s+="..."
         s += f"{c.val[:limit]}"
-        if len(c.val[:limit]) > limit:
+        if len(c.val) > limit:
             s += "..."
         s += '" vs "'
-        #if k in p2['l']:
         if p2.contains(c):
-            #s += f"{p2['l'][k]['val'][:limit]}"
             s += p2.get_cat_by_id(c.id).val[:limit]
-            #if len(p2['l'][k]['val']) > limit:
             if len(p2.get_cat_by_id(c.id).val) > limit:
                 s+="..."
         s += '"'
@@ -137,7 +127,6 @@ if __name__ == '__main__':
     parser.add_argument("pid1", help="Product id")
     parser.add_argument("pid2", help="Product id to compare")
     args = parser.parse_args()
-
     db = cyrilload.load("data/data.h.pickle")
     p1 = db[args.pid1]
     if p1 == None:

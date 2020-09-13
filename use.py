@@ -27,7 +27,8 @@ class USE:
     def hs(self, inputs):
         return self.embed(inputs).numpy()
 
-
+    def h(self, input):
+        return self.hs([input])[0].tolist()
 
 if __name__ == '__main__':
     l = ["La télécommande ne marche pas", "La télécommande ne fonctionne pas correctement","Je marche avec des pas dans la rue"]

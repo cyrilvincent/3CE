@@ -89,7 +89,8 @@ class NPParser:
             #     j+=1
             for c in self.db[p].l:
                 if " " in c.val:
-                    c.h = model.hs([c.val])[0].tolist()
+                    #c.h = model.hs([c.val])[0].tolist()
+                    c.h = model.h(c.val)
             i+=1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
 
@@ -97,12 +98,12 @@ if __name__ == '__main__':
     print("NP Products Parser")
     print("==================")
     p = NPParser()
-    p.parse("data/mock.csv")
+    p.parse("data/data.csv")
     p.normalize()
     p.save()
     p.save(method="jsonpickle")
     #p.save(method="pretty")
-    p.h() #235s / 10000
+    p.h() #230s / 10000
     p.save(prefix="h")
     if len(p.db.keys()) < 1000:
         p.save(prefix="h", method="jsonpickle")
