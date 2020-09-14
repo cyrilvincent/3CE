@@ -56,7 +56,7 @@ class NPComparer():
             res.append([score, w])
         return res
 
-    def comparepl(self, p1:Product, p2:Product):
+    def comppl(self, p1:Product, p2:Product):
         res = []
         #for cid in p1["l"].keys():
         for c in p1.l:
@@ -87,7 +87,7 @@ class NPComparer():
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
     def comparel(self, p1, p2):
-        wscores = self.comparepl(p1, p2)
+        wscores = self.comppl(p1, p2)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
     # def diff(self, p1, p2):
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     print(f"USE Score: {comparer.compare(p1, p2)*100:.0f}%")
     print()
     print("Machine Learning Gestalt model:")
-    res = comparer.comparepl(p1, p2)
+    res = comparer.comppl(p1, p2)
     display(p1,p2,res)
     print(f"Gestalt Score: {comparer.comparel(p1, p2) * 100:.0f}%")
     print()

@@ -27,7 +27,7 @@ class NPNearest:
 
     def search(self, pid, take=10):
         if pid in self.cache.keys():
-            return self.cache[pid]
+            return self.cache[pid][:take]
         else:
             p = self.get_by_id(pid)
             res1 = []
@@ -54,12 +54,12 @@ class NPNearest:
 if __name__ == '__main__':
     print("NPNearest")
     print("=========")
-    np = NPNearest("data/mock.h.pickle")
+    np = NPNearest("data/data.h.pickle")
     while True:
         pid = input("PID: ")
         t = time.perf_counter()
         try:
-            res = np.search(pid)
+            res = np.search(pid,2)
         except KeyError:
             print(f"Product {pid} does not exist")
             res=[]
