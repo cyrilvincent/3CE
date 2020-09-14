@@ -4,6 +4,8 @@ import sys
 import jsonpickle
 import json
 import logging
+import config
+import threading
 from npnearest import NPNearest
 from npcompare import NPComparer
 
@@ -12,20 +14,15 @@ from npcompare import NPComparer
 #pip install watchdog
 #pip install jsonpickle
 
-file = "data/mock.h.pickle"
-
 print("NP REST")
 print("=======")
 app: flask.Flask = flask.Flask(__name__)
 flask_cors.CORS(app)
 cli = sys.modules['flask.cli']
 cli.show_server_banner = lambda *x: None
+lock = threading.RLock()
 
-try:
-    port = int(sys.argv[0])
-except ValueError:
-    port = 5000
-np = NPNearest(file)
+np = NPNearest(config.h_file)
 
 def jsonify(o):
     js = jsonpickle.dumps(o, False)
@@ -36,7 +33,7 @@ def jsonify(o):
 def autodoc():
     s="<html><body><h1>NP Rest</h1>"
     for rule in app.url_map.iter_rules():
-        s += f"{rule.methods} <a href='http://localhost:{port}{rule}'>{rule}</a> {rule.arguments}<br/>"
+        s += f"{rule.methods} <a href='http://localhost:{config.port}{rule}'>{rule}</a> {rule.arguments}<br/>"
     s+="</body></html>"
     return s
 
@@ -79,10 +76,9 @@ def compare(id1, id2):
 
 @app.route("/reset", methods=['GET'])
 def reset():
-    global np
-    np = NPNearest(file)
+    with lock:
+        np.reset()
     return flask.jsonify(len(np.db))
 
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=port, threaded=True, debug=True, use_reloader=False)
+    app.run(host='0.0.0.0', port=config.port, threaded=True, debug=config.debug, use_reloader=False)

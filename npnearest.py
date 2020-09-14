@@ -5,8 +5,12 @@ import cyrilload
 class NPNearest:
 
     def __init__(self, path):
+        self.path = path
+        self.reset()
+
+    def reset(self):
         t = time.perf_counter()
-        self.db = cyrilload.load(path)
+        self.db = cyrilload.load(self.path)
         self.cache = {}
         self.comp = npcompare.NPComparer()
         for k in list(self.db.keys())[:2]:
