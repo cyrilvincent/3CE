@@ -1,5 +1,5 @@
 import flask
-import flask_cors
+#import flask_cors
 import sys
 import jsonpickle
 import json
@@ -9,19 +9,13 @@ import threading
 from npnearest import NPNearest
 from npcompare import NPComparer
 
-#pip install flask
-#pip install flask_cores
-#pip install watchdog
-#pip install jsonpickle
-
 print("NP REST")
 print("=======")
 app: flask.Flask = flask.Flask(__name__)
-flask_cors.CORS(app)
+#flask_cors.CORS(app)
 cli = sys.modules['flask.cli']
 cli.show_server_banner = lambda *x: None
 lock = threading.RLock()
-
 np = NPNearest(config.h_file)
 
 def jsonify(o):
@@ -41,7 +35,11 @@ def autodoc():
 def ping():
     return "pong"
 
-@app.route("/product/<id>", methods=['GET'])
+@app.route("/version", methods=['GET'])
+def version():
+    return flask.jsonify(config.version)
+
+@app.route("/product/<int:id>", methods=['GET'])
 def get_product(id):
     try:
         p = np.get_by_id(id)
@@ -49,7 +47,7 @@ def get_product(id):
     except KeyError:
         return flask.abort(404)
 
-@app.route("/nearests/<id>/<int:nb>", methods=['GET'])
+@app.route("/nearests/<int:id>/<int:nb>", methods=['GET'])
 def nearests_nb(id, nb):
     try:
         res = np.search(id,take=nb)
@@ -57,11 +55,11 @@ def nearests_nb(id, nb):
     except KeyError:
         return flask.abort(404)
 
-@app.route("/nearests/<id>", methods=['GET'])
+@app.route("/nearests/<int:id>", methods=['GET'])
 def nearests(id):
     return nearests_nb(id, 10)
 
-@app.route("/compare/<id1>/<id2>", methods=['GET'])
+@app.route("/compare/<int:id1>/<int:id2>", methods=['GET'])
 def compare(id1, id2):
     try:
         p1 = np.get_by_id(id1)
@@ -70,6 +68,7 @@ def compare(id1, id2):
         res = {}
         res["USE"] = {"score" : comparer.compare(p1, p2), "details" : comparer.compp(p1, p2)}
         res["Gestalt"] = {"score" : comparer.comparel(p1, p2), "details" : comparer.comppl(p1, p2)}
+        res["Total"] = (comparer.compare(p1, p2) + comparer.comparel(p1, p2)) / 2
         return flask.jsonify(res)
     except KeyError:
         return flask.abort(404)

@@ -16,7 +16,7 @@ def search_duplicate(db, cid = 0):
     return res
 
 if __name__ == '__main__':
-    ncar = 0
+    ncar = 6
     print(f"NP Search duplicate")
     print("===================")
     db = cyrilload.load("data/data.pickle")

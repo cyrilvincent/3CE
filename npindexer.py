@@ -11,7 +11,6 @@ print("==========")
 app: flask.Flask = flask.Flask(__name__)
 cli = sys.modules['flask.cli']
 cli.show_server_banner = lambda *x: None
-
 np = NPParser()
 
 @app.route("/", methods=['GET'])
@@ -25,6 +24,10 @@ def autodoc():
 @app.route("/ping", methods=['GET'])
 def ping():
     return "pong"
+
+@app.route("/version", methods=['GET'])
+def version():
+    return flask.jsonify(config.version)
 
 @app.route("/indexer", methods=['GET'])
 def index():

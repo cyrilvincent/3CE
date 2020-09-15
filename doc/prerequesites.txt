@@ -1,0 +1,4 @@
+tensorflow
+jsonpickle
+Flask-Cors
+pyinstaller

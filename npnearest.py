@@ -39,18 +39,19 @@ class NPNearest:
                 p2 = self.get_by_id(k)
                 if p.id != p2.id:
                     score = self.comp.compare(p, p2)
-                    if score > 0.5:
+                    if score > 0.4:
                         res1.append([k, score])
             res1.sort(key = lambda x : x[1], reverse = True)
             res1 = res1[:(take * 4)]
-            print(res1)
+            #print(res1)
             res2 = self.searchl(p.id, [p2[0] for p2 in res1])
-            print(res2)
+            #print(res2)
             res = []
             for x in zip(res1, res2):
-                v = max(x[0][1], x[1][1])
+                v = (x[0][1] + x[1][1]) / 2
                 res.append([x[0][0], v])
             res.sort(key=lambda x: x[1], reverse=True)
+            res = [r for r in res if r[1] >= 0.5]
             res = res[:take]
             self.cache[pid] = res
             return res
@@ -60,10 +61,10 @@ if __name__ == '__main__':
     print("=========")
     np = NPNearest("data/data.h.pickle")
     while True:
-        pid = input("PID: ")
+        pid = int(input("PID: "))
         t = time.perf_counter()
         try:
-            res = np.search(pid,2)
+            res = np.search(pid,10)
         except KeyError:
             print(f"Product {pid} does not exist")
             res=[]

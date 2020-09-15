@@ -24,61 +24,62 @@ class NPComparer():
         return 0
 
     def compvl(self, v1, v2):
-        sm = difflib.SequenceMatcher(lambda x: x in " \t.!?,;\n", v1.upper(), v2.upper())
-        return sm.ratio()
+        try:
+            n1 = float(v1)
+            n2 = float(v2)
+            if n1 == n2:
+                score = 1
+            else:
+                score = (1 - min(1, (abs(n1 - n2) / n1))) / 2
+            return score
+        except:
+            sm = difflib.SequenceMatcher(lambda x: x in " \t.!?,;\n", v1.upper(), v2.upper())
+            return sm.ratio()
 
     def compp(self, p1:Product, p2:Product):
         res = []
-        #for cid in p1["l"].keys():
-        for c in p1.l:
-            h1 = c.h #p1["l"][cid]["h"]
-            h2 = None
-            w = c.w #p1["l"][cid]["w"]
-            if p2.contains(c): #if cid in p2["l"]:
-                h2 = p2.get_car_by_id(c.id).h #p2["l"][cid]["h"]
+        for c1 in p1.l:
             score = 0
-            main = c.main #p1["l"][cid]["main"]
-            if h1 != None and h2 != None:
-                score = self.comph(h1, h2)
-                if main and score > 0.99: #
-                    w = 2
-            #elif (h1 == None or h2 == None) and cid in p2["l"]:
-
-            # A changer si main contient un espace
-            elif (h1 == None or h2 == None) and p2.get_car_by_id(c.id) != None:
-                score = self.compv(c.val, p2.get_car_by_id(c.id).val)
-                if score == 1 and main:
-                    w = 2.0
-                elif score == 0 and main:
-                    w = 0.1
-            elif main:
-                w = 0.1
+            w = c1.w
+            if p2.contains(c1):
+                c2 = p2.get_car_by_id(c1.id)
+                if c1.main:
+                    score = self.compv(c1.val, c2.val)
+                    if score > 0.99:
+                        w = 2
+                    else:
+                        if c1.h != None and c2.h != None:
+                            score = (score + self.comph(c1.h, c2.h)) / 2
+                        if score < 0.8:
+                            w = 0.1
+                else:
+                    if c1.h != None and c2.h != None:
+                        score = self.comph(c1.h, c2.h)
+                    else:
+                        score = self.compv(c1.val, c2.val)
+            else :
+                w /= 2
             res.append([score, w])
         return res
 
     def comppl(self, p1:Product, p2:Product):
         res = []
-        #for cid in p1["l"].keys():
-        for c in p1.l:
-            v1 = c.val.upper() #p1["l"][cid]["val"].upper()
-            v2 = ""
-            w = c.w #p1["l"][cid]["w"]
-            #if cid in p2["l"]:
-            if p2.contains(c):
-                v2 = p2.get_car_by_id(c.id).val.upper() #p2["l"][cid]["val"].upper()
-            score = self.compvl(v1, v2)
-            # if p1["l"][cid]["main"] and score < 0.8:
-            #     w = 0.1
-            # elif p1["l"][cid]["main"] and score > 0.99:
-            #     w = 1.0
-            if c.main and score < 0.8:
-                w = 0.1
-            elif c.main and score > 0.99:
-                w = 2.0
-            elif len(v1) == 2:
+        for c1 in p1.l:
+            score = 0
+            w = c1.w
+            if p2.contains(c1):
+                c2 = p2.get_car_by_id(c1.id)
+                v1 = c1.val.upper()
+                v2 = c2.val.upper()
+                score = self.compvl(v1, v2)
+                if c1.main:
+                    if score > 0.99:
+                        w = 2
+                    elif score < 0.8:
+                        w = 0.1
+                w /= min(1, abs(3-len(v1)) + 1)
+            else:
                 w /= 2
-            elif len(v1) == 1:
-                w /= 4
             res.append([score, w])
         return res
 
@@ -90,19 +91,7 @@ class NPComparer():
         wscores = self.comppl(p1, p2)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
-    # def diff(self, p1, p2):
-    #     s1 = ""
-    #     s2 = ""
-    #     for k in p1["l"].keys():
-    #         s1 += p1["l"][k]["val"] + "\n"
-    #     for k in p2["l"].keys():
-    #         s2 += p1["l"][k]["val"] + "\n"
-    #     d = difflib.Differ()
-    #     ss = d.compare(s1.splitlines(1), s2.splitlines(1))
-    #     return list(ss)
-
 def display(p1:Product, p2:Product, res):
-    print(res)
     limit = 40
     i = 0
     total = sum([w[1] for w in res])
@@ -129,11 +118,11 @@ if __name__ == '__main__':
     parser.add_argument("pid2", help="Product id to compare")
     args = parser.parse_args()
     db = cyrilload.load("data/data.h.pickle")
-    p1 = db[args.pid1]
+    p1 = db[int(args.pid1)]
     if p1 == None:
         print(f"{args.pid1} does not exist")
         sys.exit(1)
-    p2 = db[args.pid2]
+    p2 = db[int(args.pid2)]
     if p2 == None:
         print(f"{args.pid2} does not exist")
         sys.exit(2)
@@ -144,11 +133,11 @@ if __name__ == '__main__':
     display(p1,p2,res)
     print(f"USE Score: {comparer.compare(p1, p2)*100:.0f}%")
     print()
-    print("Machine Learning Gestalt model:")
+    print("Machine Learning Gestalt+Cyril model:")
     res = comparer.comppl(p1, p2)
-    display(p1,p2,res)
+    display(p1,p2,res) #[[1.0, 2.0], [1.0, 0.125], [0.2696548171045853, 0.125], [0.0, 0.125], [0, 0.0625], [0, 0.0625], [0, 0.0625]]
     print(f"Gestalt Score: {comparer.comparel(p1, p2) * 100:.0f}%")
     print()
-    print(f"Final Score: {max(comparer.compare(p1, p2), comparer.comparel(p1, p2)) * 100:.0f}%")
+    print(f"Final Score: {(comparer.compare(p1, p2) + comparer.comparel(p1, p2)) / 2 * 100:.0f}%")
 
 
