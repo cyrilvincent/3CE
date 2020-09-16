@@ -3,7 +3,7 @@ import sys
 
 block_cipher = None
 
-a = Analysis(['../npcompare.py'],
+a = Analysis(['../nppredict.py'],
              pathex=[],
              binaries=[],
              datas=[
@@ -22,7 +22,7 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name='npcompare',
+          name='nppredict',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -35,4 +35,4 @@ coll = COLLECT(exe,
                strip=False,
                upx=False,
                upx_exclude=[],
-               name='npcompare')
+               name='nppredict')

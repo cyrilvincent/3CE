@@ -3,7 +3,7 @@ import sys
 
 block_cipher = None
 
-a = Analysis(['npnearest.py'],
+a = Analysis(['../npnearest.py'],
              pathex=[],
              binaries=[],
              datas=[
