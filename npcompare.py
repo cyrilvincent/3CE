@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import cyrilload
 import difflib
+import config
 from entities import Product, Car
 from typing import Iterable, List
 
@@ -163,7 +164,7 @@ if __name__ == '__main__':
     parser.add_argument("pid1", help="Product id")
     parser.add_argument("pid2", help="Product id to compare")
     args = parser.parse_args()
-    db = cyrilload.load("data/data.h.pickle")
+    db = cyrilload.load(config.h_file)
     p1 = db[int(args.pid1)]
     if p1 == None:
         print(f"{args.pid1} does not exist")
@@ -181,7 +182,7 @@ if __name__ == '__main__':
     print()
     print("Machine Learning Gestalt+Cyril model:")
     res = comparer.comppl(p1, p2)
-    display(p1,p2,res) #[[1.0, 2.0], [1.0, 0.125], [0.2696548171045853, 0.125], [0.0, 0.125], [0, 0.0625], [0, 0.0625], [0, 0.0625]]
+    display(p1,p2,res)
     print(f"Gestalt Score: {comparer.comparel(p1, p2) * 100:.0f}%")
     print()
     print(f"Final Score: {(comparer.compare(p1, p2) + comparer.comparel(p1, p2)) / 2 * 100:.0f}%")

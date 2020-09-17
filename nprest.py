@@ -25,7 +25,7 @@ def jsonify(o):
 
 @app.route("/", methods=['GET'])
 def autodoc():
-    s="<html><body><h1>NP Rest</h1>"
+    s=f"<html><body><h1>NP Rest {config.version}</h1>"
     for rule in app.url_map.iter_rules():
         s += f"{rule.methods} <a href='http://localhost:{config.port}{rule}'>{rule}</a> {rule.arguments}<br/>"
     s+="</body></html>"
@@ -37,7 +37,7 @@ def ping():
 
 @app.route("/version", methods=['GET'])
 def version():
-    return flask.jsonify(config.version)
+    return config.version
 
 @app.route("/product/<int:id>", methods=['GET'])
 def get_product(id):

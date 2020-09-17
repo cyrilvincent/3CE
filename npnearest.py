@@ -1,6 +1,7 @@
 import time
 import npcompare
 import cyrilload
+import config
 from entities import Product
 from typing import List
 
@@ -89,7 +90,7 @@ class NPNearest:
 if __name__ == '__main__':
     print("NPNearest")
     print("=========")
-    np = NPNearest("data/data.h.pickle")
+    np = NPNearest(config.h_file)
     while True:
         pid = int(input("PID: "))
         t = time.perf_counter()

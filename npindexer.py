@@ -14,7 +14,7 @@ np = NPParser()
 
 @app.route("/", methods=['GET'])
 def autodoc():
-    s="<html><body><h1>NP Indexer</h1>"
+    s="<html><body><h1>NP Indexer {config.version}</h1>"
     for rule in app.url_map.iter_rules():
         s += f"{rule.methods} <a href='http://localhost:{config.indexer_port}{rule}'>{rule}</a> {rule.arguments}<br/>"
     s+="</body></html>"
@@ -26,7 +26,7 @@ def ping():
 
 @app.route("/version", methods=['GET'])
 def version():
-    return flask.jsonify(config.version)
+    return config.version
 
 @app.route("/indexer", methods=['GET'])
 def index():
@@ -41,10 +41,12 @@ def index():
         pass
     shutil.move(name+".temp.pickle",name+".h.pickle")
     try:
+        print(f"Call reset")
         with urllib.request.urlopen(f"http://localhost:{config.port}/reset") as response:
             _ = response.read()
+        print(f"Call reset ok")
     except:
-        pass
+        print(f"Call reset nok")
     return flask.jsonify(len(np.db))
 
 if __name__ == '__main__':

@@ -1,7 +1,9 @@
 import csv
 
-with open("data/mock100.csv","w") as f:
-    f.write("pid,cid,weight,val\n")
-    for i in range(100):
-        for j in range(5):
-            f.write(f"{i},{j},1,Lorem ipsum dolor sit amet consectetur adipiscing elit\n")
+nb = 100000
+nbcar = 3
+with open(f"data/mock{nb}.txt","w") as f:
+    f.write("product_id	carac_id	poids	valeur\n")
+    for i in range(nb):
+        for j in range(nbcar):
+            f.write(f"{i}\t{j}\t1\tLorem ipsum délor sit amet consectetur adipiscing elit\n")
