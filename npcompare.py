@@ -30,7 +30,7 @@ class NPComparer():
             if n1 == n2:
                 score = 1
             else:
-                score = (1 - min(1, (abs(n1 - n2) / n1))) / 2
+                score = (1 - min(1, (abs(n1 - n2) / n1))) / len(v1)
             return score
         except:
             sm = difflib.SequenceMatcher(lambda x: x in " \t.!?,;\n", v1.upper(), v2.upper())

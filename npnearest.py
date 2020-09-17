@@ -71,4 +71,5 @@ if __name__ == '__main__':
         print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.1f} s") #1.7s / 10000*5 7s / 100K*2
         for p in res:
             print(f"PID {p[0]} at {p[1]*100:.0f}%")
+        print()
 

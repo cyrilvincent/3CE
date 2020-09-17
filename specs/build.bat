@@ -1,5 +1,4 @@
-echo run from *.py directory with specs/build.bat
-dir
+echo run from root directory with specs/build.bat
 pyinstaller --noconfirm specs/npnearest.spec
 pyinstaller --noconfirm specs/npcompare.spec
 pyinstaller --noconfirm specs/nppredict.spec
