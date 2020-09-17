@@ -4,10 +4,14 @@ import json
 import time
 import use
 import cyrilload
+import config
 from entities import Product, Car
 from typing import Dict
 
-class NPParser:
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+class NPParser: #Not thread safe
 
     def __init__(self):
         self.db:Dict[int,Product] = {}
@@ -71,10 +75,17 @@ class NPParser:
             i+=1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
 
+    def index(self, path):
+        self.parse(path)
+        self.normalize()
+        self.h()
+        self.save(prefix="h")
+
 if __name__ == '__main__':
     print("NP Products Parser")
     print("==================")
     p = NPParser()
+    #p.index(config.data_file)
     p.parse("data/data.txt") #Found 3904 products and 23342 characteristics (6 carac)
     p.normalize()
     p.save()

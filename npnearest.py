@@ -2,11 +2,18 @@ import time
 import npcompare
 import cyrilload
 
-class NPNearest:
+class NPNearest: #Thread safe
+
+    singleton = None
 
     def __init__(self, path):
         self.path = path
-        self.reset()
+        if NPNearest.singleton is None:
+            self.reset()
+            NPNearest.singleton = self.db
+        else:
+            self.db = NPNearest.singleton
+
 
     def reset(self):
         t = time.perf_counter()

@@ -2,9 +2,7 @@ import tensorflow as tf
 import numpy as np
 import time
 from absl import logging
-import os
-
-#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+import config
 
 """
 Google Universal Sentence Encoder
@@ -16,8 +14,8 @@ class USE:
     def __init__(self):
         if USE.model == None:
             t = time.perf_counter()
-            print("Load TF model")
-            USE.model = tf.saved_model.load("hubmodule/universal-sentence-encoder.4")
+            print(f"Load TF USE model: {config.use}")
+            USE.model = tf.saved_model.load(config.use)
             print(f"Loaded in {time.perf_counter() - t:.1f} s")
         logging.set_verbosity(logging.ERROR)
 
@@ -35,7 +33,7 @@ if __name__ == '__main__':
     use = USE()
     hs = use.hs(l)
     print(hs)
-    print(use.compare(hs[0], hs[1]))
-    print(use.compare(hs[0], hs[2]))
+    print(np.inner(hs[0], hs[1]))
+    print(np.inner(hs[0], hs[2]))
 
 

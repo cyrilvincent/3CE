@@ -1,37 +1,32 @@
-﻿using Python.Runtime;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Python.Runtime;
 
 namespace ConsoleApp1
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
+            Console.WriteLine("NPNearest Test"); // Compiler en AnyCPU et décocher préférer 32 bits ou compiler en x64
+            Console.WriteLine("Python "+PythonEngine.Version);
+            Console.WriteLine(PythonEngine.PythonPath);
             using (Py.GIL())
             {
-                Environment.SetEnvironmentVariable("PYTHONPATH", @"C:\Users\conta\CVC\3C-Evolution\git3ce");
-                PythonEngine.PythonPath = Environment.GetEnvironmentVariable("PYTHONPATH");
+                string npNearestPath = @"C:\Users\conta\CVC\3C-Evolution\git3ce\";
                 dynamic sys = Py.Import("sys");
-                sys.path.append(@"C:\Users\conta\CVC\3C-Evolution\git3ce");
+                sys.path.append(npNearestPath);
                 dynamic config = Py.Import("config");
-                Console.WriteLine(config.version);
+                Console.WriteLine($"V{config.version}");
                 dynamic npnearest = Py.Import("npnearest");
-                dynamic np = npnearest.NPNearest(@"C:\Users\conta\CVC\3C-Evolution\git3ce\data\data.h.pickle");
-                dynamic res = np.search(164113, 10);
+                var np = npnearest.NPNearest(npNearestPath + config.h_file);
+                var res = np.search(164113, 10);
                 Console.WriteLine(res);
-
-                dynamic npparser = Py.Import("npparser");
-                dynamic p = npparser.NPParser();
-                p.parse(@"C:\Users\conta\CVC\3C-Evolution\git3ce\data\data.txt");
-                p.normalize();
-                p.h();
-                p.save(prefix: "net");
-
+                foreach (var i in res)
+                    Console.WriteLine(i[0] + " " + i[1]);
                 Console.ReadKey();
 
             }
