@@ -11,13 +11,21 @@ from typing import Dict
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-class NPParser: #Not thread safe
+class NPParser:
+    """
+    File parser and indexer
+    Not thread safe
+    """
 
     def __init__(self):
         self.db:Dict[int,Product] = {}
         self.path = None
 
-    def parse(self, path):
+    def parse(self, path:str)->None:
+        """
+        Parser
+        :param path: TXT file to parse
+        """
         self.path = path
         self.nbp = 0
         self.nbc = 0
@@ -39,7 +47,10 @@ class NPParser: #Not thread safe
                 main = False
         print(f"Found {self.nbp} products and {self.nbc} characteristics in {time.perf_counter() - t:.1f} s")
 
-    def normalize(self):
+    def normalize(self)->None:
+        """
+        Normalize weigths
+        """
         print(f"Normalize {self.nbc} weigths")
         for p in self.db.keys():
             sum = 0
@@ -48,20 +59,21 @@ class NPParser: #Not thread safe
             for c in self.db[p].l:
                 c.w = c.w / sum
 
-    def save(self, prefix="", method="pickle"):
+    def save(self, prefix="", method="pickle")->None:
+        """
+        Save the db
+        :param prefix: see cyrilload
+        :param method: see cyrilload
+        """
         t = time.perf_counter()
         name = self.path.split(".")[0]
         cyrilload.save(self.db, name,prefix,method)
         print(f"Saved in {time.perf_counter() - t:.1f} s")
 
-    def load(self, path):
-        t = time.perf_counter()
-        self.path = path
-        self.db = cyrilload.load(path)
-        self.nbp = len(self.db.keys())
-        print(f"Loaded in {time.perf_counter() - t:.1f} s")
-
-    def h(self):
+    def h(self)->None:
+        """
+        Use hashing
+        """
         print(f"Hashing with USE model")
         model = use.USE()
         t = time.perf_counter()
@@ -75,7 +87,11 @@ class NPParser: #Not thread safe
             i+=1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
 
-    def index(self, path):
+    def index(self, path:str):
+        """
+        Main method to parse, normalize, hash and save
+        :param path: The file to parse
+        """
         self.parse(path)
         self.normalize()
         self.h()
@@ -86,7 +102,7 @@ if __name__ == '__main__':
     print("==================")
     p = NPParser()
     #p.index(config.data_file)
-    p.parse("data/data.txt") #Found 3904 products and 23342 characteristics (6 carac)
+    p.parse("data/data.txt") #Found 3904 products * 15
     p.normalize()
     p.save()
     p.save(method="jsonpickle")

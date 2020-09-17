@@ -4,15 +4,31 @@ import numpy as np
 import cyrilload
 import difflib
 from entities import Product, Car
+from typing import Iterable, List
 
 class NPComparer():
+    """
+    Compare to products
+    """
 
-    def comph(self, h1, h2):
+    def comph(self, h1:Iterable[float], h2:Iterable[float])->float:
+        """
+        Use model compare two hash of 512 floats
+        :param h1: h1
+        :param h2: h2
+        :return: The score
+        """
         # h1 = np.array(h1)
         # h2 = np.array(h2)
         return np.inner(h1, h2)
 
-    def compv(self, v1, v2):
+    def compv(self, v1:str, v2:str)->float:
+        """
+        Compare 2 string values
+        :param v1: v1
+        :param v2: v2
+        :return: the score
+        """
         v1 = v1.upper()
         v2 = v2.upper()
         if v1 == v2:
@@ -23,7 +39,13 @@ class NPComparer():
             return min(0.5, len(v2) / 10)
         return 0
 
-    def compvl(self, v1, v2):
+    def compvl(self, v1:str, v2:str)->float:
+        """
+        Compare 2 strings with Gestalt model
+        :param v1: v1
+        :param v2: v2
+        :return: The score
+        """
         try:
             n1 = float(v1)
             n2 = float(v2)
@@ -36,7 +58,13 @@ class NPComparer():
             sm = difflib.SequenceMatcher(lambda x: x in " \t.!?,;\n", v1.upper(), v2.upper())
             return sm.ratio()
 
-    def compp(self, p1:Product, p2:Product):
+    def compp(self, p1:Product, p2:Product)->List[List[float]]:
+        """
+        Compare 2 products withe the USE model
+        :param p1: p1
+        :param p2: p2
+        :return: List[List[cid,score]]
+        """
         res = []
         for c1 in p1.l:
             score = 0
@@ -62,7 +90,13 @@ class NPComparer():
             res.append([score, w])
         return res
 
-    def comppl(self, p1:Product, p2:Product):
+    def comppl(self, p1:Product, p2:Product)->List[List[float]]:
+        """
+        Compare 2 products with the Gestalt model
+        :param p1: p1
+        :param p2: p2
+        :return: List[List[cid,score]]
+        """
         res = []
         for c1 in p1.l:
             score = 0
@@ -83,11 +117,23 @@ class NPComparer():
             res.append([score, w])
         return res
 
-    def compare(self, p1, p2):
+    def compare(self, p1:Product, p2:Product)->float:
+        """
+        Main method with use model
+        :param p1: p1
+        :param p2: p2
+        :return: The score
+        """
         wscores = self.compp(p1, p2)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
-    def comparel(self, p1, p2):
+    def comparel(self, p1:Product, p2:Product)->float:
+        """
+        Main compare method for Gestalt model
+        :param p1: p1
+        :param p2: p2
+        :return: The score
+        """
         wscores = self.comppl(p1, p2)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 

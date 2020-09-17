@@ -1,26 +1,19 @@
 from typing import List
 
-class Product:
-
-    def __init__(self, id):
-        self.id = id
-        self.l:List[Car] = []
-
-    def get_car_by_id(self, id):
-        for c in self.l:
-            if c.id == id:
-                return c
-        return None
-
-    def contains(self, c):
-        return self.get_car_by_id(c.id) != None
-
-    def __repr__(self):
-        return f"P{self.id}"
 
 class Car:
+    """
+    Caracterristic entity
+    """
 
-    def __init__(self, id, val, w=1.0, main=False):
+    def __init__(self, id:int, val:str, w=1.0, main=False):
+        """
+        Car(id,val,w,main)
+        :param id: cid
+        :param val: value
+        :param w: weight [0,1]
+        :param main: The first car
+        """
         self.id = id
         self.val = val
         self.w = w
@@ -30,7 +23,45 @@ class Car:
     def __repr__(self):
         return f"C{self.id}"
 
+class Product:
+    """
+    Product entity
+    """
+
+    def __init__(self, id:int):
+        """
+        Product(id)->Car
+        :param id: id
+        """
+        self.id = id
+        self.l:List[Car] = []
+
+    def get_car_by_id(self, id:int)->Car:
+        """
+        Return the car by cid
+        :param id: cid
+        :return: The car or None
+        """
+        for c in self.l:
+            if c.id == id:
+                return c
+        return None
+
+    def contains(self, c:Car)->bool:
+        """
+        :param c: The car
+        :return: bool
+        """
+        return self.get_car_by_id(c.id) != None
+
+    def __repr__(self):
+        return f"P{self.id}"
+
+
 class Image:
+    """
+    POC
+    """
 
     def __init__(self, path, size = 0):
         self.path = path

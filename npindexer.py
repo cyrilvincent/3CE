@@ -4,7 +4,6 @@ import shutil
 import urllib.request
 import config
 from npparser import NPParser
-#pip install flask
 
 print("NP Indexer")
 print("==========")

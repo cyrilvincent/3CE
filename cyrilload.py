@@ -3,6 +3,11 @@ import pickle
 import jsonpickle
 
 def load(path):
+    """
+    Intelligent loading data from pickle and json
+    :param path: db file path
+    :return: the pickle object
+    """
     ext = path.split(".")[-1]
     print(f"Load {path}")
     if ext == "pickle":
@@ -16,6 +21,13 @@ def load(path):
     return db
 
 def save(db, name, prefix="", method="pickle"):
+    """
+    Intelligent data save
+    :param db: The object to save
+    :param name: File name without extension
+    :param prefix: extension prefix file.prefix.extension
+    :param method: pickle | jsonpickle | json | pretty (pretty json)
+    """
     if prefix != "":
         name += f".{prefix}"
     if method == "pickle":

@@ -1,33 +1,50 @@
 import time
 import npcompare
 import cyrilload
+from entities import Product
+from typing import List
 
-class NPNearest: #Thread safe
-
-    singleton = None
+class NPNearest:
+    """
+    High level class, main program
+    """
 
     def __init__(self, path):
+        """
+        Found pids nearest
+        :param path: the path of the .h.pickle index file
+        """
         self.path = path
-        if NPNearest.singleton is None:
-            self.reset()
-            NPNearest.singleton = self.db
-        else:
-            self.db = NPNearest.singleton
+        self.reset()
 
-
-    def reset(self):
+    def reset(self)->None:
+        """
+        Reload the h.pickle file
+        Reset the cache
+        """
         t = time.perf_counter()
         self.db = cyrilload.load(self.path)
         self.cache = {}
         self.comp = npcompare.NPComparer()
-        for k in list(self.db.keys())[:2]:
-            self.search(k)
+        # for k in list(self.db.keys())[:2]:
+        #     self.search(k)
         print(f"Loaded in {time.perf_counter() - t:.1f} s")
 
-    def get_by_id(self, pid):
+    def get_by_id(self, pid:int)->Product:
+        """
+        Get the product by pid
+        :param pid: product's pid
+        :return: The product or None
+        """
         return self.db[pid]
 
-    def searchl(self, pid, pid2s):
+    def searchl(self, pid:int, pid2s:List[int])->List[List[float]]:
+        """
+        Search nearest by Gestalt model
+        :param pid: pid
+        :param pid2s: Array of pid to search nearest
+        :return: List[List[pid,score]]
+        """
         res = []
         for pid2 in pid2s:
             p = self.get_by_id(pid)
@@ -36,7 +53,13 @@ class NPNearest: #Thread safe
             res.append([pid2, score])
         return res
 
-    def search(self, pid, take=10):
+    def search(self, pid:int, take=10)->List[List[float]]:
+        """
+        The main search method
+        :param pid: the product pid
+        :param take: nb max product to return
+        :return: List[List[pid,score]]
+        """
         if pid in self.cache.keys():
             return self.cache[pid][:take]
         else:
