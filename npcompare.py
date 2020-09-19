@@ -59,7 +59,7 @@ class NPComparer():
             sm = difflib.SequenceMatcher(lambda x: x in " \t.!?,;\n", v1.upper(), v2.upper())
             return sm.ratio()
 
-    def compp(self, p1:Product, p2:Product)->List[List[float]]:
+    def compp(self, p1:Product, p2:Product, main=False)->List[List[float]]:
         """
         Compare 2 products withe the USE model
         :param p1: p1
@@ -88,10 +88,11 @@ class NPComparer():
                         score = self.compv(c1.val, c2.val)
             else :
                 w /= 2
-            res.append([score, w])
+            if not main or c1.main:
+                res.append([score, w])
         return res
 
-    def comppl(self, p1:Product, p2:Product)->List[List[float]]:
+    def comppl(self, p1:Product, p2:Product, main = False)->List[List[float]]:
         """
         Compare 2 products with the Gestalt model
         :param p1: p1
@@ -115,27 +116,28 @@ class NPComparer():
                 w /= min(1, abs(3-len(v1)) + 1)
             else:
                 w /= 2
-            res.append([score, w])
+            if not main or c1.main:
+                res.append([score, w])
         return res
 
-    def compare(self, p1:Product, p2:Product)->float:
+    def compare(self, p1:Product, p2:Product, main=False)->float:
         """
         Main method with use model
         :param p1: p1
         :param p2: p2
         :return: The score
         """
-        wscores = self.compp(p1, p2)
+        wscores = self.compp(p1, p2, main)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
-    def comparel(self, p1:Product, p2:Product)->float:
+    def comparel(self, p1:Product, p2:Product, main = False)->float:
         """
         Main compare method for Gestalt model
         :param p1: p1
         :param p2: p2
         :return: The score
         """
-        wscores = self.comppl(p1, p2)
+        wscores = self.comppl(p1, p2, main)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
 def display(p1:Product, p2:Product, res):

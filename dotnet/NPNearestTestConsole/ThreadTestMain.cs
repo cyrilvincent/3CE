@@ -21,7 +21,7 @@ namespace ConsoleApp1
                 dynamic sys = Py.Import("sys");
                 sys.path.append(@"C:\Users\conta\CVC\3C-Evolution\git3ce");
                 dynamic npnearest = Py.Import("npnearest");
-                np = npnearest.NPNearest(@"C:\Users\conta\CVC\3C-Evolution\git3ce\data\data.h.pickle");
+                np = npnearest.NPNearest(@"C:\Users\conta\CVC\3C-Evolution\git3ce\data\data.h.pickle",false);
                 Thread t1 = new Thread(new ThreadStart(ThreadFn));
                 t1.Start();
                 dynamic config = Py.Import("config");
