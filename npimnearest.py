@@ -36,7 +36,7 @@ class NPImageNearest:
         return self.db[id]
 
 
-    def search(self, id:int, take=10)->List[List[float]]:
+    def search(self, id:int, take=10, activation = True)->List[List[float]]:
         if id in self.cache.keys():
             return self.cache[id][:take]
         else:
@@ -45,7 +45,7 @@ class NPImageNearest:
             for k in self.db.keys():
                 im2 = self.get_by_id(k)
                 if im.id != im2.id:
-                    score = self.comp.compare(im, im2)
+                    score = self.comp.compare(im, im2, activation)
                     if score > 0.5:
                         res.append([k, score])
             res.sort(key = lambda x : x[1], reverse = True)
@@ -65,7 +65,7 @@ if __name__ == '__main__':
         try:
             im = np.get_by_id(id)
             print(f'Image {id} {im.path}')
-            res = np.search(id,10)
+            res = np.search(id,10, True)
         except:
             print(f"image {id} does not exist")
             res=[]

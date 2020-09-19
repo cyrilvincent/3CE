@@ -4,6 +4,7 @@ import cyrilload
 import config
 import imagehash
 import entities
+import numpy as np
 from typing import Dict
 from PIL import Image
 
@@ -52,7 +53,7 @@ class NPImageParser:
         cyrilload.save(self.db, name,prefix,method)
         print(f"Saved in {time.perf_counter() - t:.1f} s")
 
-    def h(self, impath, dh = True, ph = True, wh = True, wdh=True)->None:
+    def h(self, impath, dh = True, ph = True, wh = True, wdh=True, zh=True)->None:
         """
         Use hashing
         """
@@ -74,6 +75,8 @@ class NPImageParser:
                 im.wh = imagehash.whash(pil)  # Haar 8x8
             if wdh:
                 im.wdh = imagehash.whash(pil, mode="db4")  # Daubechies 14x14
+            if zh:
+                im.zh = imagehash.average_hash(self.ztransform(pil))
             i+=1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
 
@@ -85,6 +88,23 @@ class NPImageParser:
         self.parse(path)
         self.save(prefix="h")
 
+    def alpharemover(self, image):
+        if image.mode != 'RGBA':
+            return image
+        canvas = Image.new('RGBA', image.size, (255,255,255,255))
+        canvas.paste(image, mask=image)
+        return canvas.convert('RGB')
+
+    def ztransform(self, image):
+        image = self.alpharemover(image)
+        image = image.convert("L").resize((8, 8), Image.ANTIALIAS)
+        data = image.getdata()
+        quantiles = np.arange(100)
+        quantiles_values = np.percentile(data, quantiles)
+        zdata = (np.interp(data, quantiles_values, quantiles) / 100 * 255).astype(np.uint8)
+        image.putdata(zdata)
+        return image
+
 if __name__ == '__main__':
     print("NP Images Parser")
     print("================")
@@ -93,7 +113,13 @@ if __name__ == '__main__':
     p.parse("data/imagemock.txt") #Found 63 images in 0s
     p.save()
     p.save(method="jsonpickle")
-    p.h("images/", dh = True, ph = True, wh = True, wdh=True) #All 59s / 63 soit 16min / 1000 et <3h / 10000 32s
+    count = len(p.db)
+    wdh = count < 5000
+    wh = count < 100000
+    ph = count < 10000 # Bad perf and dh redundant
+    dh = count < 150000
+    zh = count < 200000
+    p.h("images/", dh = dh, ph = dh, wh = wh, wdh=wdh) #All 59s / 63 soit 16min / 1000 et <3h / 10000 32s
     p.save(prefix="h")                                          #Sans wdh 32s / 63 soit 9 min / 1000 et <1.5h / 10000 et 15h
                                                                 #Sans w*h 6.3s / 63 soit 100s / 1000 et 17 min / 10000 et <3h pour 100000
                                                                 #Que ah 4s / 63 soit 64s / 1000 et 11 min / 10000 et <2h pour 100000
