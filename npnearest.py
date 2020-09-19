@@ -2,6 +2,7 @@ import time
 import npcompare
 import cyrilload
 import config
+import sys
 from entities import Product
 from typing import List
 
@@ -64,6 +65,7 @@ class NPNearest:
         Put the cache in static, NPParser serialize the cache before h process, then run search on pids in cache
         :param pid: the product pid
         :param take: nb max product to return
+        :param main: search on the main car only
         :return: List[List[pid,score]]
         """
         if pid in self.cache.keys():
@@ -87,16 +89,23 @@ class NPNearest:
                 v = (x[0][1] + x[1][1]) / 2
                 res.append([x[0][0], v])
             res.sort(key=lambda x: x[1], reverse=True)
-            res = [r for r in res if r[1] >= 0.5]
-            res = res[:take]
+            res = [r for r in res if r[1] > 0.5]
             if self.caching:
                 self.cache[pid] = res
+            res = res[:take]
             return res
 
 
 if __name__ == '__main__':
     print("NPNearest")
     print("=========")
+    main = False
+    try:
+        main = sys.argv[1] == "-mainonly"
+        if main:
+            print("Main only")
+    except:
+        pass
     np = NPNearest(config.h_file)
     while True:
         pid = int(input("PID: "))
@@ -104,8 +113,8 @@ if __name__ == '__main__':
         try:
             p = np.get_by_id(pid)
             print(f'Product {pid} "{p.l[0].val[:60]}"')
-            res = np.search(pid,10)
-        except KeyError:
+            res = np.search(pid,10,main)
+        except:
             print(f"Product {pid} does not exist")
             res=[]
         print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.1f} s") #1.7s / 10000*5 7s / 100K*2

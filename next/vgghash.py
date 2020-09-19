@@ -23,7 +23,7 @@ model.summary()
 
 
 generator = datagen.flow_from_directory(
-    "images",
+    "../images",
     target_size=(224, 224),
     batch_size=batch_size,
     class_mode=None,
@@ -31,6 +31,7 @@ generator = datagen.flow_from_directory(
 
 bn = model.predict(generator)
 print("Save CSV")
+modellen = 0
 with open('../images/vggbn.csv', 'w', newline='') as f:
     idx = 0
     for row in bn:
@@ -51,8 +52,8 @@ with open('../images/vggbn.csv', 'w', newline='') as f:
 def diff(f1, f2):
     score = 0
     for i1, i2 in zip(f1, f2):
-        score += (i1 - i2) ** 2
-    return score ** 0.5
+        score += abs(i1 - i2)
+    return score / (7 * 7 * 512)
 
 print(diff(bn[0], bn[0]))
 print(diff(bn[0], bn[1]))
