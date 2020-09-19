@@ -95,11 +95,11 @@ if __name__ == '__main__':
     parser.add_argument("id2", help="Image id to compare")
     args = parser.parse_args()
     db = cyrilload.load("data/imagemock.h.pickle")
-    i1 = db[int(args.id1)]
+    i1 = db[0][int(args.id1)]
     if i1 == None:
         print(f"{args.id1} does not exist")
         sys.exit(1)
-    i2 = db[int(args.id2)]
+    i2 = db[0][int(args.id2)]
     if i2 == None:
         print(f"{args.id2} does not exist")
         sys.exit(2)

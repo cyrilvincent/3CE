@@ -32,18 +32,20 @@ class NPImageNearest:
         self.comp = npimcompare.NPImageComparer()
         print(f"Loaded in {time.perf_counter() - t:.1f} s")
 
-    def get_by_id(self, id:int)->Image:
-        return self.db[id]
+    def get_im_by_id(self, id:int)->Image:
+        return self.db[0][id]
 
+    def get_product_by_id(self, id:int)->List[int]:
+        return self.db[1][id]
 
     def search(self, id:int, take=10, activation = True)->List[List[float]]:
         if id in self.cache.keys():
             return self.cache[id][:take]
         else:
-            im = self.get_by_id(id)
+            im = self.get_im_by_id(id)
             res = []
-            for k in self.db.keys():
-                im2 = self.get_by_id(k)
+            for k in self.db[0].keys():
+                im2 = self.get_im_by_id(k)
                 if im.id != im2.id:
                     score = self.comp.compare(im, im2, activation)
                     if score > 0.5:
@@ -63,14 +65,14 @@ if __name__ == '__main__':
         id = int(input("ImageID: "))
         t = time.perf_counter()
         try:
-            im = np.get_by_id(id)
+            im = np.get_im_by_id(id) #TODO get by product not by image
             print(f'Image {id} {im.path}')
-            res = np.search(id,10, True)
+            res = np.search(id,10, False)
         except:
             print(f"image {id} does not exist")
             res=[]
         print(f"Found {len(res)} image(s) in {time.perf_counter() - t:.3f} s") #0.003s/63 0.2s/4000 0.5s/10000 5s/100000
         for im2 in res:
-            print(f'ID {im2[0]} at {im2[1]*100:.0f}% "{np.get_by_id(im2[0]).name}" {np.comp.comp(im, np.get_by_id(im2[0]))} ')
+            print(f'ID {im2[0]} at {im2[1]*100:.0f}% "{np.get_im_by_id(im2[0]).name}" {np.comp.comp(im, np.get_im_by_id(im2[0]))} ')
         print()
 

@@ -18,7 +18,9 @@ class NPImageParser:
     """
 
     def __init__(self):
-        self.db:Dict[int,entities.Image] = {}
+        self.dbi:Dict[int, entities.Image] = {}
+        self.dbp: Dict[int, int] = {}
+        self.db = [self.dbi, self.dbp]
         self.path = None
 
     def parse(self, path:str)->None:
@@ -34,12 +36,16 @@ class NPImageParser:
             r = csv.DictReader(f, delimiter="\t")
             for row in r:
                 iid = int(row["image_id"])
-                if iid not in self.db:
-                    self.db[iid] = entities.Image(iid,row["image_path"])
+                if iid not in self.dbi:
+                    self.dbi[iid] = entities.Image(iid, row["image_path"])
                     self.nbi += 1
                 pid = int(row["product_id"])
-                if pid not in self.db[iid].pids:
-                    self.db[iid].pids.append(pid)
+                if pid not in self.dbi[iid].pids:
+                    self.dbi[iid].pids.append(pid)
+                if pid not in self.dbp:
+                    self.dbp[pid] = []
+                if iid not in self.dbp[pid]:
+                    self.dbp[pid].append(iid)
         print(f"Found {self.nbi} images in {time.perf_counter() - t:.1f} s")
 
     def save(self, prefix="", method="pickle")->None:
@@ -50,7 +56,7 @@ class NPImageParser:
         """
         t = time.perf_counter()
         name = self.path.split(".")[0]
-        cyrilload.save(self.db, name,prefix,method)
+        cyrilload.save(self.db, name, prefix, method)
         print(f"Saved in {time.perf_counter() - t:.1f} s")
 
     def h(self, impath, dh = True, ph = True, wh = True, wdh=True, zh=True)->None:
@@ -60,10 +66,10 @@ class NPImageParser:
         print(f"Hashing with ImageHash model")
         t = time.perf_counter()
         i = 0
-        for k in self.db.keys():
+        for k in self.dbi.keys():
             if i % max(10,int(self.nbi / 100)) == 0:
                 print(f"Hash {i + 1}/{self.nbi} in {time.perf_counter() - t:.1f} s")
-            im = self.db[k]
+            im = self.dbi[k]
             im.size = os.stat(impath+im.path)[6]
             pil = Image.open(impath+im.path)
             im.ah = imagehash.average_hash(pil)  # 8x8
@@ -113,7 +119,7 @@ if __name__ == '__main__':
     p.parse("data/imagemock.txt") #Found 63 images in 0s
     p.save()
     p.save(method="jsonpickle")
-    count = len(p.db)
+    count = len(p.dbi)
     wdh = count < 5000
     wh = count < 100000
     ph = count < 10000 # Bad perf and dh redundant
