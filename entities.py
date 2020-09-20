@@ -89,7 +89,7 @@ class Image:
         self.wdh = None
         self.zh = None
         self.pids = []
-        self.ext = path.split(".")[-1]
+        self.ext = path.split(".")[-1].upper()
         self.name = path.split("/")[-1].upper()
 
     def __sub__(self, other):

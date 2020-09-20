@@ -30,7 +30,6 @@ print(np.sqrt(np.abs(-1 - 3)**2 + np.abs(-1 - 2)**2))
 
 #OpenCV Flann
 #Néssecite de s'entrainer sur les images à matcher
-#C'est plus pour détecter une image copiée dans une autre : https://medium.com/better-programming/shazam-for-paintings-a-computer-vision-project-513ff2e1b498
 #Shazam for image https://medium.com/better-programming/shazam-for-paintings-a-computer-vision-project-513ff2e1b498
 
 #Hashing d'image (recherche de copie)

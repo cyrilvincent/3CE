@@ -65,7 +65,7 @@ if __name__ == '__main__':
         id = int(input("ImageID: "))
         t = time.perf_counter()
         try:
-            im = np.get_im_by_id(id) #TODO get by product not by image
+            im = np.get_im_by_id(id) #get by product not by image
             print(f'Image {id} {im.path}')
             res = np.search(id,10, False)
         except:

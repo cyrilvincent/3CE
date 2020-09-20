@@ -5,6 +5,7 @@ import config
 import imagehash
 import entities
 import numpy as np
+import imh
 from typing import Dict
 from PIL import Image
 
@@ -70,19 +71,19 @@ class NPImageParser:
             if i % max(10,int(self.nbi / 100)) == 0:
                 print(f"Hash {i + 1}/{self.nbi} in {time.perf_counter() - t:.1f} s")
             im = self.dbi[k]
-            im.size = os.stat(impath+im.path)[6]
-            pil = Image.open(impath+im.path)
-            im.ah = imagehash.average_hash(pil)  # 8x8
+            ih = imh.ImageHashModel(impath + im.path)
+            im.size = ih.size
+            im.ah = ih.ah()  # 8x8
             if dh:
-                im.dh = imagehash.dhash(pil)  # 8x8
+                im.dh = ih.dh()  # 8x8
             if ph:
-                im.ph = imagehash.phash(pil)  # 8x8
+                im.ph = ih.ph()  # 8x8
             if wh:
-                im.wh = imagehash.whash(pil)  # Haar 8x8
+                im.wh = ih.wh()  # Haar 8x8
             if wdh:
-                im.wdh = imagehash.whash(pil, mode="db4")  # Daubechies 14x14
+                im.wdh = ih.wdh()  # Daubechies 14x14
             if zh:
-                im.zh = imagehash.average_hash(self.ztransform(pil))
+                im.zh = ih.zh()
             i+=1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
 
@@ -94,22 +95,7 @@ class NPImageParser:
         self.parse(path)
         self.save(prefix="h")
 
-    def alpharemover(self, image):
-        if image.mode != 'RGBA':
-            return image
-        canvas = Image.new('RGBA', image.size, (255,255,255,255))
-        canvas.paste(image, mask=image)
-        return canvas.convert('RGB')
 
-    def ztransform(self, image):
-        image = self.alpharemover(image)
-        image = image.convert("L").resize((8, 8), Image.ANTIALIAS)
-        data = image.getdata()
-        quantiles = np.arange(100)
-        quantiles_values = np.percentile(data, quantiles)
-        zdata = (np.interp(data, quantiles_values, quantiles) / 100 * 255).astype(np.uint8)
-        image.putdata(zdata)
-        return image
 
 if __name__ == '__main__':
     print("NP Images Parser")
@@ -120,11 +106,11 @@ if __name__ == '__main__':
     p.save()
     p.save(method="jsonpickle")
     count = len(p.dbi)
-    wdh = count < 5000
-    wh = count < 100000
+    wdh = count < 4000
+    wh = count < 7000
     ph = count < 10000 # Bad perf and dh redundant
-    dh = count < 150000
-    zh = count < 200000
+    dh = count < 20000
+    zh = count < 50000
     p.h("images/", dh = dh, ph = dh, wh = wh, wdh=wdh) #All 59s / 63 soit 16min / 1000 et <3h / 10000 32s
     p.save(prefix="h")                                          #Sans wdh 32s / 63 soit 9 min / 1000 et <1.5h / 10000 et 15h
                                                                 #Sans w*h 6.3s / 63 soit 100s / 1000 et 17 min / 10000 et <3h pour 100000
