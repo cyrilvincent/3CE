@@ -4,6 +4,9 @@ import numpy as np
 from PIL import Image
 
 class ShazImage:
+    """
+    https://pypi.org/project/ImageHash/
+    """
 
     def __init__(self, path):
         self.path = path
@@ -11,15 +14,31 @@ class ShazImage:
         self.size = os.stat(path)[6]
 
     def ah(self):
+        """
+        #http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
+        :return:
+        """
         return imagehash.average_hash(self.pil)
 
     def dh(self):
+        """
+        #http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
+        :return:
+        """
         return imagehash.dhash(self.pil)
 
     def ph(self):
+        """
+        #http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
+        :return:
+        """
         return imagehash.phash(self.pil)
 
     def wh(self):
+        """
+        #https://fullstackml.com/wavelet-image-hash-in-python-3504fdd282b5
+        :return:
+        """
         return imagehash.whash(self.pil)
 
     def wdh(self):

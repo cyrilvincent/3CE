@@ -87,7 +87,7 @@ class NPParser:
             i+=1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
 
-    def index(self, path:str):
+    def train(self, path:str):
         """
         Main method to parse, normalize, hash and save
         :param path: The file to parse

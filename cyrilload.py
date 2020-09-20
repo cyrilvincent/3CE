@@ -44,8 +44,12 @@ def save(db, name, prefix="", method="pickle"):
             pickle.dump(db, f)
     else:
         with open(name,"w") as f:
-            if method == "json":
-                json.dump(db, f,indent = 4 if method == "pretty" else None)
+            if method == "json" or method == "pretty":
+                try:
+                    json.dump(db, f,indent = 4 if method == "pretty" else None)
+                except TypeError:
+                    s = jsonpickle.dumps(db, unpicklable=False, indent = 4 if method == "pretty" else None)
+                    f.write(s)
             else:
                 s = jsonpickle.dumps(db, unpicklable=False,indent=4)
                 f.write(s)
