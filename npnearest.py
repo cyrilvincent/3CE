@@ -3,6 +3,7 @@ import npcompare
 import cyrilload
 import config
 import sys
+import threading
 from entities import Product
 from typing import List
 
@@ -10,6 +11,9 @@ class NPNearest:
     """
     High level class, main program
     """
+
+    cache = {}
+    lock = threading.RLock()
 
     def __init__(self, path, caching = True, reset = True):
         """
@@ -29,10 +33,11 @@ class NPNearest:
         """
         t = time.perf_counter()
         self.db = cyrilload.load(self.path)
-        self.cache = {}
+        with NPNearest.lock:
+            NPNearest.cache = {}
         self.comp = npcompare.NPComparer()
-        # for k in list(self.db.keys())[:2]:
-        #     self.search(k)
+        for k in list(self.db.keys())[:1]:
+            self.search(k)
         print(f"Loaded in {time.perf_counter() - t:.1f} s")
 
     def get_by_id(self, pid:int)->Product:
@@ -68,8 +73,8 @@ class NPNearest:
         :param main: search on the main car only
         :return: List[List[pid,score]]
         """
-        if pid in self.cache.keys():
-            return self.cache[pid][:take]
+        if pid in NPNearest.cache.keys():
+            return NPNearest.cache[pid][:take]
         else:
             p = self.get_by_id(pid)
             res1 = []
@@ -91,7 +96,8 @@ class NPNearest:
             res.sort(key=lambda x: x[1], reverse=True)
             res = [r for r in res if r[1] > 0.5]
             if self.caching:
-                self.cache[pid] = res
+                with NPNearest.lock:
+                    NPNearest.cache[pid] = res
             res = res[:take]
             return res
 

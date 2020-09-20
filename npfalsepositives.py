@@ -1,8 +1,12 @@
 import cyrilload
 import argparse
 import numpy as np
+import threading
 
 class ImFalsePositives:
+
+    lock = threading.RLock
+    set = set()
 
     def __init__(self, dbpath):
         self.dbpath = dbpath
@@ -10,18 +14,20 @@ class ImFalsePositives:
         self.load()
 
     def reset(self):
-        self.set = set()
+        with ImFalsePositives.lock:
+            ImFalsePositives.set = set()
 
     def save(self):
-        cyrilload.save(self.set, self.fppath, prefix="fp")
-        cyrilload.save(self.set, self.fppath, prefix="fp", method="json")
+        cyrilload.save(ImFalsePositives.set, self.fppath, prefix="fp")
+        cyrilload.save(ImFalsePositives.set, self.fppath, prefix="fp", method="json")
 
     def load(self):
-        self.set = cyrilload.load(self.fppath+".fp.pickle")
+        ImFalsePositives.set = cyrilload.load(self.fppath+".fp.pickle")
 
     def add(self, id1, id2):
         try:
-            self.set.add((min(id1, id2), max(id1, id2)))
+            with ImFalsePositives.lock:
+                ImFalsePositives.set.add((min(id1, id2), max(id1, id2)))
         except:
             pass
 
@@ -53,29 +59,35 @@ class ImFalsePositives:
 
     def remove(self, id1, id2):
         try:
-            self.set.remove((min(id1, id2), max(id1, id2)))
+            with ImFalsePositives.lock:
+                ImFalsePositives.set.remove((min(id1, id2), max(id1, id2)))
         except:
             pass
 
     def match(self, id1, id2):
-        return (min(id1, id2), max(id1, id2)) in self.set
+        return (min(id1, id2), max(id1, id2)) in ImFalsePositives.set
 
 if __name__ == '__main__':
     print("NP Image False Positive")
     print("=======================")
     fp = ImFalsePositives("data/imagemock.h.pickle")
     print(fp.set)
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Add id1 & id2 to blacklist")
     parser.add_argument("id1", type=int, help="Image id 1")
     parser.add_argument("id2", type=int, help="Image id 2")
+    parser.add_argument("-r","--remove", action="store_true", help="Remove id1 & id2 from blacklist")
+    parser.add_argument("-c", "--clear", action="store_true", help="Clear the blacklist")
     args = parser.parse_args()
-    #fp.reset()
-    print(f"Add {args.id1} {args.id2} to FP")
-    #fp.add(args.id1, args.id2)
-    db = cyrilload.load("data/imagemock.h.pickle")
-    fp.retrain(args.id1, args.id1, db)
-    #fp.remove(1,2)
-    fp.save()
+    if args.clear:
+        fp.reset()
+    elif args.remove:
+        fp.remove(args.id1, args.id2)
+    else:
+        print(f"Add {args.id1} {args.id2} to FP")
+        fp.add(args.id1, args.id2)
+        db = cyrilload.load("data/imagemock.h.pickle")
+        fp.retrain(args.id1, args.id1, db)
+        fp.save()
     print(fp.set)
 
 

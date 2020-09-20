@@ -2,6 +2,7 @@ import time
 import npshazim
 import cyrilload
 import config
+import threading
 from entities import Image
 from typing import List
 from npfalsepositives import ImFalsePositives
@@ -10,6 +11,9 @@ class ShazImageNearest:
     """
     High level class, main program
     """
+
+    cache = {}
+    lock = threading.RLock()
 
     def __init__(self, path, caching = True, reset = True):
         """
@@ -20,7 +24,6 @@ class ShazImageNearest:
         self.path = path
         self.caching = caching
         self.fp = ImFalsePositives(path)
-
         if reset:
             self.reset()
 
@@ -31,7 +34,8 @@ class ShazImageNearest:
         """
         t = time.perf_counter()
         self.db = cyrilload.load(self.path)
-        self.cache = {}
+        with ShazImageNearest.lock:
+            ShazImageNearest.cache = {}
         self.comp = npshazim.ShazImageComparer()
         print(f"Loaded in {time.perf_counter() - t:.1f} s")
 
@@ -42,8 +46,8 @@ class ShazImageNearest:
         return self.db[1][id]
 
     def search_by_im(self, id:int, take=10)->List[List[float]]:
-        if id in self.cache.keys():
-            return self.cache[id][:take]
+        if id in ShazImageNearest.cache.keys():
+            return ShazImageNearest.cache[id][:take]
         else:
             im = self.get_im_by_id(id)
             res = []
@@ -56,7 +60,8 @@ class ShazImageNearest:
                             res.append([k, score])
             res.sort(key = lambda x : x[1], reverse = True)
             if self.caching:
-                self.cache[id] = res
+                with ShazImageNearest.lock:
+                    ShazImageNearest.cache[id] = res
             res = res[:take]
             return res
 
@@ -85,6 +90,7 @@ class ShazImageNearest:
         return l
 
     def image_scores_to_html(self, im, scores):
+        print(f"Generate outputs/output_{im.id}.html")
         with open(f"outputs/output_{im.id}.html","w") as f:
             f.write("<HTML><BODY><H1>NPShazimNearest</H1>\n")
             f.write(f"<p>Search Nearests images of {im.id} {im.name} <img src='../images/{im.path}' height=100 />\n")
@@ -98,6 +104,10 @@ if __name__ == '__main__':
     print("NPImageNearest")
     print("==============")
     np = ShazImageNearest("data/imagemock.h.pickle")
+    for k in np.db[0]:
+        im = np.get_im_by_id(k)
+        res = np.search_by_im(k,10)
+        np.image_scores_to_html(im, res)
     while True:
         id = int(input("ImageID: "))
         t = time.perf_counter()

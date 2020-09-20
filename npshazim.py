@@ -69,7 +69,7 @@ class ShazImageComparer():
 if __name__ == '__main__':
     print("NPImageCompare")
     print("==============")
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Compare images id1 & pid2")
     parser.add_argument("id1", help="Image id")
     parser.add_argument("id2", help="Image id to compare")
     args = parser.parse_args()
