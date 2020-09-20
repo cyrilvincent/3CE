@@ -13,7 +13,6 @@ class ShazImageComparer():
     """
     def __init__(self):
         self.weights={"ah":1.0,"dh":0.0,"ph":0.0,"wh":0.9,"wdh":0.9, "zh":0.9,"name":0.3}
-        self.thresolds = {"ah": 0.79, "dh": 0.7, "ph": 0.69, "wh": 0.77, "wdh": 0.76, "zh": 0.78, "name": 0.3}
         # ah = average : good for all images but false negative for rephotoshop image
         # dh = ah but in gradients : bad for all image but the best for photshop image (lot of false negative, but very good positives)
         # ph = ah but in frequencies domain (cosine transform) : bad for all image but good for photoshop image (dh redundant to remove)

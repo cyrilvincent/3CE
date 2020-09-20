@@ -38,7 +38,7 @@ class ShazImageNearest:
     def get_product_by_id(self, id:int)->List[int]:
         return self.db[1][id]
 
-    def search(self, id:int, take=10)->List[List[float]]:
+    def search_by_im(self, id:int, take=10)->List[List[float]]:
         if id in self.cache.keys():
             return self.cache[id][:take]
         else:
@@ -56,6 +56,29 @@ class ShazImageNearest:
             res = res[:take]
             return res
 
+    def search_by_product(self, pid:int, take=10):
+        p = self.get_product_by_id(pid)
+        res = []
+        for iid in p:
+            res.append(self.search_by_im(iid, take * 2))
+        dico = {}
+        for pres in res:
+            for t in pres:
+                im = self.get_im_by_id(t[0])
+                for id in im.pids:
+                    if id != pid:
+                        if id not in dico:
+                            dico[id] = t[1]
+                        dico[id]=max(t[1], dico[id]) + 0.01
+                        if dico[id] > 1.0:
+                            dico[id] = 1.0
+        print(dico)
+        l = []
+        for k in dico.keys():
+            l.append([k, dico[k]])
+        l.sort(lambda x : x[1], reverse=True)
+        l = l[:take]
+        return l
 
 if __name__ == '__main__':
     print("NPImageNearest")
@@ -67,7 +90,7 @@ if __name__ == '__main__':
         try:
             im = np.get_im_by_id(id) #get by product not by image
             print(f'Image {id} {im.path}')
-            res = np.search(id,10)
+            res = np.search_by_im(id, 10)
         except:
             print(f"image {id} does not exist")
             res=[]
