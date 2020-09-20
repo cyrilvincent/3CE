@@ -5,7 +5,7 @@ import config
 import imagehash
 import entities
 import numpy as np
-import imh
+import shazim
 from typing import Dict
 from PIL import Image
 
@@ -71,7 +71,7 @@ class NPImageParser:
             if i % max(10,int(self.nbi / 100)) == 0:
                 print(f"Hash {i + 1}/{self.nbi} in {time.perf_counter() - t:.1f} s")
             im = self.dbi[k]
-            ih = imh.ImageHashModel(impath + im.path)
+            ih = shazim.ShazImage(impath + im.path)
             im.size = ih.size
             im.ah = ih.ah()  # 8x8
             if dh:
@@ -87,7 +87,7 @@ class NPImageParser:
             i+=1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
 
-    def index(self, path:str):
+    def train(self, path:str):
         """
         Main method to parse, normalize, hash and save
         :param path: The file to parse
@@ -106,11 +106,11 @@ if __name__ == '__main__':
     p.save()
     p.save(method="jsonpickle")
     count = len(p.dbi)
-    wdh = count < 4000
-    wh = count < 7000
-    ph = count < 10000 # Bad perf and dh redundant
-    dh = count < 20000
-    zh = count < 50000
+    wdh = count < 3000
+    wh = count < 6000
+    ph = False
+    dh = count < 40000
+    zh = count < 30000
     p.h("images/", dh = dh, ph = dh, wh = wh, wdh=wdh) #All 59s / 63 soit 16min / 1000 et <3h / 10000 32s
     p.save(prefix="h")                                          #Sans wdh 32s / 63 soit 9 min / 1000 et <1.5h / 10000 et 15h
                                                                 #Sans w*h 6.3s / 63 soit 100s / 1000 et 17 min / 10000 et <3h pour 100000

@@ -7,7 +7,7 @@ from entities import Image
 from typing import Iterable, List
 from npcompare import NPComparer
 
-class NPImageComparer():
+class ShazImageComparer():
     """
     Compare to products
     """
@@ -26,13 +26,7 @@ class NPImageComparer():
         dico["dname"] = np.compvl(i1.name.split(".")[0], i2.name.split(".")[0])
         return dico
 
-    def activation(self, x, thresold, catchup = 0.7):
-        res = ((math.tanh((x - thresold) * 3 * 0.5 / (1 - thresold)) + 1) / 2) * catchup / 0.5
-        if res > 1:
-            res = 1.0
-        return res
-
-    def compare(self, i1:Image, i2:Image, activation = True)->List[List[float]]:
+    def compare(self, i1:Image, i2:Image)->List[List[float]]:
         """
         https://tech.okcupid.com/evaluating-perceptual-image-hashes-okcupid/
         :param i1:
@@ -42,36 +36,26 @@ class NPImageComparer():
         np = NPComparer()
         score = i1.size - i2.size
         if score == 1:
-            return 1.0
-        ascore = 1 - (i1.ah - i2.ah) / 64
-        if activation:
-            ascore = self.activation(ascore, self.thresolds["ah"])
-        score = ascore
-        res = [[score, self.weights["ah"]]]
-        if i1.zh is not None and i2.zh is not None:
-            score = 1 - (i1.zh - i2.zh) / 64
-            if activation:
-                score = self.activation(score, self.thresolds["zh"])
-            res.append([score, self.weights["zh"]])
+            return 1.0 #prefect
         if i1.dh is not None and i2.dh is not None:
-            score = 1 -(i1.dh - i2.dh) / 64
-            if activation:
-                score = self.activation(score, self.thresolds["dh"])
-            res.append([score, self.weights["dh"]])
-        if i1.ph is not None and i2.ph is not None: # To remove
-            score = 1 - (i1.ph - i2.ph) / 64
-            if activation:
-                score = self.activation(score, self.thresolds["ph"])
-            res.append([score, self.weights["ph"]])
+            dscore = i1.dh - i2.dh
+            if dscore < 10: #Lot of false negative but perfect positives
+                return 1 - dscore / 64
+        ascore = i1.ah - i2.ah
+        if ascore < 10 or ascore > 38: #The best but some false negative
+            return 1 - ascore / 64
+        res = [[1 - ascore / 64, self.weights["ah"]]]
+        if i1.zh is not None and i2.zh is not None:
+            score = 1 - (i1.zh - i2.zh) / 64 #Like ah, useful ?
+            res.append([score, self.weights["zh"]])
+        # if i1.ph is not None and i2.ph is not None: # To remove
+        #     score = 1 - (i1.ph - i2.ph) / 64
+        #     res.append([score, self.weights["ph"]])
         if i1.wh is not None and i2.wh is not None:
-            score = 1 - (i1.wh - i2.wh) / 64
-            if activation:
-                score = self.activation(score, self.thresolds["wh"])
+            score = 1 - (i1.wh - i2.wh) / 64 #Good like ah but expensive
             res.append([score, self.weights["wh"]])
         if i1.wdh is not None and i2.wdh is not None:
-            score = 1 - (i1.wdh - i2.wdh) / 196
-            if activation:
-                score = self.activation(score, self.thresolds["wdh"])
+            score = 1 - (i1.wdh - i2.wdh) / 196 #Lot of false positive, expansive, useful ?
             res.append([score, self.weights["wdh"]])
         score = sum([x[0] * x[1] for x in res]) / sum([x[1] for x in res])
         if score < 0.8 and score > 0.5:
@@ -96,11 +80,10 @@ if __name__ == '__main__':
         print(f"{args.id2} does not exist")
         sys.exit(2)
     print(f"Compare image {i1.name} and {i2.name}")
-    comparer = NPImageComparer()
+    comparer = ShazImageComparer()
     res = comparer.comp(i1, i2)
     print(res)
-    print(comparer.compare(i1, i2, True))
-    print(comparer.compare(i1, i2, False))
+    print(comparer.compare(i1, i2))
 
 
 

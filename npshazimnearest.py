@@ -1,11 +1,11 @@
 import time
-import npimcompare
+import npshazim
 import cyrilload
 import config
 from entities import Image
 from typing import List
 
-class NPImageNearest:
+class ShazImageNearest:
     """
     High level class, main program
     """
@@ -29,7 +29,7 @@ class NPImageNearest:
         t = time.perf_counter()
         self.db = cyrilload.load(self.path)
         self.cache = {}
-        self.comp = npimcompare.NPImageComparer()
+        self.comp = npshazim.ShazImageComparer()
         print(f"Loaded in {time.perf_counter() - t:.1f} s")
 
     def get_im_by_id(self, id:int)->Image:
@@ -38,7 +38,7 @@ class NPImageNearest:
     def get_product_by_id(self, id:int)->List[int]:
         return self.db[1][id]
 
-    def search(self, id:int, take=10, activation = True)->List[List[float]]:
+    def search(self, id:int, take=10)->List[List[float]]:
         if id in self.cache.keys():
             return self.cache[id][:take]
         else:
@@ -47,7 +47,7 @@ class NPImageNearest:
             for k in self.db[0].keys():
                 im2 = self.get_im_by_id(k)
                 if im.id != im2.id:
-                    score = self.comp.compare(im, im2, activation)
+                    score = self.comp.compare(im, im2)
                     if score > 0.5:
                         res.append([k, score])
             res.sort(key = lambda x : x[1], reverse = True)
@@ -60,14 +60,14 @@ class NPImageNearest:
 if __name__ == '__main__':
     print("NPImageNearest")
     print("==============")
-    np = NPImageNearest("data/imagemock.h.pickle")
+    np = ShazImageNearest("data/imagemock.h.pickle")
     while True:
         id = int(input("ImageID: "))
         t = time.perf_counter()
         try:
             im = np.get_im_by_id(id) #get by product not by image
             print(f'Image {id} {im.path}')
-            res = np.search(id,10, False)
+            res = np.search(id,10)
         except:
             print(f"image {id} does not exist")
             res=[]

@@ -3,7 +3,7 @@ import os
 import numpy as np
 from PIL import Image
 
-class ImageHashModel:
+class ShazImage:
 
     def __init__(self, path):
         self.path = path

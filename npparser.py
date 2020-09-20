@@ -101,7 +101,7 @@ if __name__ == '__main__':
     print("NP Products Parser")
     print("==================")
     p = NPParser()
-    #p.index(config.data_file)
+    #p.train(config.data_file)
     p.parse("data/data.txt") #Found 3904 products * 15
     p.normalize()
     p.save()
