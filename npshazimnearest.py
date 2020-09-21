@@ -45,7 +45,7 @@ class ShazImageNearest:
     def get_product_by_id(self, id:int)->List[int]:
         return self.db[1][id]
 
-    def search_by_im(self, id:int, take=10)->List[List[float]]:
+    def search_by_im(self, id:int, take=10, thresold = 0.75)->List[List[float]]:
         if id in ShazImageNearest.cache.keys():
             return ShazImageNearest.cache[id][:take]
         else:
@@ -56,7 +56,7 @@ class ShazImageNearest:
                 if im.id != im2.id:
                     if not self.fp.match(im.id, im2.id):
                         score = self.comp.compare(im, im2)
-                        if score > 0.5:
+                        if score > thresold:
                             res.append([k, score])
             res.sort(key = lambda x : x[1], reverse = True)
             if self.caching:
@@ -65,11 +65,11 @@ class ShazImageNearest:
             res = res[:take]
             return res
 
-    def search_by_product(self, pid:int, take=10):
+    def search_by_product(self, pid:int, take=10, thresold = 0.75):
         p = self.get_product_by_id(pid)
         res = []
         for iid in p:
-            res.append(self.search_by_im(iid, take * 2))
+            res.append(self.search_by_im(iid, take * 2, thresold))
         dico = {}
         for pres in res:
             for t in pres:
@@ -89,16 +89,28 @@ class ShazImageNearest:
         l = l[:take]
         return l
 
-    def image_scores_to_html(self, im, scores):
-        print(f"Generate outputs/output_{im.id}.html")
-        with open(f"outputs/output_{im.id}.html","w") as f:
-            f.write("<HTML><BODY><H1>NPShazimNearest</H1>\n")
-            f.write(f"<p>Search Nearests images of {im.id} {im.name} <img src='../images/{im.path}' height=100 />\n")
-            f.write(f"<p>Found {len(scores)} image(s)\n")
-            for t in res:
-                im2 = np.get_im_by_id(t[0])
-                f.write(f"<p>Image: {im2.id} {im2.name} at {t[1]*100:.0f}%  <img src='../images/{im2.path}' height=100 />\n")
-            f.write("</BODY></HTML>")
+def image_scores_to_html(im, scores):
+    print(f"Generate outputs/output_{im.id}.html")
+    with open(f"outputs/output_{im.id}.html","w") as f:
+        f.write("<HTML><BODY><H1>NPShazimNearest</H1>\n")
+        f.write(f"<p><a href='index.html'>Index</a>")
+        f.write(f"<p>Search Nearests images of {im.id} {im.name} <a href='../images/{im.path}'><img src='../images/{im.path}' height=100 /></a>\n")
+        f.write(f"<p>Found {len(scores)} image(s)\n")
+        for t in res:
+            im2 = np.get_im_by_id(t[0])
+            f.write(f"<p>Image: {im2.id} <a href='output_{im2.id}.html'>{im2.name}</a> at {t[1]*100:.0f}%  <a href='../images/{im2.path}'><img src='../images/{im2.path}' height=100 /></a>\n")
+            f.write(f"{npshazim.ShazImageComparer().comp(im, im2)}")
+        f.write("</BODY></HTML>")
+    with open(f"outputs/index.html", "w") as f:
+        f.write("<HTML><BODY><H1>NPShazimNearest Image Index</H1>\n")
+        for i in range(103):
+            try:
+                im = np.get_im_by_id(i)
+                f.write(f"<a href='output_{i}.html'>output_{i}.html<img src='../images/{im.path}' height='50'/></a><br/>")
+            except:
+                pass
+        f.write("</BODY></HTML>")
+
 
 if __name__ == '__main__':
     print("NPImageNearest")
@@ -106,8 +118,8 @@ if __name__ == '__main__':
     np = ShazImageNearest("data/imagemock.h.pickle")
     for k in np.db[0]:
         im = np.get_im_by_id(k)
-        res = np.search_by_im(k,10)
-        np.image_scores_to_html(im, res)
+        res = np.search_by_im(k,10,0.75)
+        image_scores_to_html(im, res)
     while True:
         id = int(input("ImageID: "))
         t = time.perf_counter()

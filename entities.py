@@ -93,7 +93,7 @@ class Image:
         self.name = path.split("/")[-1].upper()
 
     def __sub__(self, other):
-        res = {"dah":None, "ddh":None,"dph":None,"dwh":None,"dwdh":None, "dzh":None,"dsize":None,"dname":None}
+        res = {"dah":None, "ddh":None,"dph":None,"dwh":None,"dwdh":None, "dzh":None,"dsize":None,"dn":None}
         res["dsize"] = abs(self.size - other.size)
         if self.ah is not None and other.ah is not None:
             res["dah"] = 1 - (self.ah - other.ah) / len(self.ah.hash) ** 2

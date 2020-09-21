@@ -5,7 +5,7 @@ import threading
 
 class ImFalsePositives:
 
-    lock = threading.RLock
+    lock = threading.RLock()
     set = set()
 
     def __init__(self, dbpath):
@@ -15,14 +15,18 @@ class ImFalsePositives:
 
     def reset(self):
         with ImFalsePositives.lock:
-            ImFalsePositives.set = set()
+            ImFalsePositives.set.clear()
 
     def save(self):
         cyrilload.save(ImFalsePositives.set, self.fppath, prefix="fp")
         cyrilload.save(ImFalsePositives.set, self.fppath, prefix="fp", method="json")
 
     def load(self):
-        ImFalsePositives.set = cyrilload.load(self.fppath+".fp.pickle")
+        try:
+            ImFalsePositives.set = cyrilload.load(self.fppath+".fp.pickle")
+        except:
+            ImFalsePositives.set = set()
+            self.save()
 
     def add(self, id1, id2):
         try:
@@ -38,7 +42,7 @@ class ImFalsePositives:
             im = db[0][k]
             if im1.id != im.id:
                 score = (im1.ah - im.ah) / 64
-                if score > 0.9:
+                if score > 0.95:
                     res1.append(k)
         im2 = db[0][id2]
         res2 = []
@@ -46,7 +50,7 @@ class ImFalsePositives:
             im = db[0][k]
             if im2.id != im.id:
                 score = (im2.ah - im.ah) / 64
-                if score > 0.9:
+                if score > 0.95:
                     res2.append(k)
         res = list(np.intersect1d(res1, res2))
         res.append(id1)
@@ -73,15 +77,23 @@ if __name__ == '__main__':
     fp = ImFalsePositives("data/imagemock.h.pickle")
     print(fp.set)
     parser = argparse.ArgumentParser(description="Add id1 & id2 to blacklist")
-    parser.add_argument("id1", type=int, help="Image id 1")
-    parser.add_argument("id2", type=int, help="Image id 2")
+    parser.add_argument("id1", type=int, help="Image id 1", default=-1)
+    parser.add_argument("id2", type=int, help="Image id 2", default=-1)
     parser.add_argument("-r","--remove", action="store_true", help="Remove id1 & id2 from blacklist")
     parser.add_argument("-c", "--clear", action="store_true", help="Clear the blacklist")
+    parser.add_argument("-l", "--list", action="store_true", help="List the blacklist")
+    parser.add_argument("-m", "--match", action="store_true", help="Check if id1 & id2 are in the list")
     args = parser.parse_args()
     if args.clear:
         fp.reset()
+        fp.save()
     elif args.remove:
         fp.remove(args.id1, args.id2)
+        fp.save()
+    elif args.match:
+        print(fp.match(args.id1, args.id2))
+    elif args.list:
+        pass
     else:
         print(f"Add {args.id1} {args.id2} to FP")
         fp.add(args.id1, args.id2)

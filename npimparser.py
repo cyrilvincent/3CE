@@ -106,12 +106,12 @@ if __name__ == '__main__':
     p.save()
     p.save(method="jsonpickle")
     count = len(p.dbi)
-    wdh = count < 3000
-    wh = count < 6000
+    wdh = count < 6000
+    wh = count < 10000
     ph = False
-    dh = count < 40000
+    dh = count < 100000
     zh = count < 30000
-    p.h("images/", dh = dh, ph = dh, wh = wh, wdh=wdh) #All 59s / 63 soit 16min / 1000 et <3h / 10000 32s
+    p.h("images/", dh = dh, ph = ph, wh = wh, wdh=wdh) #All 59s / 63 soit 16min / 1000 et <3h / 10000 32s
     p.save(prefix="h")                                          #Sans wdh 32s / 63 soit 9 min / 1000 et <1.5h / 10000 et 15h
                                                                 #Sans w*h 6.3s / 63 soit 100s / 1000 et 17 min / 10000 et <3h pour 100000
                                                                 #Que ah 4s / 63 soit 64s / 1000 et 11 min / 10000 et <2h pour 100000

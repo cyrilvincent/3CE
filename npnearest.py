@@ -107,7 +107,7 @@ if __name__ == '__main__':
     print("=========")
     main = False
     try:
-        main = sys.argv[1] == "-mainonly"
+        main = sys.argv[1] == "--mainonly"
         if main:
             print("Main only")
     except:
