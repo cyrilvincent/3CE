@@ -9,8 +9,8 @@ import shazim
 from typing import Dict
 from PIL import Image
 
-
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 class NPImageParser:
     """
@@ -60,7 +60,7 @@ class NPImageParser:
         cyrilload.save(self.db, name, prefix, method)
         print(f"Saved in {time.perf_counter() - t:.1f} s")
 
-    def h(self, impath, dh = True, ph = True, wh = True, wdh=True, zh=True)->None:
+    def h(self, impath, dh = True, ph = True, wh = True, wdh=True, zh=True, a2h = True, fv = True)->None:
         """
         Use hashing
         """
@@ -71,19 +71,26 @@ class NPImageParser:
             if i % max(10,int(self.nbi / 100)) == 0:
                 print(f"Hash {i + 1}/{self.nbi} in {time.perf_counter() - t:.1f} s")
             im = self.dbi[k]
-            ih = shazim.ShazImage(impath + im.path)
-            im.size = ih.size
-            im.ah = ih.ah()  # 8x8
-            if dh:
-                im.dh = ih.dh()  # 8x8
-            if ph:
-                im.ph = ih.ph()  # 8x8
-            if wh:
-                im.wh = ih.wh()  # Haar 8x8
-            if wdh:
-                im.wdh = ih.wdh()  # Daubechies 14x14
-            if zh:
-                im.zh = ih.zh()
+            try:
+                ih = shazim.ShazImage(impath + im.path)
+                im.size = ih.size
+                im.ah = ih.ah()  # 8x8
+                if dh:
+                    im.dh = ih.dh()  # 8x8
+                if ph:
+                    im.ph = ih.ph()  # 8x8
+                if wh:
+                    im.wh = ih.wh()  # Haar 8x8
+                if wdh:
+                    im.wdh = ih.wdh()  # Daubechies 14x14
+                if zh:
+                    im.zh = ih.zh() #z-transform
+                if a2h:
+                    im.a2h = ih.a2h() # ah 16x16
+                if fv:
+                    im.fv = ih.fv()
+            except Exception as ex:
+                print(f"Error with {im}: {ex}")
             i+=1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
 
@@ -106,14 +113,17 @@ if __name__ == '__main__':
     p.save()
     p.save(method="jsonpickle")
     count = len(p.dbi)
-    wdh = count < 6000
+    wdh = False #count < 6000
     wh = count < 10000
     ph = False
-    dh = count < 100000
-    zh = count < 30000
-    p.h("images/", dh = dh, ph = ph, wh = wh, wdh=wdh) #All 59s / 63 soit 16min / 1000 et <3h / 10000 32s
+    dh = count < 50000
+    zh = count < 40000
+    a2h = count < 30000
+    fv = count < 100000
+    p.h("images/", dh = dh, ph = ph, wh = wh, wdh=wdh, a2h=a2h, fv = fv) #All 70s / 103 soit 12min / 1000 et 2h / 10000
     p.save(prefix="h")                                          #Sans wdh 32s / 63 soit 9 min / 1000 et <1.5h / 10000 et 15h
                                                                 #Sans w*h 6.3s / 63 soit 100s / 1000 et 17 min / 10000 et <3h pour 100000
+                                                                #Que ah + fv 10s / 63 soit 106s / 1000 et 18 min / 10000 et <3h pour 100000
                                                                 #Que ah 4s / 63 soit 64s / 1000 et 11 min / 10000 et <2h pour 100000
 
 

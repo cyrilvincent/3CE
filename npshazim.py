@@ -6,13 +6,14 @@ import math
 from entities import Image
 from typing import Iterable, List
 from npcompare import NPComparer
+from scipy import spatial
 
 class ShazImageComparer():
     """
     Compare to products
     """
     def __init__(self):
-        self.weights={"ah":1.0,"dh":1.0,"ph":0.0,"wh":1.0,"wdh":0.1, "zh":0.5,"name":0.3}
+        self.weights={"ah":1.0,"dh":1.0,"ph":0.0,"wh":1.0,"wdh":0.1, "zh":0.5, "a2h":0.5, "fv":3.0,"name":0.3}
         # ah = average : good for all images but false negative for rephotoshop image
         # dh = ah but in gradients : bad for all image but the best for photshop image (lot of false negative, but very good positives)
         # ph = ah but in frequencies domain (cosine transform) : bad for all image but good for photoshop image (dh redundant to remove)
@@ -22,7 +23,7 @@ class ShazImageComparer():
     def comp(self, i1:Image, i2:Image)->List[List[float]]:
         dico =  i1 - i2
         np = NPComparer()
-        dico["dn"] = np.compvl(i1.name.split(".")[0], i2.name.split(".")[0])
+        dico["dn"] = round(np.compvl(i1.name.split(".")[0], i2.name.split(".")[0]),3)
         return dico
 
     def compare(self, i1:Image, i2:Image)->List[List[float]]:
@@ -38,16 +39,16 @@ class ShazImageComparer():
         """
         np = NPComparer()
         score = i1.size - i2.size
+        res = []
         if score == 1:
             return 1.0 #perfect
         if i1.dh is not None and i2.dh is not None:
-            dscore = i1.dh - i2.dh
-            if dscore < 10: #Lot of false negative but perfect positives
-                return 1 - dscore / 64
-        ascore = i1.ah - i2.ah
-        res = [[1 - ascore / 64, self.weights["ah"]], [1 - dscore / 64, self.weights["dh"]]]
-        # if ascore < 10 or ascore > 38: #The best but some false negative
-        #     return res
+            dscore = 1 - (i1.dh - i2.dh) / 64
+            if dscore > 0.84: #Lot of false negative but perfect positives
+                return (1 + dscore) / 2
+            res.append([dscore, self.weights["dh"]])
+        ascore = 1 - (i1.ah - i2.ah) / 64
+        res.append([ascore, self.weights["ah"]])
         if i1.zh is not None and i2.zh is not None:
             score = 1 - (i1.zh - i2.zh) / 64 #Like ah, useful ?
             res.append([score, self.weights["zh"]])
@@ -60,6 +61,17 @@ class ShazImageComparer():
         if i1.wdh is not None and i2.wdh is not None:
             score = 1 - (i1.wdh - i2.wdh) / 196 #Lot of false positive, expansive, useful ?
             res.append([score, self.weights["wdh"]])
+        if i1.a2h is not None and i2.a2h is not None:
+            score = 1 - (i1.a2h - i2.a2h) / 256 #Lot of false positive, expansive, useful ?
+            res.append([score, self.weights["a2h"]])
+        if i1.fv is not None and i2.fv is not None:
+            score = 1 - spatial.distance.cosine(i1.fv, i2.fv)
+            w = self.weights["fv"]
+            if score > 0.9:
+                w *= 2
+            if score > 0.95:
+                w *= 5
+            res.append([score, w])
         score = sum([x[0] * x[1] for x in res]) / sum([x[1] for x in res])
         if score < 0.8 and score > 0.5:
             vscore = np.compvl(i1.name.split(".")[0], i2.name.split(".")[0])

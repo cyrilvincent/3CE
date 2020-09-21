@@ -103,7 +103,7 @@ def image_scores_to_html(im, scores):
         f.write("</BODY></HTML>")
     with open(f"outputs/index.html", "w") as f:
         f.write("<HTML><BODY><H1>NPShazimNearest Image Index</H1>\n")
-        for i in range(103):
+        for i in range(5000):
             try:
                 im = np.get_im_by_id(i)
                 f.write(f"<a href='output_{i}.html'>output_{i}.html<img src='../images/{im.path}' height='50'/></a><br/>")
@@ -126,13 +126,13 @@ if __name__ == '__main__':
         try:
             im = np.get_im_by_id(id)
             print(f'Image {id} {im.path}')
-            res = np.search_by_im(id, 10)
+            res = np.search_by_im(id, 10, 0.5)
         except:
             print(f"image {id} does not exist")
             res=[]
         print(f"Found {len(res)} image(s) in {time.perf_counter() - t:.3f} s") #0.003s/63 0.2s/4000 0.5s/10000 5s/100000
         for im2 in res:
             print(f'ID {im2[0]} at {im2[1]*100:.0f}% "{np.get_im_by_id(im2[0]).name}" {np.comp.comp(im, np.get_im_by_id(im2[0]))} ')
-        np.image_scores_to_html(im, res)
+        image_scores_to_html(im, res)
         print()
 

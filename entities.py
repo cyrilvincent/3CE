@@ -1,9 +1,9 @@
 from typing import List
-
+from scipy import spatial
 
 class Car:
     """
-    Caracterristic entity
+    Caracteristic entity
     """
 
     def __init__(self, id:int, val:str, w=1.0, main=False):
@@ -88,25 +88,31 @@ class Image:
         self.wh = None
         self.wdh = None
         self.zh = None
+        self.a2h = None
+        self.fv = None
         self.pids = []
         self.ext = path.split(".")[-1].upper()
         self.name = path.split("/")[-1].upper()
 
     def __sub__(self, other):
-        res = {"dah":None, "ddh":None,"dph":None,"dwh":None,"dwdh":None, "dzh":None,"dsize":None,"dn":None}
+        res = {"dah":None, "ddh":None,"dph":None,"dwh":None,"dwdh":None, "dzh":None, "da2h":None, "dfv":None, "dsize":None,"dn":None}
         res["dsize"] = abs(self.size - other.size)
         if self.ah is not None and other.ah is not None:
-            res["dah"] = 1 - (self.ah - other.ah) / len(self.ah.hash) ** 2
+            res["dah"] = round(1 - (self.ah - other.ah) / len(self.ah.hash) ** 2, 3)
         if self.dh is not None and other.dh is not None:
-            res["ddh"] = 1 - (self.dh - other.dh) / len(self.dh.hash) ** 2
+            res["ddh"] = round(1 - (self.dh - other.dh) / len(self.dh.hash) ** 2, 3)
         if self.ph is not None and other.ph is not None:
-            res["dph"] = 1 - (self.ph - other.ph) / len(self.ph.hash) ** 2
+            res["dph"] = round(1 - (self.ph - other.ph) / len(self.ph.hash) ** 2, 3)
         if self.wh is not None and other.wh is not None:
-            res["dwh"] = 1 - (self.wh - other.wh) / len(self.wh.hash) ** 2
+            res["dwh"] = round(1 - (self.wh - other.wh) / len(self.wh.hash) ** 2, 3)
         if self.wdh is not None and other.wdh is not None:
-            res["dwdh"] = 1 - (self.wdh - other.wdh) / len(self.wdh.hash) ** 2
+            res["dwdh"] = round(1 - (self.wdh - other.wdh) / len(self.wdh.hash) ** 2, 3)
         if self.zh is not None and other.zh is not None:
-            res["dzh"] = 1 - (self.zh - other.zh) / len(self.zh.hash) ** 2
+            res["dzh"] = round(1 - (self.zh - other.zh) / len(self.zh.hash) ** 2, 3)
+        if self.a2h is not None and other.a2h is not None:
+            res["da2h"] = round(1 - (self.a2h - other.a2h) / len(self.a2h.hash) ** 2, 3)
+        if self.fv is not None and other.fv is not None:
+            res["dfv"] = round(1 - spatial.distance.cosine(self.fv, other.fv),3)
         return res
 
     def __repr__(self):
