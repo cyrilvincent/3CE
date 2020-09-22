@@ -6,3 +6,5 @@ copy dist\npcompare\npcompare.exe dist\npnearest\.
 copy dist\nppredict\nppredict.exe dist\npnearest\.
 md dist\npnearest\data
 copy data\data.h.pickle dist\npnearest\data\.
+md dist\npnearest\html
+copy html\*.* dist\npnearest\html\.
