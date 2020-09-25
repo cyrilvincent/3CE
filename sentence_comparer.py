@@ -1,9 +1,8 @@
 import argparse
 import use
 import numpy as np
-import difflib
 import npcompare
-from pprint import pprint
+#import tensorflow_text
 
 parser = argparse.ArgumentParser()
 parser.add_argument("s1", help="Sentence")

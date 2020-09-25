@@ -6,17 +6,22 @@ import json
 import logging
 import config
 import threading
+import logging
 from npnearest import NPNearest
 from npcompare import NPComparer
 
 print("NP REST")
 print("=======")
-app: flask.Flask = flask.Flask(__name__)
-#flask_cors.CORS(app)
-cli = sys.modules['flask.cli']
-cli.show_server_banner = lambda *x: None
-lock = threading.RLock()
-np = NPNearest(config.h_file)
+logging.info('Starting NPRest')
+try:
+    app: flask.Flask = flask.Flask(__name__)
+    #flask_cors.CORS(app)
+    cli = sys.modules['flask.cli']
+    cli.show_server_banner = lambda *x: None
+    lock = threading.RLock()
+    np = NPNearest(config.h_file)
+except Exception as ex:
+    logging.fatal(ex)
 
 def jsonify(o):
     js = jsonpickle.dumps(o, False)
@@ -53,6 +58,7 @@ def nearests_nb(id, nb):
         res = np.search(id,take=nb)
         return flask.jsonify(res)
     except KeyError:
+        logging.warn(f"nbrest.nearsets_nb {id} not found")
         return flask.abort(404)
 
 @app.route("/nearests/<int:id>", methods=['GET'])
@@ -76,8 +82,12 @@ def compare(id1, id2):
 @app.route("/reset", methods=['GET'])
 def reset():
     with lock:
+        logging.warn("Reset")
         np.reset()
     return flask.jsonify(len(np.db))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=config.port, threaded=True, debug=config.debug, use_reloader=False)
+    try:
+        app.run(host='0.0.0.0', port=config.port, threaded=True, debug=config.debug, use_reloader=False)
+    except Exception as ex:
+        logging.fatal(ex)

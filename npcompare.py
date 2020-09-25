@@ -34,11 +34,13 @@ class NPComparer():
         v2 = v2.upper()
         if v1 == v2:
             return 1.0
-        if v1 in v2:
-            return min(0.75, len(v1) / 10)
-        if v2 in v1:
-            return min(0.5, len(v2) / 10)
-        return 0
+        nb = 0
+        for i in range(min(len(v1), len(v2))):
+            if v1[i] == v2[i]:
+                nb+=1
+            else:
+                break
+        return (nb / max(len(v1), len(v2))) / 2
 
     def compvl(self, v1:str, v2:str)->float:
         """
@@ -165,7 +167,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Compare pid1 & pid2")
     parser.add_argument("pid1", help="Product id")
     parser.add_argument("pid2", help="Product id to compare")
+    parser.add_argument("-m","--muse", action="store_true", help="Use MUSE insted of USE")
     args = parser.parse_args()
+    if args.muse:
+        config.h_file = config.h_file.replace(".h.", ".linux.h.")
     db = cyrilload.load(config.h_file)
     p1 = db[int(args.pid1)]
     if p1 == None:

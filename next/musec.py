@@ -9,9 +9,8 @@ english_sentences = ["dog", "Puppies are nice.", "I enjoy taking long walks alon
 italian_sentences = ["cane", "I cuccioli sono carini.", "Mi piace fare lunghe passeggiate lungo la spiaggia con il mio cane."]
 japanese_sentences = ["犬", "子犬はいいです", "私は犬と一緒にビーチを散歩するのが好きです"]
 
-
-
-embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3")
+#embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3")
+embed = tf.saved_model.load("../hubmodule/universal-sentence-encoder-multilingual-large_3")
 
 # Compute embeddings.
 en_result = embed(english_sentences)
@@ -21,3 +20,5 @@ ja_result = embed(japanese_sentences)
 # Compute similarity matrix. Higher score indicates greater similarity.
 similarity_matrix_it = np.inner(en_result, it_result)
 similarity_matrix_ja = np.inner(en_result, ja_result)
+
+print(similarity_matrix_ja)

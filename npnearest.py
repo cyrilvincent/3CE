@@ -4,6 +4,7 @@ import cyrilload
 import config
 import sys
 import threading
+import logging
 from entities import Product
 from typing import List
 
@@ -38,13 +39,13 @@ class NPNearest:
         self.comp = npcompare.NPComparer()
         for k in list(self.db.keys())[:1]:
             self.search(k)
-        print(f"Loaded in {time.perf_counter() - t:.1f} s")
+        logging.info(f"Loaded in {time.perf_counter() - t:.1f} s")
 
     def get_by_id(self, pid:int)->Product:
         """
         Get the product by pid
         :param pid: product's pid
-        :return: The product or None
+        :return: The product
         """
         return self.db[pid]
 
@@ -86,9 +87,7 @@ class NPNearest:
                         res1.append([k, score])
             res1.sort(key = lambda x : x[1], reverse = True)
             res1 = res1[:(take * config.take_ratio)]
-            #print(res1)
             res2 = self.searchl(p.id, [p2[0] for p2 in res1], main)
-            #print(res2)
             res = []
             for x in zip(res1, res2):
                 v = (x[0][1] + x[1][1]) / 2
@@ -121,7 +120,7 @@ def scores_to_html(p, scores):
             p2 = np.get_by_id(t[0])
             f.write(f"<p>Product: <a href='output_{p2.id}.html'>{p2.id}</a> at {t[1]*100:.0f}% \n")
             f.write((f"(USE: {np.comp.compare(p, p2)*100:.0f}%, Gestalt: {np.comp.comparel(p, p2)*100:.0f}%)"))
-            f.write(f"<table border='1'><tr><td>cid</td><td>{p.id} value</td><td>{p2.id} value</td><td>Score USE</td><td>Weight USE</td><td>Score Gestalt</td><td>Weight Gestalt</td></tr>\n")
+            f.write(f"<table border='1'><tr><td>cid</td><td>{p.id} values</td><td>{p2.id} values</td><td>Score USE</td><td>Weights USE</td><td>Scores Gestalt</td><td>Weights Gestalt</td></tr>\n")
             res2 = np.comp.compp(p, p2)
             total2 = sum([w[1] for w in res2])
             res3 = np.comp.comppl(p, p2)
@@ -145,6 +144,9 @@ if __name__ == '__main__':
         main = sys.argv[1] == "--mainonly"
         if main:
             print("Main only")
+        muse = sys.argv[1] == "--muse"
+        if muse:
+            config.h_file = config.h_file.replace(".h.",".linux.h.")
     except:
         pass
     np = NPNearest(config.h_file)
