@@ -1,13 +1,13 @@
 import time
-import npshazim
+import npimcomparer
 import cyrilload
 import config
 import threading
 from entities import Image
 from typing import List
-from npfalsepositives import ImFalsePositives
+from npfalsepositives import NPFalsePositives
 
-class ShazImageNearest:
+class NPImageNearest:
     """
     High level class, main program
     """
@@ -23,7 +23,7 @@ class ShazImageNearest:
         """
         self.path = path
         self.caching = caching
-        self.fp = ImFalsePositives(path)
+        self.fp = NPFalsePositives(path)
         if reset:
             self.reset()
 
@@ -34,9 +34,9 @@ class ShazImageNearest:
         """
         t = time.perf_counter()
         self.db = cyrilload.load(self.path)
-        with ShazImageNearest.lock:
-            ShazImageNearest.cache = {}
-        self.comp = npshazim.ShazImageComparer()
+        with NPImageNearest.lock:
+            NPImageNearest.cache = {}
+        self.comp = npimcomparer.NPImageComparer()
         print(f"Loaded in {time.perf_counter() - t:.1f} s")
 
     def get_im_by_id(self, id:int)->Image:
@@ -46,8 +46,8 @@ class ShazImageNearest:
         return self.db[1][id]
 
     def search_by_im(self, id:int, take=10, thresold = 0.75)->List[List[float]]:
-        if id in ShazImageNearest.cache.keys():
-            return ShazImageNearest.cache[id][:take]
+        if id in NPImageNearest.cache.keys():
+            return NPImageNearest.cache[id][:take]
         else:
             im = self.get_im_by_id(id)
             res = []
@@ -60,8 +60,8 @@ class ShazImageNearest:
                             res.append([k, score])
             res.sort(key = lambda x : x[1], reverse = True)
             if self.caching:
-                with ShazImageNearest.lock:
-                    ShazImageNearest.cache[id] = res
+                with NPImageNearest.lock:
+                    NPImageNearest.cache[id] = res
             res = res[:take]
             return res
 
@@ -99,7 +99,7 @@ def image_scores_to_html(im, scores):
         for t in res:
             im2 = np.get_im_by_id(t[0])
             f.write(f"<p>Image: {im2.id} <a href='output_{im2.id}.html'>{im2.name}</a> at {t[1]*100:.0f}%  <a href='../images/{im2.path}'><img src='../images/{im2.path}' height=100 /></a>\n")
-            f.write(f"{npshazim.ShazImageComparer().comp(im, im2)}")
+            f.write(f"{npimcomparer.NPImageComparer().comp(im, im2)}")
         f.write("</BODY></HTML>")
     with open(f"outputs/index.html", "w") as f:
         f.write("<HTML><BODY><H1>NPShazimNearest Image Index</H1>\n")
@@ -115,7 +115,7 @@ def image_scores_to_html(im, scores):
 if __name__ == '__main__':
     print("NPImageNearest")
     print("==============")
-    np = ShazImageNearest("data/imagemock.h.pickle")
+    np = NPImageNearest("data/imagemock.h.pickle")
     for k in np.db[0]:
         im = np.get_im_by_id(k)
         res = np.search_by_im(k,10,0.75)

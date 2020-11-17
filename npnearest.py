@@ -8,6 +8,8 @@ import logging
 from entities import Product
 from typing import List
 
+__version__ = config.version
+
 class NPNearest:
     """
     High level class, main program
@@ -139,6 +141,7 @@ def scores_to_html(p, scores):
 if __name__ == '__main__':
     print("NPNearest")
     print("=========")
+    print(f"V{__version__}")
     main = False
     try:
         main = sys.argv[1] == "--mainonly"

@@ -1,9 +1,13 @@
 import time
 import cyrilload
+import config
 from npnearest import NPNearest
+
+__version__ = config.version
 
 print("NPPredict")
 print("=========")
+print(f"V{__version__}")
 np = NPNearest("data/data.h.pickle")
 while True:
     s = input("Enter a sentence: ")

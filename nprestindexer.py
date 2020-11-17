@@ -6,8 +6,8 @@ import config
 import logging
 from npparser import NPParser
 
-print("NP Indexer")
-print("==========")
+print("NP Rest Indexer")
+print("===============")
 logging.info("NPRestIndexer")
 try:
     app: flask.Flask = flask.Flask(__name__)
@@ -19,7 +19,7 @@ except Exception as ex:
 
 @app.route("/", methods=['GET'])
 def autodoc():
-    s="<html><body><h1>NP Indexer {config.version}</h1>"
+    s="<html><body><h1>NP Rest Indexer {config.version}</h1>"
     for rule in app.url_map.iter_rules():
         s += f"{rule.methods} <a href='http://localhost:{config.indexer_port}{rule}'>{rule}</a> {rule.arguments}<br/>"
     s+="</body></html>"
@@ -48,16 +48,17 @@ def index():
     except:
         logging.warning("Cannot copy h to bak")
     try:
+        logging.info(f"Creating {name}.h.pickle")
         shutil.move(name+".temp.pickle",name+".h.pickle")
-    except Exception as ex:
+    except:
         logging.error("Cannot copy temp to h")
     try:
         logging.info(f"Call reset")
         with urllib.request.urlopen(f"http://localhost:{config.port}/reset") as response:
-            _ = response.read()
-        print(f"Call reset ok")
-    except:
-        logging.error(f"Call reset nok")
+            nb = response.read()
+        print(f"Call reset ok: {nb}")
+    except Exception as ex:
+        logging.error(f"Call reset nok: {ex}")
     return flask.jsonify(len(np.db))
 
 if __name__ == '__main__':

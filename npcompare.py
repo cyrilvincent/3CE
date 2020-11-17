@@ -7,6 +7,8 @@ import config
 from entities import Product, Car
 from typing import Iterable, List
 
+__version__ = config.version
+
 class NPComparer():
     """
     Compare to products
@@ -164,6 +166,7 @@ def display(p1:Product, p2:Product, res):
 if __name__ == '__main__':
     print("NPCompare")
     print("=========")
+    print(f"V{__version__}")
     parser = argparse.ArgumentParser(description="Compare pid1 & pid2")
     parser.add_argument("pid1", help="Product id")
     parser.add_argument("pid2", help="Product id to compare")

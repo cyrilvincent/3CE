@@ -8,14 +8,14 @@ from typing import Iterable, List
 from npcompare import NPComparer
 from scipy import spatial
 
-class ShazImageComparer():
+class NPImageComparer():
     """
     Compare to products
     """
     def __init__(self):
         self.weights={"ah":1.0,"dh":1.0,"ph":0.0,"wh":1.0,"wdh":0.1, "zh":0.5, "a2h":0.5, "fv":3.0,"name":0.3}
         # ah = average : good for all images but false negative for rephotoshop image
-        # dh = ah but in gradients : bad for all image but the best for photshop image (lot of false negative, but very good positives)
+        # dh = ah but in gradients : bad for all image but the best for photoshop image (lot of false negative, but very good positives)
         # ph = ah but in frequencies domain (cosine transform) : bad for all image but good for photoshop image (dh redundant to remove)
         # wh = ph with Fourier : cost a lot, good like ah
         # wdh = optimization of wh : cost++, good but lot of false positives
@@ -40,7 +40,7 @@ class ShazImageComparer():
         np = NPComparer()
         score = i1.size - i2.size
         res = []
-        if score == 1:
+        if score == 0:
             return 1.0 #perfect
         if i1.dh is not None and i2.dh is not None:
             dscore = 1 - (i1.dh - i2.dh) / 64
@@ -58,9 +58,9 @@ class ShazImageComparer():
         if i1.wh is not None and i2.wh is not None:
             score = 1 - (i1.wh - i2.wh) / 64 #Good like ah but expensive
             res.append([score, self.weights["wh"]])
-        if i1.wdh is not None and i2.wdh is not None:
-            score = 1 - (i1.wdh - i2.wdh) / 196 #Lot of false positive, expansive, useful ?
-            res.append([score, self.weights["wdh"]])
+        # if i1.wdh is not None and i2.wdh is not None:
+        #     score = 1 - (i1.wdh - i2.wdh) / 196 #Lot of false positive, expansive, useful ?
+        #     res.append([score, self.weights["wdh"]])
         if i1.a2h is not None and i2.a2h is not None:
             score = 1 - (i1.a2h - i2.a2h) / 256 #Lot of false positive, expansive, useful ?
             res.append([score, self.weights["a2h"]])
@@ -95,7 +95,7 @@ if __name__ == '__main__':
         print(f"{args.id2} does not exist")
         sys.exit(2)
     print(f"Compare image {i1.name} and {i2.name}")
-    comparer = ShazImageComparer()
+    comparer = NPImageComparer()
     res = comparer.comp(i1, i2)
     print(res)
     print(comparer.compare(i1, i2))

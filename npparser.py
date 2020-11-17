@@ -9,6 +9,8 @@ import logging
 from entities import Product, Car
 from typing import Dict
 
+__version__ = config.version
+
 class NPParser:
     """
     File parser and indexer
@@ -98,7 +100,7 @@ class NPParser:
         :param path: The file to parse
         """
         try:
-            logging.info("Trainting")
+            logging.info("Training")
             self.parse(path)
             self.normalize()
             self.h()
@@ -109,6 +111,7 @@ class NPParser:
 if __name__ == '__main__':
     print("NP Products Parser")
     print("==================")
+    print(f"V{__version__}")
     p = NPParser()
     #p.train(config.data_file)
     p.parse("data/data.txt") #Found 3904 products * 15

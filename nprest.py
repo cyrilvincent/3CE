@@ -58,7 +58,7 @@ def nearests_nb(id, nb):
         res = np.search(id,take=nb)
         return flask.jsonify(res)
     except KeyError:
-        logging.warn(f"nbrest.nearsets_nb {id} not found")
+        logging.warn(f"nbrest.nearests id:{id} not found")
         return flask.abort(404)
 
 @app.route("/nearests/<int:id>", methods=['GET'])

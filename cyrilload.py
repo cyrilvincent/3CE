@@ -25,13 +25,14 @@ def load(path):
         logging.FATAL(f"cyril.load: {ex}")
     return db
 
-def save(db, name, prefix="", method="pickle"):
+def save(db, name, prefix="", method="pickle", indent=4):
     """
     Intelligent data save
     :param db: The object to save
     :param name: File name without extension
     :param prefix: extension prefix file.prefix.extension
     :param method: pickle | jsonpickle | json | pretty (pretty json)
+    :param indent: None for no indent
     """
     if prefix != "":
         name += f".{prefix}"
@@ -53,13 +54,20 @@ def save(db, name, prefix="", method="pickle"):
             with open(name,"w") as f:
                 if method == "json" or method == "pretty":
                     try:
-                        json.dump(db, f,indent = 4 if method == "pretty" else None)
+                        json.dump(db, f,indent = indent if method == "pretty" else None)
                     except TypeError:
-                        s = jsonpickle.dumps(db, unpicklable=False, indent = 4 if method == "pretty" else None)
+                        logging.warning("Can't save to json, switch to jsonpickle")
+                        s = jsonpickle.dumps(db, unpicklable=False, indent = indent if method == "pretty" else None)
                         f.write(s)
                 else:
-                    s = jsonpickle.dumps(db, unpicklable=False,indent=4)
+                    s = jsonpickle.dumps(db, unpicklable=False,indent=indent)
                     f.write(s)
     except Exception as ex:
         logging.FATAL(f"cyrilload.save: {ex}")
         raise ex
+
+def convert(path, prefix="converted", method="json",indent=None):
+    db = load(path)
+    ext = path.split["."][-1]
+    path = path[:-(len(ext)+1)]
+    save(db,path,prefix,method,indent)
