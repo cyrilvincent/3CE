@@ -83,7 +83,7 @@ def compare(id1, id2):
 @app.route("/reset", methods=['GET'])
 def reset():
     with lock:
-        logging.warn("Reset")
+        logging.warning("Reset")
         np.reset()
     return flask.jsonify(len(np.db))
 

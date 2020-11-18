@@ -1,5 +1,7 @@
 import logging
 import os
+import tensorflow
+
 
 debug = True
 version = "0.0.2-POC"
@@ -14,3 +16,5 @@ product_thresold = 0.5
 take_ratio = 4
 logging.basicConfig(filename=None, level=logging.INFO)
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+model = "tensorflow.keras.applications.mobilenet_v2.MobileNetV2"
+model = "tensorflow.keras.applications.resnet_v2.ResNet152V2"
