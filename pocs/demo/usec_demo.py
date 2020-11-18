@@ -21,7 +21,7 @@ print(os.path.join(tempfile.gettempdir(), "tfhub_modules"))
 #module_url = "https://tfhub.dev/google/universal-sentence-encoder/4" #"https://tfhub.dev/google/universal-sentence-encoder-lite/2" #"https://tfhub.dev/google/universal-sentence-encoder/4" #"https://tfhub.dev/google/universal-sentence-encoder-large/5"
 #model = hub.load(module_url)
 #print ("module %s loaded" % module_url)
-model = tf.saved_model.load("../hubmodule/universal-sentence-encoder.4")
+model = tf.saved_model.load("../../hubmodule/universal-sentence-encoder.4")
 def embed(input):
   return model(input)
 

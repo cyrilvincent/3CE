@@ -1,14 +1,14 @@
 import time
 import cyrilload
 import config
-from npnearest import NPNearest
+from npproductnearest import NPNearest
 
 __version__ = config.version
 
 print("NPPredict")
 print("=========")
 print(f"V{__version__}")
-np = NPNearest("data/data.h.pickle")
+np = NPNearest("../../data/data.h.pickle")
 while True:
     s = input("Enter a sentence: ")
     best = (None, 0)

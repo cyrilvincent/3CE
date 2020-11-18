@@ -5,7 +5,7 @@ import config
 import math
 from entities import Image
 from typing import Iterable, List
-from npcompare import NPComparer
+from npproductcompare import NPComparer
 from scipy import spatial
 
 class NPImageComparer():

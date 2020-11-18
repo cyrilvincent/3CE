@@ -37,7 +37,7 @@ class NPImageNearest:
         with NPImageNearest.lock:
             NPImageNearest.cache = {}
         self.comp = npimcomparer.NPImageComparer()
-        print(f"Loaded in {time.perf_counter() - t:.1f} s")
+        print(f"Loaded {len(self.db)} images in {time.perf_counter() - t:.1f} s")
 
     def get_im_by_id(self, id:int)->Image:
         return self.db[0][id]

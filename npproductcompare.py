@@ -173,8 +173,8 @@ if __name__ == '__main__':
     parser.add_argument("-m","--muse", action="store_true", help="Use MUSE insted of USE")
     args = parser.parse_args()
     if args.muse:
-        config.h_file = config.h_file.replace(".h.", ".linux.h.")
-    db = cyrilload.load(config.h_file)
+        config.product_h_file = config.product_h_file.replace(".h.", ".linux.h.")
+    db = cyrilload.load(config.product_h_file)
     p1 = db[int(args.pid1)]
     if p1 == None:
         print(f"{args.pid1} does not exist")

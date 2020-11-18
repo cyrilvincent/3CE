@@ -10,7 +10,7 @@ italian_sentences = ["cane", "I cuccioli sono carini.", "Mi piace fare lunghe pa
 japanese_sentences = ["犬", "子犬はいいです", "私は犬と一緒にビーチを散歩するのが好きです"]
 
 #embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3")
-embed = tf.saved_model.load("../hubmodule/universal-sentence-encoder-multilingual-large_3")
+embed = tf.saved_model.load("../../hubmodule/universal-sentence-encoder-multilingual-large_3")
 
 # Compute embeddings.
 en_result = embed(english_sentences)

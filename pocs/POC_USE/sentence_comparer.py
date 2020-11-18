@@ -1,7 +1,7 @@
 import argparse
-import use
+from pocs.POC_USE import use
 import numpy as np
-import npcompare
+import npproductcompare
 #import tensorflow_text
 
 parser = argparse.ArgumentParser()
@@ -12,7 +12,7 @@ m = use.USE()
 h1, h2 = m.hs([args.s1,args.s2])
 score = np.inner(h1, h2)
 print(score)
-m = npcompare.NPComparer()
+m = npproductcompare.NPComparer()
 score = m.compvl(args.s1, args.s2)
 print(score)
 

@@ -19,7 +19,7 @@ if __name__ == '__main__':
     ncar = 6
     print(f"NP Search duplicate")
     print("===================")
-    db = cyrilload.load("data/data.pickle")
+    db = cyrilload.load("../../data/data.pickle")
     pid = list(db.keys())[0]
     print(f"Carac at the position {ncar} found cid={db[pid].l[ncar].id}")
     res = search_duplicate(db, db[pid].l[ncar].id)

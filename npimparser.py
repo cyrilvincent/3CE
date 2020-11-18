@@ -23,7 +23,7 @@ class NPImageService:
         if NPImageService.model == None:
             t = time.perf_counter()
             print(f"Load TF FV model: ")
-            NPImageService.model = tf.saved_model.load("hubmodule/feature-vector.4")
+            NPImageService.model = tf.saved_model.load(config.tf_fv)
             print(f"Loaded in {time.perf_counter() - t:.1f} s")
             logging.set_verbosity(logging.ERROR)
         self.pil = Image.open(path)
@@ -203,15 +203,15 @@ if __name__ == '__main__':
     print("================")
     p = NPImageParser()
     p.parse("data/imagemock.txt") #Found 63 images in 0s
+    count = len(p.dbi)
     p.save()
     p.save(method="jsonpickle")
-    count = len(p.dbi)
-    wdh = False #count < 6000
-    wh = count < 10000
-    ph = False
+    wdh = count < 6000 # A virer trop lent
+    wh = count < 10000 # A virer ?
+    ph = count < 3000 # A virer doublon en moins perf que dh
     dh = count < 50000
-    zh = count < 40000
-    a2h = count < 30000
+    zh = count < 40000 # A virer ressemble trop à ah ?
+    a2h = count < 30000 # A virer donne trop de poids à ah ?
     fv = count < 100000
     p.h("images/", dh = dh, ph = ph, wh = wh, wdh=wdh, a2h=a2h, fv = fv) #All 70s / 103 soit 12min / 1000 et 2h / 10000
     p.save(prefix="h")                                          #Sans wdh 32s / 63 soit 9 min / 1000 et <1.5h / 10000 et 15h

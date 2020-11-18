@@ -1,0 +1,7 @@
+tensorflow
+tensorflow-hub
+imagehash
+numpy
+scipy
+Pillow
+scikit-image

@@ -18,8 +18,8 @@ class USE:
         """
         if USE.model == None:
             t = time.perf_counter()
-            print(f"Load TF USE model: {config.use}")
-            USE.model = tf.saved_model.load(config.use)
+            print(f"Load TF USE model: {config.tf_use}")
+            USE.model = tf.saved_model.load(config.tf_use)
             print(f"Loaded in {time.perf_counter() - t:.1f} s")
         logging.set_verbosity(logging.ERROR)
 

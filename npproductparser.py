@@ -2,14 +2,55 @@ import csv
 import pickle
 import json
 import time
-import use
 import cyrilload
 import config
 import logging
 from entities import Product, Car
-from typing import Dict
+from typing import Dict, List
 
 __version__ = config.version
+
+class USE:
+    """
+    Google Universal Sentence Encoder
+    """
+
+    model = None
+
+    def __init__(self):
+        """
+        Initialize USE model
+        """
+        if USE.model == None:
+            t = time.perf_counter()
+            print(f"Load TF USE model: {config.tf_use}")
+            USE.model = tf.saved_model.load(config.tf_use)
+            print(f"Loaded in {time.perf_counter() - t:.1f} s")
+        logging.set_verbosity(logging.ERROR)
+
+    def embed(self, inputs:List[str])->List[List[float]]:
+        """
+        Apply USE model
+        :param inputs: list of sentences
+        :return: list of h (512 floats) in Tensor types
+        """
+        return USE.model(inputs)
+
+    def hs(self, inputs:List[str])->List[List[float]]:
+        """
+        Apply USE model
+        :param inputs: list of sentences
+        :return: list of h (512 floats) in numpy types
+        """
+        return self.embed(inputs).numpy()
+
+    def h(self, input:str)->List[float]:
+        """
+        Apply USE model
+        :param input: A sentence
+        :return: h : List of 512 floats
+        """
+        return self.hs([input])[0].tolist()
 
 class NPParser:
     """
@@ -82,7 +123,7 @@ class NPParser:
         Use hashing
         """
         logging.info(f"Hashing with USE model")
-        model = use.USE()
+        model = USE()
         t = time.perf_counter()
         i = 0
         for p in self.db.keys():
@@ -114,7 +155,7 @@ if __name__ == '__main__':
     print(f"V{__version__}")
     p = NPParser()
     #p.train(config.data_file)
-    p.parse("data/data.txt") #Found 3904 products * 15
+    p.parse(config.product_data_file) #Found 3904 products * 15
     p.normalize()
     #p.save()
     #p.save(method="jsonpickle")

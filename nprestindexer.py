@@ -1,13 +1,14 @@
+import config
 import flask
 import sys
 import shutil
 import urllib.request
-import config
 import logging
-from npparser import NPParser
+from npproductparser import NPParser
 
 print("NP Rest Indexer")
 print("===============")
+print(f"V{config.version}")
 logging.info("NPRestIndexer")
 try:
     app: flask.Flask = flask.Flask(__name__)
@@ -19,7 +20,7 @@ except Exception as ex:
 
 @app.route("/", methods=['GET'])
 def autodoc():
-    s="<html><body><h1>NP Rest Indexer {config.version}</h1>"
+    s=f"<html><body><h1>NP Rest Indexer V{config.version}</h1>"
     for rule in app.url_map.iter_rules():
         s += f"{rule.methods} <a href='http://localhost:{config.indexer_port}{rule}'>{rule}</a> {rule.arguments}<br/>"
     s+="</body></html>"
@@ -36,11 +37,11 @@ def version():
 @app.route("/indexer", methods=['GET'])
 def index():
     try:
-        np.parse(config.data_file)
+        np.parse(config.product_data_file)
         np.normalize()
         np.h()
         np.save(prefix="temp", method="pickle")
-        name = config.data_file.split(".")[0]
+        name = config.product_data_file.split(".")[0]
     except Exception as ex:
         logging.fatal(ex)
     try:

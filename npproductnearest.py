@@ -1,5 +1,5 @@
 import time
-import npcompare
+import npproductcompare
 import cyrilload
 import config
 import sys
@@ -38,10 +38,10 @@ class NPNearest:
         self.db = cyrilload.load(self.path)
         with NPNearest.lock:
             NPNearest.cache = {}
-        self.comp = npcompare.NPComparer()
+        self.comp = npproductcompare.NPComparer()
         for k in list(self.db.keys())[:1]:
             self.search(k)
-        logging.info(f"Loaded in {time.perf_counter() - t:.1f} s")
+        logging.info(f"Loaded {len(self.db)} products in {time.perf_counter() - t:.1f} s")
 
     def get_by_id(self, pid:int)->Product:
         """
@@ -85,7 +85,7 @@ class NPNearest:
                 p2 = self.get_by_id(k)
                 if p.id != p2.id:
                     score = self.comp.compare(p, p2, main)
-                    if score > config.score_thresold:
+                    if score > config.product_thresold * 0.8:
                         res1.append([k, score])
             res1.sort(key = lambda x : x[1], reverse = True)
             res1 = res1[:(take * config.take_ratio)]
@@ -95,7 +95,7 @@ class NPNearest:
                 v = (x[0][1] + x[1][1]) / 2
                 res.append([x[0][0], v])
             res.sort(key=lambda x: x[1], reverse=True)
-            res = [r for r in res if r[1] > 0.5]
+            res = [r for r in res if r[1] > config.product_thresold]
             if self.caching:
                 with NPNearest.lock:
                     NPNearest.cache[pid] = res
@@ -149,10 +149,10 @@ if __name__ == '__main__':
             print("Main only")
         muse = sys.argv[1] == "--muse"
         if muse:
-            config.h_file = config.h_file.replace(".h.",".linux.h.")
+            config.product_h_file = config.product_h_file.replace(".h.", ".linux.h.")
     except:
         pass
-    np = NPNearest(config.h_file)
+    np = NPNearest(config.product_h_file)
     # for k in np.db.keys():
     #     p = np.get_by_id(k)
     #     res = np.search(k, 10)

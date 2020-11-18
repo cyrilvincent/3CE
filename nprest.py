@@ -1,17 +1,18 @@
+import config
 import flask
 #import flask_cors
 import sys
 import jsonpickle
 import json
 import logging
-import config
 import threading
 import logging
-from npnearest import NPNearest
-from npcompare import NPComparer
+from npproductnearest import NPNearest
+from npproductcompare import NPComparer
 
 print("NP REST")
 print("=======")
+print(f"V{config.version}")
 logging.info('Starting NPRest')
 try:
     app: flask.Flask = flask.Flask(__name__)
@@ -19,7 +20,7 @@ try:
     cli = sys.modules['flask.cli']
     cli.show_server_banner = lambda *x: None
     lock = threading.RLock()
-    np = NPNearest(config.h_file)
+    np = NPNearest(config.product_h_file)
 except Exception as ex:
     logging.fatal(ex)
 
@@ -30,7 +31,7 @@ def jsonify(o):
 
 @app.route("/", methods=['GET'])
 def autodoc():
-    s=f"<html><body><h1>NP Rest {config.version}</h1>"
+    s=f"<html><body><h1>NP Rest V{config.version}</h1>"
     for rule in app.url_map.iter_rules():
         s += f"{rule.methods} <a href='http://localhost:{config.port}{rule}'>{rule}</a> {rule.arguments}<br/>"
     s+="</body></html>"
