@@ -112,7 +112,7 @@ class NPImageParser:
     """
 
     def __init__(self):
-        self.dbi:Dict[int, entities.Image] = {}
+        self.dbi:Dict[int, entities.NPImage] = {}
         self.dbp: Dict[int, int] = {}
         self.db = [self.dbi, self.dbp]
         self.path = None
@@ -131,7 +131,7 @@ class NPImageParser:
             for row in r:
                 iid = int(row["image_id"])
                 if iid not in self.dbi:
-                    self.dbi[iid] = entities.Image(iid, row["image_path"])
+                    self.dbi[iid] = entities.NPImage(iid, row["image_path"])
                     self.nbi += 1
                 pid = int(row["product_id"])
                 if pid not in self.dbi[iid].pids:

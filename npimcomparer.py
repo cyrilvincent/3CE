@@ -3,7 +3,7 @@ import sys
 import cyrilload
 import config
 import math
-from entities import Image
+from entities import NPImage
 from typing import Iterable, List
 from npproductcompare import NPComparer
 from scipy import spatial
@@ -20,13 +20,13 @@ class NPImageComparer():
         # wh = ph with Fourier : cost a lot, good like ah
         # wdh = optimization of wh : cost++, good but lot of false positives
 
-    def comp(self, i1:Image, i2:Image)->List[List[float]]:
+    def comp(self, i1:NPImage, i2:NPImage)->List[List[float]]:
         dico =  i1 - i2
         np = NPComparer()
         dico["dn"] = round(np.compvl(i1.name.split(".")[0], i2.name.split(".")[0]),3)
         return dico
 
-    def compare(self, i1:Image, i2:Image)->List[List[float]]:
+    def compare(self, i1:NPImage, i2:NPImage)->List[List[float]]:
         """
         https://tech.okcupid.com/evaluating-perceptual-image-hashes-okcupid/
         http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html

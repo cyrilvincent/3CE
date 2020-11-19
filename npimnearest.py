@@ -3,7 +3,7 @@ import npimcomparer
 import cyrilload
 import config
 import threading
-from entities import Image
+from entities import NPImage
 from typing import List
 from npfalsepositives import NPFalsePositives
 
@@ -39,7 +39,7 @@ class NPImageNearest:
         self.comp = npimcomparer.NPImageComparer()
         print(f"Loaded {len(self.db)} images in {time.perf_counter() - t:.1f} s")
 
-    def get_im_by_id(self, id:int)->Image:
+    def get_im_by_id(self, id:int)->NPImage:
         return self.db[0][id]
 
     def get_product_by_id(self, id:int)->List[int]:

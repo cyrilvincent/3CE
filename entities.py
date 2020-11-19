@@ -58,7 +58,7 @@ class Product:
         return f"P{self.id}"
 
 
-class Image:
+class NPImage:
     """
     POC
     """
