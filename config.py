@@ -1,7 +1,5 @@
 import logging
 import os
-import tensorflow
-
 
 debug = True
 version = "0.0.2-POC"

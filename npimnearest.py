@@ -3,6 +3,7 @@ import npimcomparer
 import cyrilload
 import config
 import threading
+import sys
 from entities import NPImage
 from typing import List
 from npfalsepositives import NPFalsePositives
@@ -79,7 +80,8 @@ class NPImageNearest:
                     if id != pid:
                         if id not in dico:
                             dico[id] = t[1]
-                        dico[id]=max(t[1], dico[id]) + 0.01
+                        else:
+                            dico[id]=max(t[1], dico[id]) + 0.01
                         if dico[id] > 1.0:
                             dico[id] = 1.0
         l = []
@@ -154,8 +156,10 @@ if __name__ == '__main__':
     print("NPImageNearest")
     print("==============")
     np = NPImageNearest("data/imagemock.h.pickle")
-    byproduct = sys.argv[1] == "--product"
+    byproduct = len(sys.argv) > 1 and sys.argv[1] == "--product"
 
+    res = np.search_by_product(6, 10, 0.75)
+    print(res)
 
     #Recherche par image
     if not byproduct:
@@ -165,7 +169,7 @@ if __name__ == '__main__':
             try:
                 im = np.get_im_by_iid(id)
                 print(f'Image {id} {im.path}')
-                res = np.search_by_im(id, 10, 0.5)
+                res = np.search_by_im(id, 10, 0.75)
                 image_scores_to_html(im, res)
             except Exception as ex:
                 print(f"Image {id} does not exist", ex)
@@ -181,7 +185,7 @@ if __name__ == '__main__':
             id = int(input("ProductID: "))
             t = time.perf_counter()
             try:
-                res = np.search_by_product(id, 10, 0.5)
+                res = np.search_by_product(id, 10, 0.75)
             except Exception as ex:
                 print(f"Product {id} does not exist", ex)
                 res=[]

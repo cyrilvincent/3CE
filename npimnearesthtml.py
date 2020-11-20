@@ -58,7 +58,7 @@ def product_scores_to_html(np, pid, scores):
         f.write("<br/>\n")
         f.write(f"<p>Found {len(scores)} product(s)\n")
         for t in scores:
-            f.write(f"<p>Product {t[0]}  at {t[1]*100:.0f}% ")
+            f.write(f"<p><a href='poutput_{t[0]}.html'>Product {t[0]}</a>  at {t[1]*100:.0f}% ")
             for iid in np.db[1][t[0]]:
                 im = np.get_im_by_iid(iid)
                 f.write(f"<a href='ioutput_{im.id}.html'><img src='../images/{im.path}' alt='{im.id}' height='100'/></a>")
@@ -97,13 +97,10 @@ def categorize_to_html(np):
                 f.write(f"<a href='{path}'><img src='{path}' height='100'/></a>\n")
             f.write("</BODY></HTML>")
 
-
-
-
 if __name__ == '__main__':
     print("NPImageNearestHTML")
     print("==================")
     np = npimnearest.NPImageNearest("data/imagemock.h.pickle")
     # images_to_html(np)
-    # products_to_html(np)
-    categorize_to_html(np)
+    products_to_html(np)
+    # categorize_to_html(np)
