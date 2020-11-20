@@ -9,6 +9,7 @@ import threading
 import logging
 from npproductnearest import NPNearest
 from npproductcompare import NPComparer
+from npimnearest import NPImageNearest
 
 print("NP REST")
 print("=======")
@@ -20,7 +21,7 @@ try:
     cli = sys.modules['flask.cli']
     cli.show_server_banner = lambda *x: None
     lock = threading.RLock()
-    np = NPNearest(config.product_h_file)
+    npproduct = NPNearest(config.product_h_file)
 except Exception as ex:
     logging.fatal(ex)
 
@@ -48,29 +49,29 @@ def version():
 @app.route("/product/<int:id>", methods=['GET'])
 def get_product(id):
     try:
-        p = np.get_by_id(id)
+        p = npproduct.get_by_id(id)
         return jsonify(p)
     except KeyError:
         return flask.abort(404)
 
-@app.route("/nearests/<int:id>/<int:nb>", methods=['GET'])
-def nearests_nb(id, nb):
+@app.route("/product/nearests/<int:id>/<int:nb>", methods=['GET'])
+def product_nearests_nb(id, nb):
     try:
-        res = np.search(id,take=nb)
+        res = npproduct.search(id, take=nb)
         return flask.jsonify(res)
     except KeyError:
         logging.warn(f"nbrest.nearests id:{id} not found")
         return flask.abort(404)
 
-@app.route("/nearests/<int:id>", methods=['GET'])
-def nearests(id):
-    return nearests_nb(id, 10)
+@app.route("/product/nearests/<int:id>", methods=['GET'])
+def product_nearests(id):
+    return product_nearests_nb(id, 10)
 
-@app.route("/compare/<int:id1>/<int:id2>", methods=['GET'])
+@app.route("/product/compare/<int:id1>/<int:id2>", methods=['GET'])
 def compare(id1, id2):
     try:
-        p1 = np.get_by_id(id1)
-        p2 = np.get_by_id(id2)
+        p1 = npproduct.get_by_id(id1)
+        p2 = npproduct.get_by_id(id2)
         comparer = NPComparer()
         res = {}
         res["USE"] = {"score" : comparer.compare(p1, p2), "details" : comparer.compp(p1, p2)}
@@ -84,8 +85,8 @@ def compare(id1, id2):
 def reset():
     with lock:
         logging.warning("Reset")
-        np.reset()
-    return flask.jsonify(len(np.db))
+        npproduct.reset()
+    return flask.jsonify(len(npproduct.db))
 
 if __name__ == '__main__':
     try:

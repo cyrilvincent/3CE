@@ -9,6 +9,7 @@ port = 5000
 indexer_port = 5001
 product_h_file = "data/data.h.pickle"
 product_data_file = "data/data.txt"
+image_h_file = "data/imagemock.h.pickle"
 tf_use = "hubmodule/universal-sentence-encoder.4"
 #tf_use = "hubmodule/universal-sentence-encoder-multilingual-large_3"
 tf_fv = "hubmodule/feature-vector.4"

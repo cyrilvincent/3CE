@@ -111,8 +111,8 @@ class NPImage:
             res["dzh"] = round(1 - (self.zh - other.zh) / len(self.zh.hash) ** 2, 3)
         if self.a2h is not None and other.a2h is not None:
             res["da2h"] = round(1 - (self.a2h - other.a2h) / len(self.a2h.hash) ** 2, 3)
-        if self.fv is not None and other.tf_fv is not None:
-            res["dfv"] = round(1 - spatial.distance.cosine(self.fv, other.tf_fv), 3)
+        if self.fv is not None and other.fv is not None:
+            res["dfv"] = round(1 - spatial.distance.cosine(self.fv, other.fv), 3)
         return res
 
     def __repr__(self):

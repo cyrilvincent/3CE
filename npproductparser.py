@@ -5,8 +5,11 @@ import time
 import cyrilload
 import config
 import logging
+import tensorflow as tf
+import absl
 from entities import Product, Car
 from typing import Dict, List
+
 
 __version__ = config.version
 
@@ -26,7 +29,7 @@ class USE:
             print(f"Load TF USE model: {config.tf_use}")
             USE.model = tf.saved_model.load(config.tf_use)
             print(f"Loaded in {time.perf_counter() - t:.1f} s")
-        logging.set_verbosity(logging.ERROR)
+        absl.logging.set_verbosity(absl.logging.ERROR)
 
     def embed(self, inputs:List[str])->List[List[float]]:
         """
