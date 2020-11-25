@@ -7,6 +7,7 @@
 **/obj/**
 **/packages/**
 **/.vs/**
-**/images/**
+/images/**
+pocs/images/**
 **/outputs/**
 **/html/**

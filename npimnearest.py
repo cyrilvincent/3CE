@@ -46,6 +46,12 @@ class NPImageNearest:
     def get_iids_by_pid(self, id:int)->List[int]:
         return self.db[1][id]
 
+    def get_iids(self):
+        return list(self.db[0].keys())
+
+    def get_pids(self):
+        return list(self.db[1].keys())
+
     def search_by_im(self, id:int, take=10, thresold = 0.75)->List[List[float]]:
         if id in NPImageNearest.cache.keys():
             return NPImageNearest.cache[id][:take]
@@ -82,75 +88,14 @@ class NPImageNearest:
                             dico[id] = t[1]
                         else:
                             dico[id]=max(t[1], dico[id]) + 0.01
-                        if dico[id] > 1.0:
-                            dico[id] = 1.0
+                            if dico[id] > 1.0:
+                                dico[id] = 1.0
         l = []
         for k in dico.keys():
             l.append([k, dico[k]])
         l.sort(key = lambda x : x[1], reverse=True)
         l = l[:take]
         return l
-
-def images_to_html():
-    with open(f"outputs/iindex.html", "w") as f:
-        f.write("<HTML><BODY><H1>NP Image Nearest Index</H1>\n")
-        for iid in np.db[0].keys():
-            im = np.get_im_by_iid(iid)
-            f.write(f"<a href='ioutput_{iid}.html'>Image {iid} <img src='../images/{im.path}' height='50'/></a><br/>\n")
-        f.write("</BODY></HTML>")
-    # for pid in np.db[1].keys():
-    #     scores = np.search_by_product(pid)
-    #     product_scores_to_html(pid, scores)
-
-# def image_scores_to_html(im, scores):
-#     print(f"Generate outputs/imoutput_{im.id}.html")
-#     with open(f"outputs/imoutput_{im.id}.html","w") as f:
-#         f.write("<HTML><BODY><H1>NP Image Nearest</H1>\n")
-#         f.write(f"<p><a href='iindex.html'>Index</a>")
-#         f.write(f"<p>Search Nearests images of {im.id} {im.name} <a href='../images/{im.path}'><img src='../images/{im.path}' height=100 /></a>\n")
-#         f.write(f"<p>Found {len(scores)} image(s)\n")
-#         for t in res:
-#             im2 = np.get_im_by_iid(t[0])
-#             f.write(f"<p>Image: {im2.id} <a href='imoutput_{im2.id}.html'>{im2.name}</a> at {t[1]*100:.0f}%  <a href='../images/{im2.path}'><img src='../images/{im2.path}' height=100 /></a>\n")
-#             f.write(f"{npimcomparer.NPImageComparer().comp(im, im2)}")
-#         f.write("</BODY></HTML>")
-#     with open(f"outputs/iindex.html", "w") as f:
-#         f.write("<HTML><BODY><H1>NP Image Nearest Image Index</H1>\n")
-#         for k in np.db[0].keys():
-#             im = np.db[0][k]
-#             f.write(f"<a href='output_{i}.html'>imoutput_{i}.html<img src='../images/{im.path}' height='50'/></a><br/>")
-#         f.write("</BODY></HTML>")
-
-def products_to_html():
-    with open(f"outputs/pindex.html", "w") as f:
-        f.write("<HTML><BODY><H1>NP Product Nearest by image Index</H1>\n")
-        for pid in np.db[1].keys():
-            f.write(f"<a href='poutput_{pid}.html'>Product {pid}</a> ")
-            for iid in np.db[1][pid]:
-                im = np.db[0]
-                f.write(f"<a href='ioutput_{iid}.html'><img src='../images/{im.path}' height='50'/></a> ")
-            f.write("<br/>\n")
-        f.write("</BODY></HTML>")
-    # for pid in np.db[1].keys():
-    #     scores = np.search_by_product(pid)
-    #     product_scores_to_html(pid, scores)
-
-
-
-def product_scores_to_html(pid, scores):
-    print(f"Generate outputs/poutput_{pid}.html")
-    # with open(f"outputs/poutput_{im.id}.html","w") as f:
-    #     f.write("<HTML><BODY><H1>NP Product by image Nearest</H1>\n")
-    #     f.write(f"<p><a href='pindex.html'>Index</a>")
-    #     f.write(f"<p>Search Nearests images of {im.id} {im.name} <a href='../images/{im.path}'><img src='../images/{im.path}' height=100 /></a>\n")
-    #     f.write(f"<p>Found {len(scores)} image(s)\n")
-    #     for t in res:
-    #         im2 = np.get_im_by_iid(t[0])
-    #         f.write(f"<p>Image: {im2.id} <a href='output_{im2.id}.html'>{im2.name}</a> at {t[1]*100:.0f}%  <a href='../images/{im2.path}'><img src='../images/{im2.path}' height=100 /></a>\n")
-    #         f.write(f"{npimcomparer.NPImageComparer().comp(im, im2)}")
-    #     f.write("</BODY></HTML>")
-
-
 
 if __name__ == '__main__':
     print("NPImageNearest")
@@ -163,13 +108,14 @@ if __name__ == '__main__':
 
     #Recherche par image
     if not byproduct:
+        print(np.get_iids())
         while True:
             id = int(input("ImageID: "))
             t = time.perf_counter()
             try:
                 im = np.get_im_by_iid(id)
                 print(f'Image {id} {im.path}')
-                res = np.search_by_im(id, 10, 0.75)
+                res = np.search_by_im(id)
                 image_scores_to_html(im, res)
             except Exception as ex:
                 print(f"Image {id} does not exist", ex)
@@ -181,11 +127,12 @@ if __name__ == '__main__':
             print()
 
     else:
+        print(np.get_pids())
         while True:
             id = int(input("ProductID: "))
             t = time.perf_counter()
             try:
-                res = np.search_by_product(id, 10, 0.75)
+                res = np.search_by_product(id)
             except Exception as ex:
                 print(f"Product {id} does not exist", ex)
                 res=[]

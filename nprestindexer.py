@@ -4,25 +4,19 @@ import sys
 import shutil
 import urllib.request
 import logging
+import socket
 from npproductparser import NPParser
 
-print("NP Rest Indexer")
-print("===============")
-print(f"V{config.version}")
-logging.info("NPRestIndexer")
-try:
-    app: flask.Flask = flask.Flask(__name__)
-    cli = sys.modules['flask.cli']
-    cli.show_server_banner = lambda *x: None
-    np = NPParser()
-except Exception as ex:
-    logging.info(ex)
+app: flask.Flask = flask.Flask(__name__)
 
 @app.route("/", methods=['GET'])
 def autodoc():
     s=f"<html><body><h1>NP Rest Indexer V{config.version}</h1>"
+    host = socket.gethostname()
+    ip = socket.gethostbyname(host)
+    s+= f"<p>{host}@{ip}:{config.port}</p>"
     for rule in app.url_map.iter_rules():
-        s += f"{rule.methods} <a href='http://localhost:{config.indexer_port}{rule}'>{rule}</a> {rule.arguments}<br/>"
+        s += f"{rule.methods} <a href='http://{ip}:{config.indexer_port}{rule}'>{rule}</a> {rule.arguments}<br/>"
     s+="</body></html>"
     return s
 
@@ -63,7 +57,15 @@ def index():
     return flask.jsonify(len(np.db))
 
 if __name__ == '__main__':
+    print("NP Rest Indexer")
+    print("===============")
+    print(f"V{config.version}")
+    logging.info("NPRestIndexer")
     try:
+
+        cli = sys.modules['flask.cli']
+        cli.show_server_banner = lambda *x: None
+        np = NPParser()
         app.run(host='0.0.0.0', port=config.indexer_port, threaded=False, debug=config.debug, use_reloader=False)
     except Exception as ex:
         logging.fatal(ex)

@@ -1,0 +1,157 @@
+{
+    "164113": {
+        "id": 164113,
+        "l": [
+            {
+                "id": 978,
+                "val": "Sparadrap TRANSPORE 50mmx9,1m 3M (1 x 6)",
+                "w": 1.0,
+                "main": true,
+                "h": null
+            },
+            {
+                "id": 977,
+                "val": "Sparadrap TRANSPORE 50mmx9,1m 3M (1 x 6)",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 995,
+                "val": "126138",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 1012,
+                "val": "1527-2",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 993,
+                "val": "3M",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 965,
+                "val": "5cm x 9,1m",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 987,
+                "val": "plastique",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 988,
+                "val": "Transpore",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            }
+        ]
+    },
+    "164114": {
+        "id": 164114,
+        "l": [
+            {
+                "id": 978,
+                "val": "Microfoam bandage compressif,50mmx5 m,(boite 6 rl.)",
+                "w": 1.0,
+                "main": true,
+                "h": null
+            },
+            {
+                "id": 977,
+                "val": "Microfoam bandage compressif,50mmx5 m,(boite 6 rl.)",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 995,
+                "val": "126138",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 1012,
+                "val": "1528-2",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 993,
+                "val": "3M",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 965,
+                "val": "50mmx5m",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            }
+        ]
+    },
+    "164115": {
+        "id": 164115,
+        "l": [
+            {
+                "id": 978,
+                "val": "Microfoam bandage compressif,100mmx5m,(boite 3 rl.)",
+                "w": 1.0,
+                "main": true,
+                "h": null
+            },
+            {
+                "id": 977,
+                "val": "Microfoam bandage compressif,100mmx5m,(boite 3 rl.)",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 995,
+                "val": "126138",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 1012,
+                "val": "1528-4",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 993,
+                "val": "3M",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            },
+            {
+                "id": 965,
+                "val": "100mmx5m",
+                "w": 0.5,
+                "main": false,
+                "h": null
+            }
+        ]
+    }
+}

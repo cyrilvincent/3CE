@@ -102,6 +102,9 @@ class NPNearest:
             res = res[:take]
             return res
 
+    def get_ids(self):
+        return list(self.db.keys())
+
 if __name__ == '__main__':
     print("NPNearest")
     print("=========")
