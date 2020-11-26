@@ -43,7 +43,7 @@ class ImageTests(unittest.TestCase):
         i1 = db[0][106]
         i2 = db[0][109]
         np = NPImageComparer()
-        score = np.comp(i1, i2)
+        score = np.diff(i1, i2)
         self.assertEqual(1, score["dah"])
         self.assertEqual(1, score["dfv"])
 
@@ -80,6 +80,9 @@ class ImageTests(unittest.TestCase):
         np.reset()
         score = np.search_by_im(106)
         self.assertEqual(109, score[0][0])
+
+if __name__ == '__main__':
+    unittest.main()
 
 
 

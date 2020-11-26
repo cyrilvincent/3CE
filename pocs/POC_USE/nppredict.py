@@ -14,7 +14,7 @@ while True:
     best = (None, 0)
     for k in np.db.keys():
         p = np.get_by_id(k)
-        score = np.comp.compvl(s, p.l[0].val)
+        score = np.comp.compare_value_gestalt(s, p.l[0].val)
         if score > best[1]:
             best = (p, score)
     val = [c.val for c in best[0].l if c.id == 995]

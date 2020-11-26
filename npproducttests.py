@@ -44,82 +44,83 @@ class ProductTests(unittest.TestCase):
         np.save("h","jsonpickle")
         np.save("h")
 
-    def test_npcompare_comph(self):
+    def test_npcompare_compare_h_use(self):
         use = USE()
         s1 = "L'herbe est verte"
         s2 = "Le gazon est vert"
         ls = use.hs([s1, s2])
         np = NPComparer()
-        score = np.comph(ls[0], ls[1])
+        score = np.compare_h_use(ls[0], ls[1])
         self.assertAlmostEqual(0.73, score, delta=1e-2)
 
-    def test_npcompare_compv(self):
+    def test_npcompare_compare_value_string_equality(self):
         np = NPComparer()
-        score = np.compv("abc","ABC")
+        score = np.compare_value_string_equality("abc", "ABC")
         self.assertEqual(1.0, score)
-        score = np.compv("abc","abcd")
+        score = np.compare_value_string_equality("abc", "abcd")
         self.assertAlmostEqual(0.375, score, delta = 1e-2)
 
-    def test_npcompare_compvl(self):
+    def test_npcompare_compare_value_gestalt(self):
         np = NPComparer()
-        score = np.compvl("3.14","3.14")
+        score = np.compare_value_gestalt("3.14", "3.14")
         self.assertEqual(1.0, score)
-        score = np.compvl("3.14","3.0")
+        score = np.compare_value_gestalt("3.14", "3.0")
         self.assertAlmostEqual((1 - (0.14 / 3.14)) / 4, score, delta = 1e-2)
         s1 = "L'herbe est verte"
         s2 = "Le gazon est vert"
-        score = np.compvl(s1, s2)
+        score = np.compare_value_gestalt(s1, s2)
         self.assertAlmostEqual(0.65, score, delta = 1e-2)
 
-    def test_npcompare_compp(self):
+    def test_npcompare_compare_product_to_scores(self):
         db = cyrilload.load("tests/data.h.pickle")
         np = NPComparer()
-        score = np.compp(db[164114], db[164115])
-        self.assertEqual(6, len(score))
-        self.assertAlmostEqual(0.52, score[0][0], delta = 1e-2)
-        self.assertAlmostEqual(0.1, score[0][1], delta = 1e-2)
+        scores = np.compare_product_to_scores(db[164114], db[164115])
+        self.assertEqual(6, len(scores))
+        self.assertAlmostEqual(0.52, scores[0][0], delta = 1e-2)
+        self.assertAlmostEqual(0.1, scores[0][1], delta = 1e-2)
 
-    def test_npcompare_comppl(self):
+    def test_npcompare_compare_product_gestalt_to_scores(self):
         db = cyrilload.load("tests/data.h.pickle")
         np = NPComparer()
-        score = np.comppl(db[164114], db[164115])
-        self.assertEqual(6, len(score))
-        self.assertAlmostEqual(0.94, score[0][0], delta = 1e-2)
-        self.assertAlmostEqual(0.29, score[0][1], delta = 1e-2)
+        scores = np.compare_product_gestalt_to_scores(db[164114], db[164115])
+        self.assertEqual(6, len(scores))
+        self.assertAlmostEqual(0.94, scores[0][0], delta = 1e-2)
+        self.assertAlmostEqual(0.29, scores[0][1], delta = 1e-2)
 
-    def test_npcompare_compare(self):
+    def test_npcompare_compare_product(self):
         db = cyrilload.load("tests/data.h.pickle")
         np = NPComparer()
-        score = np.compare(db[164114], db[164115])
+        score = np.compare_product(db[164114], db[164115])
         self.assertAlmostEqual(0.62, score, delta = 1e-2)
 
-    def test_npcompare_comparel(self):
+    def test_npcompare_compare_product_gestalt(self):
         db = cyrilload.load("tests/data.h.pickle")
         np = NPComparer()
-        score = np.comparel(db[164114], db[164115])
+        score = np.compare_product_gestalt(db[164114], db[164115])
         self.assertAlmostEqual(0.92, score, delta = 1e-2)
 
-    def test_npnearest_searchl(self):
+    def test_npnearest_search_gestalt(self):
         np = NPNearest("tests/data.h.pickle")
         l = np.get_ids()
         self.assertEqual(3, len(l))
         p = np.get_by_id(164114)
         self.assertEqual(164114, p.id)
-        score = np.searchl(164114, [164115, 164113])
-        self.assertEqual(164115, score[0][0])
-        self.assertAlmostEqual(0.92, score[0][1], delta=1e-2)
-        self.assertEqual(164113, score[1][0])
-        self.assertAlmostEqual(0.67, score[1][1], delta=1e-2)
+        scores = np.search_gestalt(164114, [164115, 164113])
+        self.assertEqual(164115, scores[0][0])
+        self.assertAlmostEqual(0.92, scores[0][1], delta=1e-2)
+        self.assertEqual(164113, scores[1][0])
+        self.assertAlmostEqual(0.67, scores[1][1], delta=1e-2)
 
     def test_npnearest(self):
         np = NPNearest("tests/data.h.pickle")
-        score = np.search(164114)
-        self.assertEqual(164115, score[0][0])
-        self.assertAlmostEqual(0.77, score[0][1], delta=1e-2)
-        self.assertEqual(164113, score[1][0])
-        self.assertAlmostEqual(0.58, score[1][1], delta=1e-2)
+        scores = np.search(164114)
+        self.assertEqual(164115, scores[0][0])
+        self.assertAlmostEqual(0.77, scores[0][1], delta=1e-2)
+        self.assertEqual(164113, scores[1][0])
+        self.assertAlmostEqual(0.58, scores[1][1], delta=1e-2)
 
-
+if __name__ == '__main__':
+    unittest.main()
 
 
 

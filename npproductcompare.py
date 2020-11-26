@@ -14,7 +14,7 @@ class NPComparer():
     Compare to products
     """
 
-    def comph(self, h1:Iterable[float], h2:Iterable[float])->float:
+    def compare_h_use(self, h1:Iterable[float], h2:Iterable[float])->float:
         """
         Use model compare two hash of 512 floats
         :param h1: h1
@@ -25,7 +25,7 @@ class NPComparer():
         # h2 = np.array(h2)
         return np.inner(h1, h2)
 
-    def compv(self, v1:str, v2:str)->float:
+    def compare_value_string_equality(self, v1:str, v2:str)->float:
         """
         Compare 2 string values
         :param v1: v1
@@ -44,7 +44,7 @@ class NPComparer():
                 break
         return (nb / max(len(v1), len(v2))) / 2
 
-    def compvl(self, v1:str, v2:str)->float:
+    def compare_value_gestalt(self, v1:str, v2:str)->float:
         """
         Compare 2 strings with Gestalt model
         :param v1: v1
@@ -63,7 +63,7 @@ class NPComparer():
             sm = difflib.SequenceMatcher(lambda x: x in " \t.!?,;\n", v1.upper(), v2.upper())
             return sm.ratio()
 
-    def compp(self, p1:Product, p2:Product, main=False)->List[List[float]]:
+    def compare_product_to_scores(self, p1:Product, p2:Product, main=False)->List[List[float]]:
         """
         Compare 2 products withe the USE model
         :param p1: p1
@@ -77,26 +77,26 @@ class NPComparer():
             if p2.contains(c1):
                 c2 = p2.get_car_by_id(c1.id)
                 if c1.main:
-                    score = self.compv(c1.val, c2.val)
+                    score = self.compare_value_string_equality(c1.val, c2.val)
                     if score > 0.99:
                         w = 2
                     else:
                         if c1.h != None and c2.h != None:
-                            score = (score + self.comph(c1.h, c2.h)) / 2
+                            score = (score + self.compare_h_use(c1.h, c2.h)) / 2
                         if score < 0.8:
                             w = 0.1
                 else:
                     if c1.h != None and c2.h != None:
-                        score = self.comph(c1.h, c2.h)
+                        score = self.compare_h_use(c1.h, c2.h)
                     else:
-                        score = self.compv(c1.val, c2.val)
+                        score = self.compare_value_string_equality(c1.val, c2.val)
             else :
                 w /= 2
             if not main or c1.main:
                 res.append([score, w])
         return res
 
-    def comppl(self, p1:Product, p2:Product, main = False)->List[List[float]]:
+    def compare_product_gestalt_to_scores(self, p1:Product, p2:Product, main = False)->List[List[float]]:
         """
         Compare 2 products with the Gestalt model
         :param p1: p1
@@ -111,7 +111,7 @@ class NPComparer():
                 c2 = p2.get_car_by_id(c1.id)
                 v1 = c1.val.upper()
                 v2 = c2.val.upper()
-                score = self.compvl(v1, v2)
+                score = self.compare_value_gestalt(v1, v2)
                 if c1.main:
                     if score > 0.99:
                         w = 2
@@ -124,24 +124,24 @@ class NPComparer():
                 res.append([score, w])
         return res
 
-    def compare(self, p1:Product, p2:Product, main=False)->float:
+    def compare_product(self, p1:Product, p2:Product, main=False)->float:
         """
         Main method with use model
         :param p1: p1
         :param p2: p2
         :return: The score
         """
-        wscores = self.compp(p1, p2, main)
+        wscores = self.compare_product_to_scores(p1, p2, main)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
-    def comparel(self, p1:Product, p2:Product, main = False)->float:
+    def compare_product_gestalt(self, p1:Product, p2:Product, main = False)->float:
         """
         Main compare method for Gestalt model
         :param p1: p1
         :param p2: p2
         :return: The score
         """
-        wscores = self.comppl(p1, p2, main)
+        wscores = self.compare_product_gestalt_to_scores(p1, p2, main)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
 def display(p1:Product, p2:Product, res):
@@ -185,16 +185,16 @@ if __name__ == '__main__':
         sys.exit(2)
     print(f"Compare products {p1.id} and {p2.id}")
     comparer = NPComparer()
-    res = comparer.compp(p1, p2)
+    res = comparer.compare_product_to_scores(p1, p2)
     print("Deep Learning Google DAN USE model:")
     display(p1,p2,res)
-    print(f"USE Score: {comparer.compare(p1, p2)*100:.0f}%")
+    print(f"USE Score: {comparer.compare_product(p1, p2) * 100:.0f}%")
     print()
     print("Machine Learning Gestalt+Cyril model:")
-    res = comparer.comppl(p1, p2)
+    res = comparer.compare_product_gestalt_to_scores(p1, p2)
     display(p1,p2,res)
-    print(f"Gestalt Score: {comparer.comparel(p1, p2) * 100:.0f}%")
+    print(f"Gestalt Score: {comparer.compare_product_gestalt(p1, p2) * 100:.0f}%")
     print()
-    print(f"Final Score: {(comparer.compare(p1, p2) + comparer.comparel(p1, p2)) / 2 * 100:.0f}%")
+    print(f"Final Score: {(comparer.compare_product(p1, p2) + comparer.compare_product_gestalt(p1, p2)) / 2 * 100:.0f}%")
 
 

@@ -14,9 +14,11 @@ def autodoc():
     s=f"<html><body><h1>NP Rest Indexer V{config.version}</h1>"
     host = socket.gethostname()
     ip = socket.gethostbyname(host)
-    s+= f"<p>{host}@{ip}:{config.port}</p>"
-    for rule in app.url_map.iter_rules():
-        s += f"{rule.methods} <a href='http://{ip}:{config.indexer_port}{rule}'>{rule}</a> {rule.arguments}<br/>"
+    s += f"<p>{host}@{ip}:{config.port}</p>"
+    l = list(app.url_map.iter_rules())
+    l.sort(key=lambda x: x.rule)
+    for rule in l:
+        s += f"{rule.methods} <a href='http://{ip}:{config.port}{rule.rule}'>{rule.rule.replace('<', '&lt;').replace('>', '&gt;')}</a><br/>"
     s+="</body></html>"
     return s
 
@@ -62,7 +64,6 @@ if __name__ == '__main__':
     print(f"V{config.version}")
     logging.info("NPRestIndexer")
     try:
-
         cli = sys.modules['flask.cli']
         cli.show_server_banner = lambda *x: None
         np = NPParser()

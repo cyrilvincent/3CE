@@ -51,7 +51,7 @@ class NPNearest:
         """
         return self.db[pid]
 
-    def searchl(self, pid:int, pid2s:List[int], main = False)->List[List[float]]:
+    def search_gestalt(self, pid:int, pid2s:List[int], main = False)->List[List[float]]:
         """
         Search nearest by Gestalt model
         :param pid: pid
@@ -62,7 +62,7 @@ class NPNearest:
         for pid2 in pid2s:
             p = self.get_by_id(pid)
             p2 = self.get_by_id(pid2)
-            score = self.comp.comparel(p, p2, main)
+            score = self.comp.compare_product_gestalt(p, p2, main)
             res.append([pid2, score])
         return res
 
@@ -84,12 +84,12 @@ class NPNearest:
             for k in self.db.keys():
                 p2 = self.get_by_id(k)
                 if p.id != p2.id:
-                    score = self.comp.compare(p, p2, main)
+                    score = self.comp.compare_product(p, p2, main)
                     if score > config.product_thresold * 0.8:
                         res1.append([k, score])
             res1.sort(key = lambda x : x[1], reverse = True)
             res1 = res1[:(take * config.take_ratio)]
-            res2 = self.searchl(p.id, [p2[0] for p2 in res1], main)
+            res2 = self.search_gestalt(p.id, [p2[0] for p2 in res1], main)
             res = []
             for x in zip(res1, res2):
                 v = (x[0][1] + x[1][1]) / 2

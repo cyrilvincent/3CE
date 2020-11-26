@@ -27,7 +27,7 @@ def image_scores_to_html(im, scores):
         for t in scores:
             im2 = np.get_im_by_iid(t[0])
             f.write(f"<p>Image: {im2.id} <a href='ioutput_{im2.id}.html'>{im2.name}</a> at {t[1]*100:.0f}%  <a href='../images/{im2.path}'><img src='../images/{im2.path}' height=100 /></a>\n")
-            f.write(f"{npimcomparer.NPImageComparer().comp(im, im2)}")
+            f.write(f"{npimcomparer.NPImageComparer().diff(im, im2)}")
         f.write("</BODY></HTML>")
 
 

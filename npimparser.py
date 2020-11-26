@@ -202,7 +202,7 @@ if __name__ == '__main__':
     print("NP Images Parser")
     print("================")
     p = NPImageParser()
-    p.parse("data/imagemock.txt") #Found 63 images in 0s
+    p.parse("data/imagemock.txt") #Found 63 images in 0s x
     count = len(p.dbi)
     p.save()
     p.save(method="jsonpickle")

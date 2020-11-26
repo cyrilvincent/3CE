@@ -13,7 +13,7 @@ h1, h2 = m.hs([args.s1,args.s2])
 score = np.inner(h1, h2)
 print(score)
 m = npproductcompare.NPComparer()
-score = m.compvl(args.s1, args.s2)
+score = m.compare_value_gestalt(args.s1, args.s2)
 print(score)
 
 

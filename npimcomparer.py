@@ -20,10 +20,10 @@ class NPImageComparer():
         # wh = ph with Fourier : cost a lot, good like ah
         # wdh = optimization of wh : cost++, good but lot of false positives
 
-    def comp(self, i1:NPImage, i2:NPImage)->List[List[float]]:
+    def diff(self, i1:NPImage, i2:NPImage)->List[List[float]]:
         dico =  i1 - i2
         np = NPComparer()
-        dico["dn"] = round(np.compvl(i1.name.split(".")[0], i2.name.split(".")[0]),3)
+        dico["dn"] = round(np.compare_value_gestalt(i1.name.split(".")[0], i2.name.split(".")[0]), 3)
         return dico
 
     def compare(self, i1:NPImage, i2:NPImage)->List[List[float]]:
@@ -74,7 +74,7 @@ class NPImageComparer():
             res.append([score, w])
         score = sum([x[0] * x[1] for x in res]) / sum([x[1] for x in res])
         if score < 0.8 and score > 0.5:
-            vscore = np.compvl(i1.name.split(".")[0], i2.name.split(".")[0])
+            vscore = np.compare_value_gestalt(i1.name.split(".")[0], i2.name.split(".")[0])
             score = score + vscore * 0.1
         return score
 
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         sys.exit(2)
     print(f"Compare image {i1.name} and {i2.name}")
     comparer = NPImageComparer()
-    res = comparer.comp(i1, i2)
+    res = comparer.diff(i1, i2)
     print(res)
     print(comparer.compare(i1, i2))
 

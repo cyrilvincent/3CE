@@ -1,16 +1,15 @@
 import config
 import flask
-#import flask_cors
 import sys
 import jsonpickle
 import json
-import logging
 import threading
 import logging
 import socket
 from npproductnearest import NPNearest
 from npproductcompare import NPComparer
-from npimnearest import NPImageNearest
+# from npimnearest import NPImageNearest
+# from npimcomparer import NPImageComparer
 
 def jsonify(o):
     js = jsonpickle.dumps(o, False)
@@ -25,8 +24,10 @@ def autodoc():
     host = socket.gethostname()
     ip = socket.gethostbyname(host)
     s+= f"<p>{host}@{ip}:{config.port}</p>"
-    for rule in app.url_map.iter_rules():
-        s += f"{rule.methods} <a href='http://{ip}:{config.port}{rule}'>{rule}</a> {rule.arguments}<br/>"
+    l = list(app.url_map.iter_rules())
+    l.sort(key=lambda x: x.rule)
+    for rule in l:
+        s += f"{rule.methods} <a href='http://{ip}:{config.port}{rule.rule}'>{rule.rule.replace('<','&lt;').replace('>','&gt;')}</a><br/>"
     s+="</body></html>"
     return s
 
@@ -41,7 +42,7 @@ def version():
 @app.route("/product/all", methods=['GET'])
 def get_all():
     l = npproduct.get_ids()
-    return jsonify(l)
+    return flask.jsonify(l)
 
 @app.route("/product/<int:id>", methods=['GET'])
 def get_product(id):
@@ -71,18 +72,64 @@ def compare(id1, id2):
         p2 = npproduct.get_by_id(id2)
         comparer = NPComparer()
         res = {}
-        res["USE"] = {"score" : comparer.compare(p1, p2), "details" : comparer.compp(p1, p2)}
-        res["Gestalt"] = {"score" : comparer.comparel(p1, p2), "details" : comparer.comppl(p1, p2)}
-        res["Total"] = (comparer.compare(p1, p2) + comparer.comparel(p1, p2)) / 2
+        res["USE"] = {"score" : comparer.compare_product(p1, p2), "details" : comparer.compare_product_to_scores(p1, p2)}
+        res["Gestalt"] = {"score" : comparer.compare_product_gestalt(p1, p2), "details" : comparer.compare_product_gestalt_to_scores(p1, p2)}
+        res["Total"] = (comparer.compare_product(p1, p2) + comparer.compare_product_gestalt(p1, p2)) / 2
         return flask.jsonify(res)
     except KeyError:
         return flask.abort(404)
+
+# @app.route("/image/all", methods=['GET'])
+# def iget_all():
+#     l = npim.get_iids()
+#     return flask.jsonify(l)
+#
+# @app.route("/image/compare/<int:id1>/<int:id2>", methods=['GET'])
+# def icompare(id1, id2):
+#     try:
+#         i1 = npim.get_im_by_iid(id1)
+#         i2 = npim.get_im_by_iid(id2)
+#         comparer = NPImageComparer()
+#         res = {}
+#         res["diff"] = comparer.diff(i1, i2)
+#         res["score"] = comparer.compare(i1, i2)
+#         return flask.jsonify(res)
+#     except KeyError:
+#         return flask.abort(404)
+#
+# @app.route("/image/nearests/<int:id>/<int:nb>", methods=['GET'])
+# def image_nearests_nb(id, nb):
+#     try:
+#         res = npim.search_by_im(id, take=nb)
+#         return flask.jsonify(res)
+#     except KeyError:
+#         logging.warning(f"nbrest.image_nearests id:{id} not found")
+#         return flask.abort(404)
+#
+# @app.route("/image/nearests/<int:id>", methods=['GET'])
+# def image_nearests(id):
+#     return image_nearests_nb(id, 10)
+#
+# @app.route("/image/product/nearests/<int:id>/<int:nb>", methods=['GET'])
+# def product_byimage_nearests_nb(id, nb):
+#     try:
+#         res = npim.search_by_product(id, take=nb)
+#         return flask.jsonify(res)
+#     except KeyError:
+#         logging.warning(f"nbrest.product_byimage_nearests id:{id} not found")
+#         return flask.abort(404)
+#
+# @app.route("/image/product/nearests/<int:id>", methods=['GET'])
+# def product_byimage_nearests(id):
+#     return product_byimage_nearests_nb(id, 10)
 
 @app.route("/reset", methods=['GET'])
 def reset():
     logging.warning("Reset")
     with lock:
         npproduct.reset()
+    # with lock:
+    #     npim.reset()
     return flask.jsonify(len(npproduct.db))
 
 if __name__ == '__main__':
@@ -91,11 +138,11 @@ if __name__ == '__main__':
     print(f"V{config.version}")
     logging.info('Starting NPRest')
     try:
-        # flask_cors.CORS(app)
         cli = sys.modules['flask.cli']
         cli.show_server_banner = lambda *x: None
         lock = threading.RLock()
         npproduct = NPNearest(config.product_h_file)
+        #npim = NPImageNearest(config.image_h_file)
         app.run(host='0.0.0.0', port=config.port, threaded=True, debug=config.debug, use_reloader=False)
     except Exception as ex:
         logging.fatal(ex)
