@@ -2,7 +2,7 @@ import logging
 import os
 
 debug = True
-version = "0.0.2-POC"
+version = "1.0.0-DEV"
 port = 5000
 indexer_port = 5001
 product_h_file = "data/data.h.pickle"
