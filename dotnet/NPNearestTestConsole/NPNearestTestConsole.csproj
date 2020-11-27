@@ -34,9 +34,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>ConsoleApp1.ThreadTestMain</StartupObject>
+    <StartupObject>ConsoleApp1.DiffExample</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DiffLib, Version=2017.7.26.1241, Culture=neutral, PublicKeyToken=9e2fabf3af85dba9, processorArchitecture=MSIL">
+      <HintPath>..\packages\DiffLib.2017.7.26.1241\lib\net47\DiffLib.dll</HintPath>
+    </Reference>
     <Reference Include="Python.Runtime, Version=2.5.1.0, Culture=neutral, processorArchitecture=AMD64">
       <HintPath>..\packages\pythonnet_py37_win.2.5.1\lib\net40\Python.Runtime.dll</HintPath>
     </Reference>
@@ -50,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DiffExample.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ThreadTestMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
