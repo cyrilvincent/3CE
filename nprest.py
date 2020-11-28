@@ -39,6 +39,16 @@ def ping():
 def version():
     return config.version
 
+@app.route("/sentence/compare/<s1>/<s2>", methods=['GET'])
+def compare_sentence(s1, s2):
+    return flask.jsonify(npproduct.comp.compare_value_gestalt(s1, s2))
+
+@app.route("/sentence/compare/list", methods=['POST'])
+def compare_sentences():
+    #[["il fait beau","le soleil"],["il fait encore bieau","le sol"]]
+    json = flask.request.json
+    return flask.jsonify([npproduct.comp.compare_value_gestalt(s1, s2) for s1, s2 in zip(json[0], json[1])])
+
 @app.route("/product/all", methods=['GET'])
 def get_all():
     l = npproduct.get_ids()
@@ -75,6 +85,7 @@ def compare(id1, id2):
         res["USE"] = {"score" : comparer.compare_product(p1, p2), "details" : comparer.compare_product_to_scores(p1, p2)}
         res["Gestalt"] = {"score" : comparer.compare_product_gestalt(p1, p2), "details" : comparer.compare_product_gestalt_to_scores(p1, p2)}
         res["Total"] = (comparer.compare_product(p1, p2) + comparer.compare_product_gestalt(p1, p2)) / 2
+        res["Cids"] = [c.id for c in p1.l]
         return flask.jsonify(res)
     except KeyError:
         return flask.abort(404)

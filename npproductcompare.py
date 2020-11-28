@@ -65,7 +65,7 @@ class NPComparer():
 
     def compare_product_to_scores(self, p1:Product, p2:Product, main=False)->List[List[float]]:
         """
-        Compare 2 products withe the USE model
+        Compare 2 products with the USE model
         :param p1: p1
         :param p2: p2
         :return: List[List[cid,score]]
