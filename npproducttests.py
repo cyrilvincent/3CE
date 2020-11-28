@@ -119,6 +119,15 @@ class ProductTests(unittest.TestCase):
         self.assertEqual(164113, scores[1][0])
         self.assertAlmostEqual(0.58, scores[1][1], delta=1e-2)
 
+    def test_float_value(self):
+        np = NPNearest("tests/data.h.pickle")
+        p = np.get_by_id(164113)
+        car = p.l[3]
+        self.assertEqual(1012, car.id)
+        self.assertEqual("1527-2", car.val)
+        score = np.comp.compare_value_gestalt(car.val, "1525")
+        self.assertEqual(0.6, score)
+
 if __name__ == '__main__':
     unittest.main()
 

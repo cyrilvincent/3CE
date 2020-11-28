@@ -13,6 +13,5 @@ tf_use = "hubmodule/universal-sentence-encoder.4"
 tf_fv = "hubmodule/feature-vector.4"
 product_thresold = 0.5
 image_thresold = 0.75
-take_ratio = 4
 logging.basicConfig(filename=None, level=logging.INFO)
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
