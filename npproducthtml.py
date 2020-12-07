@@ -50,6 +50,6 @@ if __name__ == '__main__':
     print("NPNearestHTML")
     print("=============")
     print(f"V{config.version}")
-    np = npproductnearest.NPNearest(config.product_h_file)
+    np = npproductnearest.NPNearest("data/data.h.pickle")
     to_html(np)
 

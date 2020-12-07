@@ -110,7 +110,7 @@ class NPNearestPool:
     def __init__(self):
         self.pool = {}
         for instance in config.pool:
-            path = config.product_pool_h_file.replace("{instance}",instance)
+            path = config.product_h_file.replace("{instance}", instance)
             self.pool[instance] = NPNearest(path)
 
     def get_instance(self, instance:str):
@@ -138,11 +138,12 @@ if __name__ == '__main__':
         if main:
             print("Main only")
         muse = sys.argv[1] == "--muse"
+        product_h_file = "data/data.h.pickle"
         if muse:
-            config.product_h_file = config.product_h_file.replace(".h.", ".linux.h.")
+            product_h_file = product_h_file.replace(".h.", ".linux.h.")
     except:
         pass
-    np = NPNearest(config.product_h_file)
+    np = NPNearest(product_h_file)
 
     while True:
         pid = int(input("PID: "))

@@ -50,12 +50,12 @@ def compare_uses():
 def index(instance):
     logging.info(f"Indexer {instance}")
     try:
-        path = config.product_pool_data_file.replace("{instance}",instance)
+        path = config.product_data_file.replace("{instance}", instance)
         npparser.parse(path)
         npparser.normalize()
         npparser.h()
         npparser.save(prefix="temp", method="pickle")
-        name = config.product_data_file.split(".")[0]
+        name = path.split(".")[0]
     except Exception as ex:
         logging.fatal(ex)
     try:

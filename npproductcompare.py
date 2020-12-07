@@ -172,9 +172,10 @@ if __name__ == '__main__':
     parser.add_argument("pid2", help="Product id to compare")
     parser.add_argument("-m","--muse", action="store_true", help="Use MUSE insted of USE")
     args = parser.parse_args()
+    product_h_file = "data/data.h.pickle"
     if args.muse:
-        config.product_h_file = config.product_h_file.replace(".h.", ".linux.h.")
-    db = cyrilload.load(config.product_h_file)
+        product_h_file = product_h_file.replace(".h.", ".linux.h.")
+    db = cyrilload.load(product_h_file)
     p1 = db[int(args.pid1)]
     if p1 == None:
         print(f"{args.pid1} does not exist")

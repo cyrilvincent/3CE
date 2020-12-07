@@ -166,7 +166,7 @@ if __name__ == '__main__':
     print(f"V{__version__}")
     p = NPParser()
     #p.train(config.data_file)
-    p.parse(config.product_data_file) #Found 3904 products * 15
+    p.parse("data/data.txt") #Found 3904 products * 15
     p.normalize()
     #p.save()
     #p.save(method="jsonpickle")
