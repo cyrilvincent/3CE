@@ -129,14 +129,17 @@ class NPParser:
         model = USE()
         t = time.perf_counter()
         i = 0
-        for p in self.db.keys():
+        for pid in self.db.keys():
             if i % max(10,int(self.nbp / 100)) == 0:
                 print(f"Hash {i + 1}/{self.nbp} in {time.perf_counter() - t:.1f} s")
-            for c in self.db[p].l:
-                if " " in c.val and len(c.val) > 4:
-                    c.h = model.h(c.val)
+            self._h_product(pid, model)
             i+=1
         logging.info(f"Hashed in {time.perf_counter() - t:.1f} s")
+
+    def _h_product(self, pid, model = USE()):
+        for c in self.db[pid].l:
+            if " " in c.val and len(c.val) > 4:
+                c.h = model.h(c.val)
 
     def train(self, path:str):
         """

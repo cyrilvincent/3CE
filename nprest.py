@@ -62,6 +62,31 @@ def get_product(id):
     except KeyError:
         return flask.abort(404)
 
+@app.route("/product", methods=['PUT', 'POST'])
+def add_update_product():
+    p = flask.request.json
+    npproduct.db[p.id]=p
+
+@app.route("/product/<int:pid>/car/<int:cid>", methods=['PUT'])
+def update_product_car(pid, cid):
+    try:
+        p = npproduct.get_by_id(pid)
+        car = [c for c in p.l if c.id == cid][0]
+        car.val = str(flask.request.json)
+        car.h = None
+        return jsonify(p)
+    except KeyError:
+        return flask.abort(404)
+
+@app.route("/product/<int:id>", methods=['DELETE'])
+def delete_product(id):
+    try:
+        p = npproduct.get_by_id(id)
+        del npproduct.db[p.id]
+        return flask.jsonify(True)
+    except KeyError:
+        return flask.abort(404)
+
 @app.route("/product/nearests/<int:id>/<int:nb>", methods=['GET'])
 def product_nearests_nb(id, nb):
     try:
@@ -89,6 +114,7 @@ def compare(id1, id2):
         return flask.jsonify(res)
     except KeyError:
         return flask.abort(404)
+
 
 # @app.route("/image/all", methods=['GET'])
 # def iget_all():
