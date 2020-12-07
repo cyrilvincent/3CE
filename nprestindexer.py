@@ -6,7 +6,7 @@ import urllib.request
 import logging
 import socket
 from npproductparser import NPParser, USE
-from npproductnearest import NPNearest
+from npproductnearest import NPNearest, NPNearestPool
 
 app: flask.Flask = flask.Flask(__name__)
 
@@ -35,7 +35,7 @@ def version():
 def compare_use(s1, s2):
     use = USE()
     hs = use.hs([s1, s2])
-    score = npnearest.comp.compare_h_use(hs[0], hs[1])
+    score = npproductpool.get_first_instance().comp.compare_h_use(hs[0], hs[1])
     return flask.jsonify(float(score))
 
 @app.route("/use/compare/list", methods=['POST'])
@@ -43,13 +43,15 @@ def compare_uses():
     #[["il fait beau","le soleil"],["il fait encore bieau","le sol"]]
     use = USE()
     json = flask.request.json
-    return flask.jsonify([npnearest.comp.compare_h_use(use.h(s1), use.h(s2)) for s1, s2 in zip(json[0], json[1])])
+    return flask.jsonify([npproductpool.get_first_instance().comp.compare_h_use(use.h(s1), use.h(s2)) for s1, s2 in zip(json[0], json[1])])
 
 
-@app.route("/indexer", methods=['GET'])
-def index():
+@app.route("/indexer/<instance>", methods=['GET'])
+def index(instance):
+    logging.info(f"Indexer {instance}")
     try:
-        npparser.parse(config.product_data_file)
+        path = config.product_pool_data_file.replace("{instance}",instance)
+        npparser.parse(path)
         npparser.normalize()
         npparser.h()
         npparser.save(prefix="temp", method="pickle")
@@ -67,13 +69,20 @@ def index():
         logging.error("Cannot copy temp to h")
     try:
         logging.info(f"Call reset")
-        npnearest.reset()
-        with urllib.request.urlopen(f"http://localhost:{config.port}/reset") as response:
+        npproductpool.get_instance(instance).reset()
+        with urllib.request.urlopen(f"http://localhost:{config.port}/reset/{instance}") as response:
             nb = response.read()
         print(f"Call reset ok: {nb}")
     except Exception as ex:
         logging.error(f"Call reset nok: {ex}")
     return flask.jsonify(len(npparser.db))
+
+@app.route("/indexer/all", methods=['GET'])
+def index_all():
+    logging.info(f"Indexer All")
+    for instance in config.pool:
+        index(instance)
+    return flask.jsonify(len(config.pool))
 
 if __name__ == '__main__':
     print("NP Rest Indexer")
@@ -84,7 +93,8 @@ if __name__ == '__main__':
         cli = sys.modules['flask.cli']
         cli.show_server_banner = lambda *x: None
         npparser = NPParser()
-        npnearest = NPNearest(config.product_h_file)
+        #npnearest = NPNearest(config.product_h_file)
+        npproductpool = NPNearestPool()
         app.run(host='0.0.0.0', port=config.indexer_port, threaded=False, debug=config.debug, use_reloader=False)
     except Exception as ex:
         logging.fatal(ex)

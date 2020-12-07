@@ -5,7 +5,7 @@ import cyrilload
 from entities import Product, Car
 from npproductparser import USE, NPParser
 from npproductcompare import NPComparer
-from npproductnearest import NPNearest
+from npproductnearest import NPNearest, NPNearestPool
 
 class ProductTests(unittest.TestCase):
 
@@ -127,6 +127,13 @@ class ProductTests(unittest.TestCase):
         self.assertEqual("1527-2", car.val)
         score = np.comp.compare_value_gestalt(car.val, "1525")
         self.assertEqual(0.6, score)
+
+    def test_pool(self):
+        np = NPNearestPool()
+        npn = np.get_instance("data")
+        p = npn.get_by_id(164113)
+        self.assertIsNotNone(p)
+
 
 if __name__ == '__main__':
     unittest.main()

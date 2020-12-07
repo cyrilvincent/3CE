@@ -15,7 +15,6 @@ class NPNearest:
     High level class, main program
     """
 
-    cache = {}
     lock = threading.RLock()
 
     def __init__(self, path, caching = True, reset = True):
@@ -26,6 +25,7 @@ class NPNearest:
         """
         self.path = path
         self.caching = caching
+        self.cache = None
         if reset:
             self.reset()
 
@@ -37,7 +37,7 @@ class NPNearest:
         t = time.perf_counter()
         self.db = cyrilload.load(self.path)
         with NPNearest.lock:
-            NPNearest.cache = {}
+            self.cache = {}
         self.comp = npproductcompare.NPComparer()
         for k in list(self.db.keys())[:1]:
             self.search(k)
@@ -76,8 +76,8 @@ class NPNearest:
         :param main: search on the main car only
         :return: List[List[pid,score]]
         """
-        if pid in NPNearest.cache.keys():
-            return NPNearest.cache[pid][:take]
+        if pid in self.cache.keys():
+            return self.cache[pid][:take]
         else:
             p = self.get_by_id(pid)
             res1 = []
@@ -98,12 +98,35 @@ class NPNearest:
             res = [r for r in res if r[1] > config.product_thresold]
             if self.caching:
                 with NPNearest.lock:
-                    NPNearest.cache[pid] = res
+                    self.cache[pid] = res
             res = res[:take]
             return res
 
     def get_ids(self):
         return list(self.db.keys())
+
+class NPNearestPool:
+
+    def __init__(self):
+        self.pool = {}
+        for instance in config.pool:
+            path = config.product_pool_h_file.replace("{instance}",instance)
+            self.pool[instance] = NPNearest(path)
+
+    def get_instance(self, instance:str):
+        if instance in self.pool:
+            return self.pool[instance]
+        else:
+            msg = f"Instance {instance} does not exist"
+            logging.error(msg)
+            raise ValueError(msg)
+
+    def get_first_instance(self):
+        return self.pool[config.pool[0]]
+
+    def reset(self):
+        for k in self.pool.keys():
+            self.pool[k].reset()
 
 if __name__ == '__main__':
     print("NPNearest")
