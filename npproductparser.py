@@ -64,6 +64,7 @@ class NPParser:
     def __init__(self):
         self.db:Dict[int,Product] = {}
         self.path = None
+        self.use = USE()
 
     def parse(self, path:str)->None:
         """
@@ -126,20 +127,24 @@ class NPParser:
         Use hashing
         """
         logging.info(f"Hashing with USE model")
-        model = USE()
         t = time.perf_counter()
         i = 0
         for pid in self.db.keys():
             if i % max(10,int(self.nbp / 100)) == 0:
                 print(f"Hash {i + 1}/{self.nbp} in {time.perf_counter() - t:.1f} s")
-            self._h_product(pid, model)
+            self.h_product(self.db[pid])
             i+=1
         logging.info(f"Hashed in {time.perf_counter() - t:.1f} s")
 
-    def _h_product(self, pid, model = USE()):
-        for c in self.db[pid].l:
+    def h_product(self, p:Product):
+        for c in p.l:
             if " " in c.val and len(c.val) > 4:
-                c.h = model.h(c.val)
+                c.h = self.use.h(c.val)
+            else:
+                c.h = None
+
+    def delete(self, pid):
+        del self.db[pid]
 
     def train(self, path:str):
         """

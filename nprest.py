@@ -6,8 +6,9 @@ import json
 import threading
 import logging
 import socket
-from npproductnearest import NPNearest, NPNearestPool
+from npproductnearest import NPNearestPool
 from npproductcompare import NPComparer
+from npproductparser import NPParser
 # from npimnearest import NPImageNearest
 # from npimcomparer import NPImageComparer
 
@@ -65,8 +66,9 @@ def get_product(id, instance):
 @app.route("/product/<instance>", methods=['PUT', 'POST'])
 def add_update_product(instance):
     p = flask.request.json
+    npproductparser.h_product(p)
     npproductpool.get_instance(instance).db[p.id]=p
-    #TODO update
+
 
 @app.route("/product/<int:pid>/car/<int:cid>/<instance>", methods=['PUT'])
 def update_product_car(pid, cid, instance):
@@ -75,6 +77,7 @@ def update_product_car(pid, cid, instance):
         car = [c for c in p.l if c.id == cid][0]
         car.val = str(flask.request.json)
         car.h = None
+        npproductparser.h_product(p)
         return jsonify(p)
     except KeyError:
         return flask.abort(404)
@@ -177,7 +180,7 @@ def reset_all():
         npproductpool.reset()
     # with lock:
     #     npim.reset()
-    return flask.jsonify(len(npproductpool.get_first_instance().db))
+    return flask.jsonify(len(npproductpool.pool))
 
 if __name__ == '__main__':
     print("NP REST")
@@ -190,6 +193,7 @@ if __name__ == '__main__':
         lock = threading.RLock()
         #npproduct = NPNearest(config.product_h_file)
         npproductpool = NPNearestPool()
+        npproductparser = NPParser()
         #npim = NPImageNearest(config.image_h_file)
         app.run(host='0.0.0.0', port=config.port, threaded=True, debug=config.debug, use_reloader=False)
     except Exception as ex:
