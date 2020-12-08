@@ -72,6 +72,7 @@ def add_update_product(instance):
     p = flask.request.json
     #npproductparser.h_product(p)
     npproductpool.get_instance(instance).db[p.id]=p
+    del npproductpool.get_instance(instance).cache[p.id]
 
 
 @app.route("/product/<int:pid>/car/<int:cid>/<instance>", methods=['PUT'])
@@ -82,6 +83,7 @@ def update_product_car(pid, cid, instance):
         car.val = str(flask.request.json)
         car.h = None
         #npproductparser.h_product(p)
+        del npproductpool.get_instance(instance).cache[p.id]
         return jsonify(p)
     except KeyError:
         return flask.abort(404)
@@ -91,6 +93,7 @@ def delete_product(id, instance):
     try:
         p = npproductpool.get_instance(instance).get_by_id(id)
         del npproductpool.get_instance(instance).db[p.id]
+        del npproductpool.get_instance(instance).cache[p.id]
         return flask.jsonify(True)
     except KeyError:
         return flask.abort(404)
@@ -98,7 +101,8 @@ def delete_product(id, instance):
 @app.route("/product/nearests/<int:id>/<int:nb>/<instance>", methods=['GET'])
 def product_nearests_nb(id, nb, instance):
     try:
-        res = npproductpool.get_instance(instance).search(id, take=nb, use2=False)
+        use2 = len(npproductpool.get_instance(instance).db) < config.use2_limit
+        res = npproductpool.get_instance(instance).search(id, take=nb, use2=use2, fast=True)
         return flask.jsonify(res)
     except KeyError:
         logging.warning(f"nbrest.nearests id:{id} not found")

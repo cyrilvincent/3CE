@@ -177,7 +177,7 @@ if __name__ == '__main__':
     #p.save()
     #p.save(method="jsonpickle")
     if not args.nohash:
-        p.h() #57s / 10000*5 soit 342s pour 100K*3, 12s / 3904*15
+        p.h() #57s / 10000*5 soit 342s pour 100K*3, 12s / 3904*15 Always use USE
     p.save(prefix="h")
     if len(p.db.keys()) < 1000:
         p.save(prefix="h", method="jsonpickle")

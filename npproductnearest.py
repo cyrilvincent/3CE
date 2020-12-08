@@ -79,8 +79,8 @@ class NPNearest:
         if pid in self.cache.keys():
             return self.cache[pid][:take]
         else:
-            coef = 0.8 if fast else 0
-            take_coef = 4 if fast else 65536
+            coef = 0.8 if use2 or fast else 0.5
+            take_coef = 4 if use2 or fast else 65536
             p = self.get_by_id(pid)
             res1 = []
             for k in self.db.keys():
@@ -179,7 +179,7 @@ if __name__ == '__main__':
         try:
             p = np.get_by_id(pid)
             print(f'Product {pid} "{p.l[0].val[:60]}"')
-            res = np.search(pid,10,main, False)
+            res = np.search(pid,10,main, True)
         except:
             print(f"Product {pid} does not exist")
             res=[]
@@ -188,8 +188,17 @@ if __name__ == '__main__':
             print(f'PID {p[0]} at {p[1]*100:.0f}% "{np.get_by_id(p[0]).l[0].val[:60]}"')
         print()
 
-        # 1000 : 0.17s
-        # 1000 * 1000 : 0.17*1000/2 = 85s
-        # 10000² : 1.7*10000/2 = 8500s = 2.4h
-        # 100000² : 17 *100000/2 = 236h
+        # use2=True
+        # 3904*5 : 0.6s
+        # 10000*5 : 1.7s
+        # 15000*5 : 2.6s
+        # 100000*5 : 17s
+        # 100000*2 : 7s
+
+        # use2=False
+        # 3904*5 : 0.053
+        # 1000*5 : 0.014s
+        # 10000*5 : 0.14s
+        # 15000*5 : 0.21s
+        # 100000*5 : 1.4s
 
