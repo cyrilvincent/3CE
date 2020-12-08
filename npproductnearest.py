@@ -66,7 +66,7 @@ class NPNearest:
             res.append([pid2, score])
         return res
 
-    def search(self, pid:int, take=10, main=False, use2 = True)->List[List[float]]:
+    def search(self, pid:int, take=10, main=False, use2 = True, fast = True)->List[List[float]]:
         """
         The main search method
         Perf pb for 100k (7s)
@@ -79,20 +79,18 @@ class NPNearest:
         if pid in self.cache.keys():
             return self.cache[pid][:take]
         else:
+            coef = 0.8 if fast else 0
+            take_coef = 4 if fast else 65536
             p = self.get_by_id(pid)
             res1 = []
             for k in self.db.keys():
                 p2 = self.get_by_id(k)
                 if p.id != p2.id:
-                    #if use2:
                     score = self.comp.compare_product(p, p2, main, use2)
-                    if score > config.product_thresold * 0.8:
+                    if score > config.product_thresold * coef:
                         res1.append([k, score])
-                    # else:
-                    #     res1.append([k, 0])
-            #if use2:
             res1.sort(key = lambda x : x[1], reverse = True)
-            res1 = res1[:(take * 4)]
+            res1 = res1[:(take * take_coef)]
             res2 = self.search_gestalt(p.id, [p2[0] for p2 in res1], main)
             res = []
             for x in zip(res1, res2):
