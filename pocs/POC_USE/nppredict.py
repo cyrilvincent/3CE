@@ -13,7 +13,7 @@ while True:
     s = input("Enter a sentence: ")
     best = (None, 0)
     for k in np.db.keys():
-        p = np.get_by_id(k)
+        p = np[k]
         score = np.comp.compare_value_gestalt(s, p.l[0].val)
         if score > best[1]:
             best = (p, score)

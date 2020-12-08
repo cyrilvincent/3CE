@@ -62,7 +62,7 @@ def get_all(instance):
 @app.route("/product/<int:id>/<instance>", methods=['GET'])
 def get_product(id, instance):
     try:
-        p = npproductpool[instance].np.get_by_id(id)
+        p = npproductpool[instance].np[id]
         return jsonify(p)
     except KeyError:
         return flask.abort(404)
@@ -78,7 +78,7 @@ def add_update_product(instance):
 @app.route("/product/<int:pid>/car/<int:cid>/<instance>", methods=['PUT'])
 def update_product_car(pid, cid, instance):
     try:
-        p = npproductpool[instance].np.get_by_id(pid)
+        p = npproductpool[instance].np[pid]
         car = [c for c in p.l if c.id == cid][0]
         car.val = str(flask.request.json)
         car.h = None
@@ -91,7 +91,7 @@ def update_product_car(pid, cid, instance):
 @app.route("/product/<int:id>/<instance>", methods=['DELETE'])
 def delete_product(id, instance):
     try:
-        p = npproductpool[instance].np.get_by_id(id)
+        p = npproductpool[instance].np[id]
         del npproductpool[instance].np.db[p.id]
         del npproductpool[instance].np.cache[p.id]
         return flask.jsonify(True)
@@ -115,8 +115,8 @@ def product_nearests(id, instance):
 @app.route("/product/compare/<int:id1>/<int:id2>/<instance>", methods=['GET'])
 def compare(id1, id2, instance):
     try:
-        p1 = npproductpool[instance].np.get_by_id(id1)
-        p2 = npproductpool[instance].np.get_by_id(id2)
+        p1 = npproductpool[instance].np[id1]
+        p2 = npproductpool[instance].np[id2]
         comparer = NPComparer()
         res = {}
         res["USE"] = {"score" : comparer.compare_product(p1, p2), "details" : comparer.compare_product_to_scores(p1, p2)}

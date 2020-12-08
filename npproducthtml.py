@@ -16,7 +16,7 @@ def to_html(np):
     #     f.write("</BODY></HTML>")
     i = 0
     for k in np.db.keys():
-        p = np.get_by_id(k)
+        p = np.__getitem__(k)
         print(i)
         i+=1
         if i == 10:
@@ -32,7 +32,7 @@ def scores_to_html(np, p, scores):
         f.write(f"<p>Search Nearests products of {p.id}\n")
         f.write(f"<p>Found {len(scores)} product(s)\n")
         for t in scores:
-            p2 = np.get_by_id(t[0])
+            p2 = np.__getitem__(t[0])
             f.write(f"<p>Product: <a href='output_{p2.id}.html'>{p2.id}</a> at {t[1]*100:.0f}% \n")
             f.write((f"(USE: {np.diff.compare_product(p, p2) * 100:.0f}%, Gestalt: {np.diff.compare_product_gestalt(p, p2) * 100:.0f}%)"))
             f.write(f"<table border='1'><tr><td>cid</td><td>{p.id} values</td><td>{p2.id} values</td><td>Score USE</td><td>Weights USE</td><td>Scores Gestalt</td><td>Weights Gestalt</td></tr>\n")

@@ -56,7 +56,7 @@ class NPNearest:
             self.search(k)
         logging.info(f"Loaded {len(self.db)} products in {time.perf_counter() - t:.1f} s")
 
-    def get_by_id(self, pid:int)->Product:
+    def __getitem__(self, pid:int)->Product:
         """
         Get the product by pid
         :param pid: product's pid
@@ -73,8 +73,8 @@ class NPNearest:
         """
         res = []
         for pid2 in pid2s:
-            p = self.get_by_id(pid)
-            p2 = self.get_by_id(pid2)
+            p = self[pid]
+            p2 = self[pid2]
             score = self.comp.compare_product_gestalt(p, p2, main)
             res.append([pid2, score])
         return res
@@ -94,10 +94,10 @@ class NPNearest:
         else:
             coef = 0.8 if use2 or fast else 0.5
             take_coef = 4 if use2 or fast else 65536
-            p = self.get_by_id(pid)
+            p = self[pid]
             res1 = []
             for k in self.db.keys():
-                p2 = self.get_by_id(k)
+                p2 = self[k]
                 if p.id != p2.id:
                     score = self.comp.compare_product(p, p2, main, use2)
                     if score > config.product_thresold * coef:
@@ -193,7 +193,7 @@ if __name__ == '__main__':
         pid = int(input("PID: "))
         t = time.perf_counter()
         try:
-            p = np.get_by_id(pid)
+            p = np[pid]
             print(f'Product {pid} "{p.l[0].val[:60]}"')
             res = np.search(pid,10,main, True)
         except:
@@ -201,7 +201,7 @@ if __name__ == '__main__':
             res=[]
         print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.1f} s") #1.7s / 10000*5 7s / 100K*2
         for p in res:
-            print(f'PID {p[0]} at {p[1]*100:.0f}% "{np.get_by_id(p[0]).l[0].val[:60]}"')
+            print(f'PID {p[0]} at {p[1]*100:.0f}% "{np[p[0]].l[0].val[:60]}"')
         print()
 
         # use2=True

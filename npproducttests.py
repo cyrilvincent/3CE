@@ -103,7 +103,7 @@ class ProductTests(unittest.TestCase):
         np = NPNearest("tests/data.h.pickle")
         l = np.get_ids()
         self.assertEqual(3, len(l))
-        p = np.get_by_id(164114)
+        p = np[164114]
         self.assertEqual(164114, p.id)
         scores = np.search_gestalt(164114, [164115, 164113])
         self.assertEqual(164115, scores[0][0])
@@ -129,7 +129,7 @@ class ProductTests(unittest.TestCase):
 
     def test_float_value(self):
         np = NPNearest("tests/data.h.pickle")
-        p = np.get_by_id(164113)
+        p = np[164113]
         car = p.l[3]
         self.assertEqual(1012, car.id)
         self.assertEqual("1527-2", car.val)
@@ -139,7 +139,7 @@ class ProductTests(unittest.TestCase):
     def test_pool(self):
         np = NPNearestPool()
         npn = np["data"].np
-        p = npn.get_by_id(164113)
+        p = npn[164113]
         self.assertIsNotNone(p)
 
     def test_npnearestnn(self):

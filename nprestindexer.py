@@ -33,17 +33,15 @@ def version():
 
 @app.route("/use/compare/<s1>/<s2>", methods=['GET'])
 def compare_use(s1, s2):
-    use = USE()
-    hs = use.hs([s1, s2])
-    score = npproductpool.get_first_instance().comp.compare_h_use(hs[0], hs[1])
+    hs = npparser.use.hs([s1, s2])
+    score = npproductpool.comp.compare_h_use(hs[0], hs[1])
     return flask.jsonify(float(score))
 
 @app.route("/use/compare/list", methods=['POST'])
 def compare_uses():
     #[["il fait beau","le soleil"],["il fait encore bieau","le sol"]]
-    use = USE()
     json = flask.request.json
-    return flask.jsonify([npproductpool.get_first_instance().comp.compare_h_use(use.h(s1), use.h(s2)) for s1, s2 in zip(json[0], json[1])])
+    return flask.jsonify([npproductpool.comp.compare_h_use(npparser.use.h(s1), npparser.use.h(s2)) for s1, s2 in zip(json[0], json[1])])
 
 
 @app.route("/indexer/<instance>", methods=['GET'])
@@ -69,7 +67,7 @@ def index(instance):
         logging.error("Cannot copy temp to h")
     try:
         logging.info(f"Call reset")
-        npproductpool.get_instance(instance).reset()
+        npproductpool[instance].reset()
         with urllib.request.urlopen(f"http://localhost:{config.port}/reset/{instance}") as response:
             nb = response.read()
         print(f"Call reset ok: {nb}")
