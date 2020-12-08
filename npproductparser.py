@@ -7,6 +7,7 @@ import config
 import logging
 import tensorflow as tf
 import absl
+import argparse
 from entities import Product, Car
 from typing import Dict, List
 
@@ -146,7 +147,7 @@ class NPParser:
     def delete(self, pid):
         del self.db[pid]
 
-    def train(self, path:str):
+    def train(self, path:str, use2:bool=True):
         """
         Main method to parse, normalize, hash and save
         :param path: The file to parse
@@ -155,7 +156,8 @@ class NPParser:
             logging.info("Training")
             self.parse(path)
             self.normalize()
-            self.h()
+            if use2:
+                self.h()
             self.save(prefix="h")
         except Exception as ex:
             logging.error("Failed to train: "+ex)
@@ -164,13 +166,18 @@ if __name__ == '__main__':
     print("NP Products Parser")
     print("==================")
     print(f"V{__version__}")
+    parser = argparse.ArgumentParser(description="TXT Parser to h.pickle")
+    parser.add_argument("-p", "--path", help="Path to the txt file", default="data/data.txt")
+    parser.add_argument("-n", "--nohash", action="store_true", help="Not use USE hashing")
+    args = parser.parse_args()
     p = NPParser()
     #p.train(config.data_file)
-    p.parse("data/data.txt") #Found 3904 products * 15
+    p.parse(args.path) #Found 3904 products * 15
     p.normalize()
     #p.save()
     #p.save(method="jsonpickle")
-    p.h() #57s / 10000*5 soit 342s pour 100K*3, 12s / 3904*15
+    if not args.nohash:
+        p.h() #57s / 10000*5 soit 342s pour 100K*3, 12s / 3904*15
     p.save(prefix="h")
     if len(p.db.keys()) < 1000:
         p.save(prefix="h", method="jsonpickle")

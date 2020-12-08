@@ -5,7 +5,7 @@ import cyrilload
 from entities import Product, Car
 from npproductparser import USE, NPParser
 from npproductcompare import NPComparer
-from npproductnearest import NPNearest, NPNearestPool
+from npproductnearest import NPNearest, NPNearestPool, NPNearestNN
 
 class ProductTests(unittest.TestCase):
 
@@ -119,6 +119,14 @@ class ProductTests(unittest.TestCase):
         self.assertEqual(164113, scores[1][0])
         self.assertAlmostEqual(0.58, scores[1][1], delta=1e-2)
 
+    def test_npnearest_false(self):
+        np = NPNearest("tests/data.h.pickle")
+        scores = np.search(164114,use2=False)
+        self.assertEqual(164115, scores[0][0])
+        self.assertAlmostEqual(0.92, scores[0][1], delta=1e-2)
+        self.assertEqual(164113, scores[1][0])
+        self.assertAlmostEqual(0.67, scores[1][1], delta=1e-2)
+
     def test_float_value(self):
         np = NPNearest("tests/data.h.pickle")
         p = np.get_by_id(164113)
@@ -133,6 +141,12 @@ class ProductTests(unittest.TestCase):
         npn = np.get_instance("data")
         p = npn.get_by_id(164113)
         self.assertIsNotNone(p)
+
+    def test_npnearestnn(self):
+        np = NPNearestNN("tests/data.h.pickle")
+        np.train()
+        self.assertEqual(3, len(np.np.cache))
+        np.save()
 
 
 if __name__ == '__main__':

@@ -66,7 +66,7 @@ class NPNearest:
             res.append([pid2, score])
         return res
 
-    def search(self, pid:int, take=10, main=False)->List[List[float]]:
+    def search(self, pid:int, take=10, main=False, use2 = True)->List[List[float]]:
         """
         The main search method
         Perf pb for 100k (7s)
@@ -84,15 +84,22 @@ class NPNearest:
             for k in self.db.keys():
                 p2 = self.get_by_id(k)
                 if p.id != p2.id:
-                    score = self.comp.compare_product(p, p2, main)
+                    #if use2:
+                    score = self.comp.compare_product(p, p2, main, use2)
                     if score > config.product_thresold * 0.8:
                         res1.append([k, score])
+                    # else:
+                    #     res1.append([k, 0])
+            #if use2:
             res1.sort(key = lambda x : x[1], reverse = True)
             res1 = res1[:(take * 4)]
             res2 = self.search_gestalt(p.id, [p2[0] for p2 in res1], main)
             res = []
             for x in zip(res1, res2):
-                v = (x[0][1] + x[1][1]) / 2
+                if use2:
+                    v = (x[0][1] + x[1][1]) / 2
+                else:
+                    v = x[1][1]
                 res.append([x[0][0], v])
             res.sort(key=lambda x: x[1], reverse=True)
             res = [r for r in res if r[1] > config.product_thresold]
@@ -111,9 +118,12 @@ class NPNearestPool:
         self.pool = {}
         for instance in config.pool:
             path = config.product_h_file.replace("{instance}", instance)
-            self.pool[instance] = NPNearest(path)
+            self.pool[instance] = NPNearestNN(path,use2 = True)
 
     def get_instance(self, instance:str):
+        return self.get_instance_nn(instance).np
+
+    def get_instance_nn(self, instance:str):
         if instance in self.pool:
             return self.pool[instance]
         else:
@@ -121,24 +131,44 @@ class NPNearestPool:
             logging.error(msg)
             raise ValueError(msg)
 
-    def get_first_instance(self):
-        return self.pool[config.pool[0]]
+    @property
+    def comp(self):
+        return self.pool[config.pool[0]].np.comp
 
     def reset(self):
         for k in self.pool.keys():
             self.pool[k].reset()
+
+class NPNearestNN:
+
+    def __init__(self, path, use2 = False):
+        self.np = NPNearest(path)
+        self.use2 = use2
+
+    def reset(self):
+        self.np.reset()
+
+    def save(self):
+        cyrilload.save(self.np.cache,self.np.path.replace(".h.pickle",".nn"))
+
+    def load(self):
+        cyrilload.load(self.np.path.replace(".h.pickle",".nn."))
+
+    def train(self):
+        for k in self.np.db.keys():
+            self.np.search(k,use2=self.use2)
 
 if __name__ == '__main__':
     print("NPNearest")
     print("=========")
     print(f"V{__version__}")
     main = False
+    product_h_file = "data/data.h.pickle"
     try:
         main = sys.argv[1] == "--mainonly"
         if main:
             print("Main only")
         muse = sys.argv[1] == "--muse"
-        product_h_file = "data/data.h.pickle"
         if muse:
             product_h_file = product_h_file.replace(".h.", ".linux.h.")
     except:
@@ -151,7 +181,7 @@ if __name__ == '__main__':
         try:
             p = np.get_by_id(pid)
             print(f'Product {pid} "{p.l[0].val[:60]}"')
-            res = np.search(pid,10,main)
+            res = np.search(pid,10,main, False)
         except:
             print(f"Product {pid} does not exist")
             res=[]

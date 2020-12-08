@@ -8,7 +8,7 @@ import logging
 import socket
 from npproductnearest import NPNearestPool
 from npproductcompare import NPComparer
-from npproductparser import NPParser
+# from npproductparser import NPParser
 # from npimnearest import NPImageNearest
 # from npimcomparer import NPImageComparer
 
@@ -42,13 +42,17 @@ def version():
 
 @app.route("/sentence/compare/<s1>/<s2>", methods=['GET'])
 def compare_sentence(s1, s2):
-    return flask.jsonify(npproductpool.get_first_instance().comp.compare_value_gestalt(s1, s2))
+    return flask.jsonify(npproductpool.comp.compare_value_gestalt(s1, s2))
 
 @app.route("/sentence/compare/list", methods=['POST'])
 def compare_sentences():
     #[["il fait beau","le soleil"],["il fait encore bieau","le sol"]]
     json = flask.request.json
-    return flask.jsonify([npproductpool.get_first_instance().comp.compare_value_gestalt(s1, s2) for s1, s2 in zip(json[0], json[1])])
+    return flask.jsonify([npproductpool.comp.compare_value_gestalt(s1, s2) for s1, s2 in zip(json[0], json[1])])
+
+@app.route("/pool", methods=['GET'])
+def get_pool():
+    return flask.jsonify(config.pool)
 
 @app.route("/product/all/<instance>", methods=['GET'])
 def get_all(instance):
@@ -66,7 +70,7 @@ def get_product(id, instance):
 @app.route("/product/<instance>", methods=['PUT', 'POST'])
 def add_update_product(instance):
     p = flask.request.json
-    npproductparser.h_product(p)
+    #npproductparser.h_product(p)
     npproductpool.get_instance(instance).db[p.id]=p
 
 
@@ -77,7 +81,7 @@ def update_product_car(pid, cid, instance):
         car = [c for c in p.l if c.id == cid][0]
         car.val = str(flask.request.json)
         car.h = None
-        npproductparser.h_product(p)
+        #npproductparser.h_product(p)
         return jsonify(p)
     except KeyError:
         return flask.abort(404)
@@ -94,7 +98,7 @@ def delete_product(id, instance):
 @app.route("/product/nearests/<int:id>/<int:nb>/<instance>", methods=['GET'])
 def product_nearests_nb(id, nb, instance):
     try:
-        res = npproductpool.get_instance(instance).search(id, take=nb)
+        res = npproductpool.get_instance(instance).search(id, take=nb, use2=False)
         return flask.jsonify(res)
     except KeyError:
         logging.warning(f"nbrest.nearests id:{id} not found")
@@ -191,9 +195,8 @@ if __name__ == '__main__':
         cli = sys.modules['flask.cli']
         cli.show_server_banner = lambda *x: None
         lock = threading.RLock()
-        #npproduct = NPNearest(config.product_h_file)
         npproductpool = NPNearestPool()
-        npproductparser = NPParser()
+        #npproductparser = NPParser()
         #npim = NPImageNearest(config.image_h_file)
         app.run(host='0.0.0.0', port=config.port, threaded=True, debug=config.debug, use_reloader=False)
     except Exception as ex:

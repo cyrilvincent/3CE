@@ -63,7 +63,7 @@ class NPComparer():
             sm = difflib.SequenceMatcher(lambda x: x in " \t.!?,;\n", v1.upper(), v2.upper())
             return sm.ratio()
 
-    def compare_product_to_scores(self, p1:Product, p2:Product, main=False)->List[List[float]]:
+    def compare_product_to_scores(self, p1:Product, p2:Product, main=False, use2 = True)->List[List[float]]:
         """
         Compare 2 products with the USE model
         :param p1: p1
@@ -81,12 +81,12 @@ class NPComparer():
                     if score > 0.99:
                         w = 2
                     else:
-                        if c1.h != None and c2.h != None:
+                        if use2 and c1.h != None and c2.h != None:
                             score = (score + self.compare_h_use(c1.h, c2.h)) / 2
                         if score < 0.8:
                             w = 0.1
                 else:
-                    if c1.h != None and c2.h != None:
+                    if use2 and c1.h != None and c2.h != None:
                         score = self.compare_h_use(c1.h, c2.h)
                     else:
                         score = self.compare_value_string_equality(c1.val, c2.val)
@@ -124,14 +124,14 @@ class NPComparer():
                 res.append([score, w])
         return res
 
-    def compare_product(self, p1:Product, p2:Product, main=False)->float:
+    def compare_product(self, p1:Product, p2:Product, main=False, use2 = True)->float:
         """
         Main method with use model
         :param p1: p1
         :param p2: p2
         :return: The score
         """
-        wscores = self.compare_product_to_scores(p1, p2, main)
+        wscores = self.compare_product_to_scores(p1, p2, main, use2)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
     def compare_product_gestalt(self, p1:Product, p2:Product, main = False)->float:

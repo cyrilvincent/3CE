@@ -5,19 +5,24 @@ import config
 
 def to_html(np):
     print(f"Generate outputs/index.html")
-    with open(f"outputs/index.html", "w") as f:
-        f.write('<HTML><HEAD></HEAD><BODY><H1>NPNearest Products Index</H1>\n')
-        for k in np.db.keys():
-            try:
-                p = np.get_by_id(k)
-                f.write(f"<a href='output_{k}.html'>Product {k}</a>: {np.db[k].l[0].val}<br/>")
-            except:
-                pass
-        f.write("</BODY></HTML>")
+    # with open(f"outputs/index.html", "w") as f:
+    #     f.write('<HTML><HEAD></HEAD><BODY><H1>NPNearest Products Index</H1>\n')
+    #     for k in np.db.keys():
+    #         try:
+    #             _ = np.get_by_id(k)
+    #             f.write(f"<a href='output_{k}.html'>Product {k}</a>: {np.db[k].l[0].val}<br/>")
+    #         except:
+    #             pass
+    #     f.write("</BODY></HTML>")
+    i = 0
     for k in np.db.keys():
         p = np.get_by_id(k)
-        scores = np.search(k, 10)
-        scores_to_html(np, p, scores)
+        print(i)
+        i+=1
+        if i == 10:
+            break
+        scores = np.search(k, 10,use2=False)
+        #scores_to_html(np, p, scores)
 
 def scores_to_html(np, p, scores):
     print(f"Generate outputs/output_{p.id}.html")
@@ -50,6 +55,28 @@ if __name__ == '__main__':
     print("NPNearestHTML")
     print("=============")
     print(f"V{config.version}")
+    t = time.perf_counter()
     np = npproductnearest.NPNearest("data/data.h.pickle")
     to_html(np)
+    print(f"Generate {len(np.db)} product(s) in {time.perf_counter() - t:.1f} s")
+    # 1*3904+False = 0.053s
+    # 1*1000+False = 0.014s
+    # 100*3904+False = 6.1s
+    # 1000*3904+False = 53s
+    # 10*3904+True = 5.4s
+    # 100*3904+True = 54s
+    # 1*3904+True = 0.54s
+    # 1*1000+True = 0.14s
+
+    # False
+    # 10000² = 1.4s
+    # 100000² = 140s
+    # 1000000² = 4h
+
+    # True
+    # 10000² = 14s
+    # 100000² = 4h
+    # 1000000² = 2j
+
+
 
