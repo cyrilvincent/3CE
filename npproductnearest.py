@@ -29,6 +29,19 @@ class NPNearest:
         if reset:
             self.reset()
 
+    @property
+    def length(self):
+        return len(self.db)
+
+    @property
+    def shape(self):
+        return (len(self.db),len(self.db[list(self.db.keys())[0]].l))
+
+    @property
+    def size(self):
+        l, m = self.shape
+        return l * m
+
     def reset(self)->None:
         """
         Reload the h.pickle file
@@ -129,6 +142,9 @@ class NPNearestPool:
             logging.error(msg)
             raise ValueError(msg)
 
+    def __getitem__(self, item):
+        return self.get_instance_nn(item)
+
     @property
     def comp(self):
         return self.pool[config.pool[0]].np.comp
@@ -189,16 +205,18 @@ if __name__ == '__main__':
         print()
 
         # use2=True
-        # 3904*5 : 0.6s
-        # 10000*5 : 1.7s
-        # 15000*5 : 2.6s
-        # 100000*5 : 17s
-        # 100000*2 : 7s
+        # 3904*8 : 0.6s
+        # 10000*8 : 1.7s
+        # 15000*8 : 2.6s
+        # 138461 : 3s
+        # 50000*3 : 3.2s
+        # 100000*8 : 17s
+        # 100000*4 : 5s
 
         # use2=False
-        # 3904*5 : 0.053
-        # 1000*5 : 0.014s
-        # 10000*5 : 0.14s
-        # 15000*5 : 0.21s
-        # 100000*5 : 1.4s
+        # 3904*8 : 0.053
+        # 1000*8 : 0.014s
+        # 10000*8 : 0.14s
+        # 15000*8 : 0.21s
+        # 100000*8 : 1.4s
 

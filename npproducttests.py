@@ -138,7 +138,7 @@ class ProductTests(unittest.TestCase):
 
     def test_pool(self):
         np = NPNearestPool()
-        npn = np.get_instance("data")
+        npn = np["data"].np
         p = npn.get_by_id(164113)
         self.assertIsNotNone(p)
 
@@ -147,6 +147,12 @@ class ProductTests(unittest.TestCase):
         np.train()
         self.assertEqual(3, len(np.np.cache))
         np.save()
+
+    def test_size(self):
+        np = NPNearest("tests/data.h.pickle")
+        self.assertEqual(3, np.length)
+        self.assertEqual((3,8), np.shape)
+        self.assertEqual(24, np.size)
 
 
 if __name__ == '__main__':

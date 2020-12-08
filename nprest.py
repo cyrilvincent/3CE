@@ -56,13 +56,13 @@ def get_pool():
 
 @app.route("/product/all/<instance>", methods=['GET'])
 def get_all(instance):
-    l = npproductpool.get_instance(instance).get_ids()
+    l = npproductpool[instance].np.get_ids()
     return flask.jsonify(l)
 
 @app.route("/product/<int:id>/<instance>", methods=['GET'])
 def get_product(id, instance):
     try:
-        p = npproductpool.get_instance(instance).get_by_id(id)
+        p = npproductpool[instance].np.get_by_id(id)
         return jsonify(p)
     except KeyError:
         return flask.abort(404)
@@ -71,19 +71,19 @@ def get_product(id, instance):
 def add_update_product(instance):
     p = flask.request.json
     #npproductparser.h_product(p)
-    npproductpool.get_instance(instance).db[p.id]=p
-    del npproductpool.get_instance(instance).cache[p.id]
+    npproductpool[instance].np.db[p.id]=p
+    del npproductpool[instance].np.cache[p.id]
 
 
 @app.route("/product/<int:pid>/car/<int:cid>/<instance>", methods=['PUT'])
 def update_product_car(pid, cid, instance):
     try:
-        p = npproductpool.get_instance(instance).get_by_id(pid)
+        p = npproductpool[instance].np.get_by_id(pid)
         car = [c for c in p.l if c.id == cid][0]
         car.val = str(flask.request.json)
         car.h = None
         #npproductparser.h_product(p)
-        del npproductpool.get_instance(instance).cache[p.id]
+        del npproductpool[instance].np.cache[p.id]
         return jsonify(p)
     except KeyError:
         return flask.abort(404)
@@ -91,9 +91,9 @@ def update_product_car(pid, cid, instance):
 @app.route("/product/<int:id>/<instance>", methods=['DELETE'])
 def delete_product(id, instance):
     try:
-        p = npproductpool.get_instance(instance).get_by_id(id)
-        del npproductpool.get_instance(instance).db[p.id]
-        del npproductpool.get_instance(instance).cache[p.id]
+        p = npproductpool[instance].np.get_by_id(id)
+        del npproductpool[instance].np.db[p.id]
+        del npproductpool[instance].np.cache[p.id]
         return flask.jsonify(True)
     except KeyError:
         return flask.abort(404)
@@ -101,8 +101,8 @@ def delete_product(id, instance):
 @app.route("/product/nearests/<int:id>/<int:nb>/<instance>", methods=['GET'])
 def product_nearests_nb(id, nb, instance):
     try:
-        use2 = len(npproductpool.get_instance(instance).db) < config.use2_limit
-        res = npproductpool.get_instance(instance).search(id, take=nb, use2=use2, fast=True)
+        use2 = npproductpool[instance].np.size < config.use2_limit
+        res = npproductpool[instance].np.search(id, take=nb, use2=use2, fast=True)
         return flask.jsonify(res)
     except KeyError:
         logging.warning(f"nbrest.nearests id:{id} not found")
@@ -115,8 +115,8 @@ def product_nearests(id, instance):
 @app.route("/product/compare/<int:id1>/<int:id2>/<instance>", methods=['GET'])
 def compare(id1, id2, instance):
     try:
-        p1 = npproductpool.get_instance(instance).get_by_id(id1)
-        p2 = npproductpool.get_instance(instance).get_by_id(id2)
+        p1 = npproductpool[instance].np.get_by_id(id1)
+        p2 = npproductpool[instance].np.get_by_id(id2)
         comparer = NPComparer()
         res = {}
         res["USE"] = {"score" : comparer.compare_product(p1, p2), "details" : comparer.compare_product_to_scores(p1, p2)}
@@ -176,10 +176,10 @@ def compare(id1, id2, instance):
 def reset(instance):
     logging.warning("Reset")
     with lock:
-        npproductpool.get_instance(instance).reset()
+        npproductpool[instance].np.reset()
     # with lock:
     #     npim.reset()
-    return flask.jsonify(len(npproductpool.get_instance(instance).db))
+    return flask.jsonify(len(npproductpool[instance].np.db))
 
 @app.route("/reset/all", methods=['GET'])
 def reset_all():

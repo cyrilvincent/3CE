@@ -40,6 +40,10 @@ class NPImageNearest:
         self.comp = npimcomparer.NPImageComparer()
         print(f"Loaded {len(self.db[0])} images in {time.perf_counter() - t:.1f} s")
 
+    @property
+    def length(self):
+        return len(self.db[0])
+
     def get_im_by_iid(self, id:int)->NPImage:
         return self.db[0][id]
 
