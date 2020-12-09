@@ -4,17 +4,18 @@ import numpy as np
 import cyrilload
 import difflib
 import config
-from entities import Product, Car
+from entities import Product
 from typing import Iterable, List
 
 __version__ = config.version
 
-class NPComparer():
+
+class NPComparer:
     """
     Compare to products
     """
 
-    def compare_h_use(self, h1:Iterable[float], h2:Iterable[float])->float:
+    def compare_h_use(self, h1: Iterable[float], h2: Iterable[float]) -> float:
         """
         Use model compare two hash of 512 floats
         :param h1: h1
@@ -25,7 +26,7 @@ class NPComparer():
         # h2 = np.array(h2)
         return np.inner(h1, h2)
 
-    def compare_value_string_equality(self, v1:str, v2:str)->float:
+    def compare_value_string_equality(self, v1: str, v2: str) -> float:
         """
         Compare 2 string values
         :param v1: v1
@@ -39,12 +40,12 @@ class NPComparer():
         nb = 0
         for i in range(min(len(v1), len(v2))):
             if v1[i] == v2[i]:
-                nb+=1
+                nb += 1
             else:
                 break
         return (nb / max(len(v1), len(v2))) / 2
 
-    def compare_value_gestalt(self, v1:str, v2:str)->float:
+    def compare_value_gestalt(self, v1: str, v2: str) -> float:
         """
         Compare 2 strings with Gestalt model
         :param v1: v1
@@ -63,9 +64,11 @@ class NPComparer():
             sm = difflib.SequenceMatcher(lambda x: x in " \t.!?,;\n", v1.upper(), v2.upper())
             return sm.ratio()
 
-    def compare_product_to_scores(self, p1:Product, p2:Product, main=False, use2 = True)->List[List[float]]:
+    def compare_product_to_scores(self, p1: Product, p2: Product, main=False, use2=True) -> List[List[float]]:
         """
         Compare 2 products with the USE model
+        :param use2:
+        :param main:
         :param p1: p1
         :param p2: p2
         :return: List[List[cid,score]]
@@ -81,22 +84,22 @@ class NPComparer():
                     if score > 0.99:
                         w = 2
                     else:
-                        if use2 and c1.h != None and c2.h != None:
+                        if use2 and c1.h is not None and c2.h is not None:
                             score = (score + self.compare_h_use(c1.h, c2.h)) / 2
                         if score < 0.8:
                             w = 0.1
                 else:
-                    if use2 and c1.h != None and c2.h != None:
+                    if use2 and c1.h is not None and c2.h is not None:
                         score = self.compare_h_use(c1.h, c2.h)
                     else:
                         score = self.compare_value_string_equality(c1.val, c2.val)
-            else :
+            else:
                 w /= 2
             if not main or c1.main:
                 res.append([score, w])
         return res
 
-    def compare_product_gestalt_to_scores(self, p1:Product, p2:Product, main = False)->List[List[float]]:
+    def compare_product_gestalt_to_scores(self, p1: Product, p2: Product, main=False) -> List[List[float]]:
         """
         Compare 2 products with the Gestalt model
         :param p1: p1
@@ -124,9 +127,11 @@ class NPComparer():
                 res.append([score, w])
         return res
 
-    def compare_product(self, p1:Product, p2:Product, main=False, use2 = True)->float:
+    def compare_product(self, p1: Product, p2: Product, main=False, use2=True) -> float:
         """
         Main method with use model
+        :param use2:
+        :param main:
         :param p1: p1
         :param p2: p2
         :return: The score
@@ -134,9 +139,10 @@ class NPComparer():
         wscores = self.compare_product_to_scores(p1, p2, main, use2)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
-    def compare_product_gestalt(self, p1:Product, p2:Product, main = False)->float:
+    def compare_product_gestalt(self, p1: Product, p2: Product, main=False) -> float:
         """
         Main compare method for Gestalt model
+        :param main:
         :param p1: p1
         :param p2: p2
         :return: The score
@@ -144,11 +150,12 @@ class NPComparer():
         wscores = self.compare_product_gestalt_to_scores(p1, p2, main)
         return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
 
-def display(p1:Product, p2:Product, res):
+
+def display(p1: Product, p2: Product, res):
     limit = 40
     i = 0
     total = sum([w[1] for w in res])
-    for r in res:
+    for _ in res:
         c = p1.l[i]
         s = f"CID:{c.id} match {res[i][0] * 100:.0f}% * {res[i][1] / total:0.2f} \""
         s += f"{c.val[:limit]}"
@@ -158,10 +165,11 @@ def display(p1:Product, p2:Product, res):
         if p2.contains(c):
             s += p2.get_car_by_id(c.id).val[:limit]
             if len(p2.get_car_by_id(c.id).val) > limit:
-                s+="..."
+                s += "..."
         s += '"'
         print(s)
         i += 1
+
 
 if __name__ == '__main__':
     print("NPCompare")
@@ -170,32 +178,30 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Compare pid1 & pid2")
     parser.add_argument("pid1", help="Product id")
     parser.add_argument("pid2", help="Product id to compare")
-    parser.add_argument("-m","--muse", action="store_true", help="Use MUSE insted of USE")
+    parser.add_argument("-m", "--muse", action="store_true", help="Use MUSE insted of USE")
     args = parser.parse_args()
     product_h_file = "data/data.h.pickle"
     if args.muse:
         product_h_file = product_h_file.replace(".h.", ".linux.h.")
     db = cyrilload.load(product_h_file)
     p1 = db[int(args.pid1)]
-    if p1 == None:
+    if p1 is None:
         print(f"{args.pid1} does not exist")
         sys.exit(1)
     p2 = db[int(args.pid2)]
-    if p2 == None:
+    if p2 is None:
         print(f"{args.pid2} does not exist")
         sys.exit(2)
     print(f"Compare products {p1.id} and {p2.id}")
     comparer = NPComparer()
     res = comparer.compare_product_to_scores(p1, p2)
     print("Deep Learning Google DAN USE model:")
-    display(p1,p2,res)
+    display(p1, p2, res)
     print(f"USE Score: {comparer.compare_product(p1, p2) * 100:.0f}%")
     print()
     print("Machine Learning Gestalt+Cyril model:")
     res = comparer.compare_product_gestalt_to_scores(p1, p2)
-    display(p1,p2,res)
+    display(p1, p2, res)
     print(f"Gestalt Score: {comparer.compare_product_gestalt(p1, p2) * 100:.0f}%")
     print()
     print(f"Final Score: {(comparer.compare_product(p1, p2) + comparer.compare_product_gestalt(p1, p2)) / 2 * 100:.0f}%")
-
-

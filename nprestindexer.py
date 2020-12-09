@@ -31,19 +31,6 @@ def ping():
 def version():
     return config.version
 
-@app.route("/use/compare/<s1>/<s2>", methods=['GET'])
-def compare_use(s1, s2):
-    hs = npparser.use.hs([s1, s2])
-    score = npproductpool.comp.compare_h_use(hs[0], hs[1])
-    return flask.jsonify(float(score))
-
-@app.route("/use/compare/list", methods=['POST'])
-def compare_uses():
-    #[["il fait beau","le soleil"],["il fait encore bieau","le sol"]]
-    json = flask.request.json
-    return flask.jsonify([npproductpool.comp.compare_h_use(npparser.use.h(s1), npparser.use.h(s2)) for s1, s2 in zip(json[0], json[1])])
-
-
 @app.route("/indexer/<instance>", methods=['GET'])
 def index(instance):
     logging.info(f"Indexer {instance}")
@@ -81,6 +68,15 @@ def index_all():
     for instance in config.pool:
         index(instance)
     return flask.jsonify(len(config.pool))
+
+@app.route("/shutdown", methods=['GET'])
+def shutdown():
+    func = flask.request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        logging.error(f"Cannot shutdown")
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+    return "OK"
 
 if __name__ == '__main__':
     print("NP Rest Indexer")

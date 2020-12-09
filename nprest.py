@@ -40,15 +40,15 @@ def ping():
 def version():
     return config.version
 
-@app.route("/sentence/compare/<s1>/<s2>", methods=['GET'])
-def compare_sentence(s1, s2):
-    return flask.jsonify(npproductpool.comp.compare_value_gestalt(s1, s2))
-
-@app.route("/sentence/compare/list", methods=['POST'])
-def compare_sentences():
-    #[["il fait beau","le soleil"],["il fait encore bieau","le sol"]]
-    json = flask.request.json
-    return flask.jsonify([npproductpool.comp.compare_value_gestalt(s1, s2) for s1, s2 in zip(json[0], json[1])])
+# @app.route("/sentence/compare/<s1>/<s2>", methods=['GET'])
+# def compare_sentence(s1, s2):
+#     return flask.jsonify(npproductpool.comp.compare_value_gestalt(s1, s2))
+#
+# @app.route("/sentence/compare/list", methods=['POST'])
+# def compare_sentences():
+#     #[["il fait beau","le soleil"],["il fait encore bieau","le sol"]]
+#     json = flask.request.json
+#     return flask.jsonify([npproductpool.comp.compare_value_gestalt(s1, s2) for s1, s2 in zip(json[0], json[1])])
 
 @app.route("/pool", methods=['GET'])
 def get_pool():
@@ -75,18 +75,18 @@ def add_update_product(instance):
     del npproductpool[instance].np.cache[p.id]
 
 
-@app.route("/product/<int:pid>/car/<int:cid>/<instance>", methods=['PUT'])
-def update_product_car(pid, cid, instance):
-    try:
-        p = npproductpool[instance].np[pid]
-        car = [c for c in p.l if c.id == cid][0]
-        car.val = str(flask.request.json)
-        car.h = None
-        #npproductparser.h_product(p)
-        del npproductpool[instance].np.cache[p.id]
-        return jsonify(p)
-    except KeyError:
-        return flask.abort(404)
+# @app.route("/product/<int:pid>/car/<int:cid>/<instance>", methods=['PUT'])
+# def update_product_car(pid, cid, instance):
+#     try:
+#         p = npproductpool[instance].np[pid]
+#         car = [c for c in p.l if c.id == cid][0]
+#         car.val = str(flask.request.json)
+#         car.h = None
+#         #npproductparser.h_product(p)
+#         del npproductpool[instance].np.cache[p.id]
+#         return jsonify(p)
+#     except KeyError:
+#         return flask.abort(404)
 
 @app.route("/product/<int:id>/<instance>", methods=['DELETE'])
 def delete_product(id, instance):
@@ -179,7 +179,7 @@ def reset(instance):
         npproductpool[instance].np.reset()
     # with lock:
     #     npim.reset()
-    return flask.jsonify(len(npproductpool[instance].np.db))
+    return flask.jsonify(npproductpool[instance].np.length)
 
 @app.route("/reset/all", methods=['GET'])
 def reset_all():
@@ -189,6 +189,16 @@ def reset_all():
     # with lock:
     #     npim.reset()
     return flask.jsonify(len(npproductpool.pool))
+
+@app.route("/shutdown", methods=['GET'])
+def shutdown():
+    func = flask.request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        logging.error(f"Cannot shutdown")
+        raise RuntimeError('Not running with the Werkzeug Server')
+    logging.info("Shutdown")
+    func()
+    return "OK"
 
 if __name__ == '__main__':
     print("NP REST")

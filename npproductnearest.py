@@ -10,6 +10,8 @@ from typing import List
 
 __version__ = config.version
 
+
+# noinspection SpellCheckingInspection
 class NPNearest:
     """
     High level class, main program
@@ -17,7 +19,7 @@ class NPNearest:
 
     lock = threading.RLock()
 
-    def __init__(self, path, caching = True, reset = True):
+    def __init__(self, path, caching=True, reset=True):
         """
         Found pids nearest
         :param path: the path of the .h.pickle index file
@@ -26,6 +28,8 @@ class NPNearest:
         self.path = path
         self.caching = caching
         self.cache = None
+        self.db = None
+        self.comp = None
         if reset:
             self.reset()
 
@@ -35,14 +39,14 @@ class NPNearest:
 
     @property
     def shape(self):
-        return (len(self.db),len(self.db[list(self.db.keys())[0]].l))
+        return len(self.db), len(self.db[list(self.db.keys())[0]].l)
 
     @property
     def size(self):
-        l, m = self.shape
-        return l * m
+        x, y = self.shape
+        return x * y
 
-    def reset(self)->None:
+    def reset(self) -> None:
         """
         Reload the h.pickle file
         Reset the cache
@@ -56,7 +60,7 @@ class NPNearest:
             self.search(k)
         logging.info(f"Loaded {len(self.db)} products in {time.perf_counter() - t:.1f} s")
 
-    def __getitem__(self, pid:int)->Product:
+    def __getitem__(self, pid: int) -> Product:
         """
         Get the product by pid
         :param pid: product's pid
@@ -64,9 +68,10 @@ class NPNearest:
         """
         return self.db[pid]
 
-    def search_gestalt(self, pid:int, pid2s:List[int], main = False)->List[List[float]]:
+    def search_gestalt(self, pid: int, pid2s: List[int], main=False) -> List[List[float]]:
         """
         Search nearest by Gestalt model
+        :param main:
         :param pid: pid
         :param pid2s: Array of pid to search nearest
         :return: List[List[pid,score]]
@@ -79,11 +84,13 @@ class NPNearest:
             res.append([pid2, score])
         return res
 
-    def search(self, pid:int, take=10, main=False, use2 = True, fast = True)->List[List[float]]:
+    def search(self, pid: int, take=10, main=False, use2=True, fast=True) -> List[List[float]]:
         """
         The main search method
         Perf pb for 100k (7s)
         Put the cache in static, NPParser serialize the cache before h process, then run search on pids in cache
+        :param fast:
+        :param use2:
         :param pid: the product pid
         :param take: nb max product to return
         :param main: search on the main car only
@@ -102,7 +109,7 @@ class NPNearest:
                     score = self.comp.compare_product(p, p2, main, use2)
                     if score > config.product_thresold * coef:
                         res1.append([k, score])
-            res1.sort(key = lambda x : x[1], reverse = True)
+            res1.sort(key=lambda x: x[1], reverse=True)
             res1 = res1[:(take * take_coef)]
             res2 = self.search_gestalt(p.id, [p2[0] for p2 in res1], main)
             res = []
@@ -123,18 +130,19 @@ class NPNearest:
     def get_ids(self):
         return list(self.db.keys())
 
+
 class NPNearestPool:
 
     def __init__(self):
         self.pool = {}
         for instance in config.pool:
             path = config.product_h_file.replace("{instance}", instance)
-            self.pool[instance] = NPNearestNN(path,use2 = True)
+            self.pool[instance] = NPNearestNN(path, use2=True)
 
-    def get_instance(self, instance:str):
+    def get_instance(self, instance: str):
         return self.get_instance_nn(instance).np
 
-    def get_instance_nn(self, instance:str):
+    def get_instance_nn(self, instance: str):
         if instance in self.pool:
             return self.pool[instance]
         else:
@@ -153,9 +161,10 @@ class NPNearestPool:
         for k in self.pool.keys():
             self.pool[k].reset()
 
+
 class NPNearestNN:
 
-    def __init__(self, path, use2 = False):
+    def __init__(self, path, use2=False):
         self.np = NPNearest(path)
         self.use2 = use2
 
@@ -163,14 +172,15 @@ class NPNearestNN:
         self.np.reset()
 
     def save(self):
-        cyrilload.save(self.np.cache,self.np.path.replace(".h.pickle",".nn"))
+        cyrilload.save(self.np.cache, self.np.path.replace(".h.pickle", ".nn"))
 
     def load(self):
-        cyrilload.load(self.np.path.replace(".h.pickle",".nn."))
+        cyrilload.load(self.np.path.replace(".h.pickle", ".nn."))
 
     def train(self):
         for k in self.np.db.keys():
-            self.np.search(k,use2=self.use2)
+            self.np.search(k, use2=self.use2)
+
 
 if __name__ == '__main__':
     print("NPNearest")
@@ -195,13 +205,13 @@ if __name__ == '__main__':
         try:
             p = np[pid]
             print(f'Product {pid} "{p.l[0].val[:60]}"')
-            res = np.search(pid,10,main, True)
+            res = np.search(pid, 10, main, True)
         except:
             print(f"Product {pid} does not exist")
-            res=[]
-        print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.1f} s") #1.7s / 10000*5 7s / 100K*2
+            res = []
+        print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.1f} s")  # 1.7s / 10000*5 7s / 100K*2
         for p in res:
-            print(f'PID {p[0]} at {p[1]*100:.0f}% "{np[p[0]].l[0].val[:60]}"')
+            print(f'PID {p[0]} at {p[1]*100:.0f}% "{np[int(p[0])].l[0].val[:60]}"')
         print()
 
         # use2=True
@@ -219,4 +229,3 @@ if __name__ == '__main__':
         # 10000*8 : 0.14s
         # 15000*8 : 0.21s
         # 100000*8 : 1.4s
-

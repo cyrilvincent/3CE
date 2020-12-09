@@ -60,7 +60,7 @@ class ImageTests(unittest.TestCase):
         score = np.search_by_im(106)
         self.assertEqual(109, score[0][0])
         self.assertEqual(107, score[1][0])
-        self.assertAlmostEqual(0.87, score[1][1], delta = 1e-2)
+        self.assertAlmostEqual(0.87, score[1][1], delta=1e-2)
         score = np.search_by_im(110)
         self.assertEqual(111, score[0][0])
         self.assertAlmostEqual(0.77, score[0][1], delta=1e-2)
@@ -69,11 +69,11 @@ class ImageTests(unittest.TestCase):
         np = NPImageNearest("tests/image.h.pickle")
         score = np.search_by_product(53)
         self.assertEqual(54, score[0][0])
-        self.assertAlmostEqual(1.0, score[0][1], delta = 1e-2)
+        self.assertAlmostEqual(1.0, score[0][1], delta=1e-2)
 
     def test_npimnearest_falsepositive(self):
         np = NPImageNearest("tests/image.h.pickle")
-        np.fp.add(106,109)
+        np.fp.add(106, 109)
         score = np.search_by_im(106)
         self.assertEqual(107, score[0][0])
         np.fp.reset()
@@ -81,13 +81,6 @@ class ImageTests(unittest.TestCase):
         score = np.search_by_im(106)
         self.assertEqual(109, score[0][0])
 
+
 if __name__ == '__main__':
     unittest.main()
-
-
-
-
-
-
-
-
