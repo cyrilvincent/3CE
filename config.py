@@ -8,6 +8,7 @@ indexer_port = 5001
 pool = ["data"]
 product_h_file = "data/{instance}.h.pickle"
 product_data_file = "data/{instance}.txt"
+image_h_file = "data/{instance}-images.h.pickle"
 tf_use = "hubmodule/universal-sentence-encoder.4"
 #tf_use = "hubmodule/universal-sentence-encoder-multilingual-large_3"
 tf_fv = "hubmodule/feature-vector.4"

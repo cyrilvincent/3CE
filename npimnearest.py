@@ -4,9 +4,12 @@ import cyrilload
 import config
 import threading
 import sys
+import logging
 from entities import NPImage
 from typing import List
 from npfalsepositives import NPFalsePositives
+from npimnearesthtml import image_scores_to_html
+
 
 class NPImageNearest:
     """
@@ -15,7 +18,7 @@ class NPImageNearest:
 
     lock = threading.RLock()
 
-    def __init__(self, path, caching = True, reset = True):
+    def __init__(self, path, caching=True, reset=True):
         """
         Found pids nearest
         :param path: the path of the .h.pickle index file
@@ -25,10 +28,12 @@ class NPImageNearest:
         self.caching = caching
         self.cache = {}
         self.fp = NPFalsePositives(path)
+        self.db = None
+        self.comp = None
         if reset:
             self.reset()
 
-    def reset(self)->None:
+    def reset(self) -> None:
         """
         Reload the h.pickle file
         Reset the cache
@@ -44,10 +49,10 @@ class NPImageNearest:
     def length(self):
         return len(self.db[0])
 
-    def get_im_by_iid(self, id:int)->NPImage:
+    def get_im_by_iid(self, id: int) -> NPImage:
         return self.db[0][id]
 
-    def get_iids_by_pid(self, id:int)->List[int]:
+    def get_iids_by_pid(self, id: int) -> List[int]:
         return self.db[1][id]
 
     def get_iids(self):
@@ -56,7 +61,7 @@ class NPImageNearest:
     def get_pids(self):
         return list(self.db[1].keys())
 
-    def search_by_im(self, id:int, take=10, thresold = 0.75)->List[List[float]]:
+    def search_by_im(self, id: int, take=10, thresold=0.75) -> List[List[float]]:
         if id in self.cache.keys():
             return self.cache[id][:take]
         else:
@@ -69,14 +74,14 @@ class NPImageNearest:
                         score = self.comp.compare(im, im2)
                         if score > thresold:
                             res.append([k, score])
-            res.sort(key = lambda x : x[1], reverse = True)
+            res.sort(key=lambda x: x[1], reverse=True)
             if self.caching:
                 with NPImageNearest.lock:
                     self.cache[id] = res
             res = res[:take]
             return res
 
-    def search_by_product(self, pid:int, take=10, thresold = 0.75):
+    def search_by_product(self, pid: int, take=10, thresold=0.75):
         iids = self.get_iids_by_pid(pid)
         print(f"Found {len(iids)} images: {iids}")
         res = []
@@ -91,15 +96,16 @@ class NPImageNearest:
                         if id not in dico:
                             dico[id] = t[1]
                         else:
-                            dico[id]=max(t[1], dico[id]) + 0.01
+                            dico[id] = max(t[1], dico[id]) + 0.01
                             if dico[id] > 1.0:
                                 dico[id] = 1.0
         l = []
         for k in dico.keys():
             l.append([k, dico[k]])
-        l.sort(key = lambda x : x[1], reverse=True)
+        l.sort(key=lambda x: x[1], reverse=True)
         l = l[:take]
         return l
+
 
 class NPImageNearestPool:
 
@@ -109,7 +115,7 @@ class NPImageNearestPool:
             path = config.image_h_file.replace("{instance}", instance)
             self.pool[instance] = NPImageNearest(path)
 
-    def get_instance(self, instance:str):
+    def get_instance(self, instance: str):
         if instance in self.pool:
             return self.pool[instance]
         else:
@@ -138,7 +144,7 @@ if __name__ == '__main__':
     res = np.search_by_product(6, 10, 0.75)
     print(res)
 
-    #Recherche par image
+    # Recherche par image
     if not byproduct:
         print(np.get_iids())
         while True:
@@ -151,7 +157,7 @@ if __name__ == '__main__':
                 image_scores_to_html(im, res)
             except Exception as ex:
                 print(f"Image {id} does not exist", ex)
-                res=[]
+                res = []
             print(res)
             print(f"Found {len(res)} images(s) in {time.perf_counter() - t:.3f} s")  # 0.003s/63 0.2s/4000 0.5s/10000 5s/100000
             for im2 in res:

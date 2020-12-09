@@ -11,6 +11,7 @@ from typing import Dict
 from PIL import Image
 from absl import logging
 
+
 class NPImageService:
     """
     https://pypi.org/project/ImageHash/
@@ -20,7 +21,7 @@ class NPImageService:
 
     def __init__(self, path):
         self.path = path
-        if NPImageService.model == None:
+        if NPImageService.model is None:
             t = time.perf_counter()
             print(f"Load TF FV model: ")
             NPImageService.model = tf.saved_model.load(config.tf_fv)
@@ -84,7 +85,7 @@ class NPImageService:
     def alpharemover(self, image):
         if image.mode != 'RGBA':
             return image
-        canvas = Image.new('RGBA', image.size, (255,255,255,255))
+        canvas = Image.new('RGBA', image.size, (255, 255, 255, 255))
         canvas.paste(image, mask=image)
         return canvas.convert('RGB')
 
@@ -105,6 +106,7 @@ class NPImageService:
         img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
         return img
 
+
 class NPImageParser:
     """
     Image parser and indexer
@@ -112,12 +114,13 @@ class NPImageParser:
     """
 
     def __init__(self):
-        self.dbi:Dict[int, entities.NPImage] = {}
+        self.dbi: Dict[int, entities.NPImage] = {}
         self.dbp: Dict[int, int] = {}
         self.db = [self.dbi, self.dbp]
         self.path = None
+        self.nbi = 0
 
-    def parse(self, path:str)->None:
+    def parse(self, path: str) -> None:
         """
         Parser
         :param path: TXT file to parse
@@ -142,7 +145,7 @@ class NPImageParser:
                     self.dbp[pid].append(iid)
         print(f"Found {self.nbi} images in {time.perf_counter() - t:.1f} s")
 
-    def save(self, prefix="", method="pickle")->None:
+    def save(self, prefix="", method="pickle") -> None:
         """
         Save the db
         :param prefix: see cyrilload
@@ -153,7 +156,7 @@ class NPImageParser:
         cyrilload.save(self.db, name, prefix, method)
         print(f"Saved in {time.perf_counter() - t:.1f} s")
 
-    def h(self, impath, dh = True, ph = False, wh = False, wdh = False, zh = False, a2h = False, fv = True)->None:
+    def h(self, impath, dh=True, ph=False, wh=False, wdh=False, zh=False, a2h=False, fv=True) -> None:
         """
         Use hashing
         """
@@ -162,7 +165,7 @@ class NPImageParser:
         t = time.perf_counter()
         i = 0
         for k in self.dbi.keys():
-            if i % max(10,int(self.nbi / 100)) == 0:
+            if i % max(10, int(self.nbi / 100)) == 0:
                 print(f"Hash {i + 1}/{self.nbi} in {time.perf_counter() - t:.1f} s")
             im = self.dbi[k]
             try:
@@ -178,17 +181,17 @@ class NPImageParser:
                 if wdh:
                     im.wdh = ih.wdh()  # Daubechies 14x14 369s/1000
                 if zh:
-                    im.zh = ih.zh() #z-transform 64s/1000?
+                    im.zh = ih.zh()  # z-transform 64s/1000?
                 if a2h:
-                    im.a2h = ih.a2h() # ah 16x16 <64s/1000?
+                    im.a2h = ih.a2h()  # ah 16x16 <64s/1000?
                 if fv:
-                    im.fv = ih.fv() #Tensorflow Feature Vector 1792x1 95s/1000
+                    im.fv = ih.fv()  # Tensorflow Feature Vector 1792x1 95s/1000
             except Exception as ex:
                 print(f"Error with {im}: {ex}")
-            i+=1
+            i += 1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
 
-    def train(self, path:str):
+    def train(self, path: str):
         """
         Main method to parse, normalize, hash and save
         :param path: The file to parse
@@ -197,26 +200,27 @@ class NPImageParser:
         self.h("images/")
         self.save(prefix="h")
 
+
 if __name__ == '__main__':
     print("NP Images Parser")
     print("================")
     p = NPImageParser()
-    p.parse("data/imagemock.txt") #Found 63 images in 0s x
+    p.parse("data/imagemock.txt")  # Found 63 images in 0s x
     count = len(p.dbi)
     p.save()
     p.save(method="jsonpickle")
-    wdh = count < 6000 # A virer trop lent
-    wh = count < 10000 # A virer ?
-    ph = count < 3000 # A virer doublon en moins perf que dh
+    wdh = count < 6000  # A virer trop lent
+    wh = count < 10000  # A virer ?
+    ph = count < 3000  # A virer doublon en moins perf que dh
     dh = count < 50000
-    zh = count < 40000 # A virer ressemble trop à ah ?
-    a2h = count < 30000 # A virer donne trop de poids à ah ?
+    zh = count < 40000  # A virer ressemble trop à ah ?
+    a2h = count < 30000  # A virer donne trop de poids à ah ?
     fv = count < 100000
-    p.h("images/", dh = dh, ph = ph, wh = wh, wdh=wdh, a2h=a2h, fv = fv) #All 70s / 103 soit 12min / 1000 et 2h / 10000
-    p.save(prefix="h")                                          #Sans wdh 32s / 63 soit 9 min / 1000 et <1.5h / 10000 et 15h
-                                                                #Sans w*h 6.3s / 63 soit 100s / 1000 et 17 min / 10000 et <3h pour 100000
-                                                                #Que ah + fv 10s / 63 soit 159s / 1000 et 27 min / 10000 et <5h pour 100000
-                                                                #Que ah 4s / 63 soit 64s / 1000 et 11 min / 10000 et <2h pour 100000
+    p.h("images/", dh=dh, ph=ph, wh=wh, wdh=wdh, a2h=a2h, fv=fv)  # All 70s / 103 soit 12min / 1000 et 2h / 10000
+    p.save(prefix="h")                                          # Sans wdh 32s / 63 soit 9 min / 1000 et <1.5h / 10000 et 15h
+                                                                # Sans w*h 6.3s / 63 soit 100s / 1000 et 17 min / 10000 et <3h pour 100000
+                                                                # Que ah + fv 10s / 63 soit 159s / 1000 et 27 min / 10000 et <5h pour 100000
+                                                                # Que ah 4s / 63 soit 64s / 1000 et 11 min / 10000 et <2h pour 100000
 
 
 

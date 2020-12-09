@@ -74,6 +74,8 @@ class NPParser:
         Parser
         :param path: TXT file to parse
         """
+        self.nbp = 0
+        self.nbc = 0
         self.path = path
         t = time.perf_counter()
         logging.info(f"Parse {path}")
