@@ -14,7 +14,7 @@ class ImageTests(unittest.TestCase):
         print(f"V{config.version}")
 
     def test_npimage(self):
-        np = NPImage(1, "tests/images/ski.jpg")
+        np = NPImage(1, "tests/images/ski.jpg",0)
         self.assertEqual("JPG", np.ext)
         self.assertEqual("SKI.JPG",np.name)
 
@@ -27,7 +27,6 @@ class ImageTests(unittest.TestCase):
         self.assertEqual("f0e8f0d0d8cce6f0", str(np.dh()))
         self.assertEqual("c13b0cf35b2cb2c9", str(np.ph()))
         self.assertEqual("00001000feffffff", str(np.wh()))
-        self.assertEqual("00000000000000000003003e3ffe03fffffffffffffffffff", str(np.wdh()))
         self.assertEqual(1792, len(np.fv()))
 
     def test_npimageparser(self):
@@ -60,10 +59,10 @@ class ImageTests(unittest.TestCase):
         score = np.search_by_im(106)
         self.assertEqual(109, score[0][0])
         self.assertEqual(107, score[1][0])
-        self.assertAlmostEqual(0.87, score[1][1], delta=1e-2)
+        self.assertAlmostEqual(0.84, score[1][1], delta=1e-2)
         score = np.search_by_im(110)
         self.assertEqual(111, score[0][0])
-        self.assertAlmostEqual(0.77, score[0][1], delta=1e-2)
+        self.assertAlmostEqual(0.81, score[0][1], delta=1e-2)
 
     def test_npimnearest_byproduct(self):
         np = NPImageNearest("tests/image.h.pickle")

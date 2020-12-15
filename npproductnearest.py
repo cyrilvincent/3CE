@@ -56,8 +56,8 @@ class NPNearest:
         with NPNearest.lock:
             self.cache = {}
         self.comp = npproductcompare.NPComparer()
-        for k in list(self.db.keys())[:1]:
-            self.search(k)
+        # for k in list(self.db.keys())[:1]:
+        #     self.search(k)
         logging.info(f"Loaded {len(self.db)} products in {time.perf_counter() - t:.1f} s")
 
     def __getitem__(self, pid: int) -> Product:
@@ -164,8 +164,9 @@ class NPNearestPool:
 
 class NPNearestNN:
 
-    def __init__(self, path, use2=False):
+    def __init__(self, path, use2=True):
         self.np = NPNearest(path)
+        self.path = path
         self.use2 = use2
 
     def reset(self):
@@ -175,11 +176,20 @@ class NPNearestNN:
         cyrilload.save(self.np.cache, self.np.path.replace(".h.pickle", ".nn"))
 
     def load(self):
-        cyrilload.load(self.np.path.replace(".h.pickle", ".nn."))
+        self.np.cache = cyrilload.load(self.np.path.replace(".h.pickle", ".nn.pickle"))
 
     def train(self):
-        for k in self.np.db.keys():
-            self.np.search(k, use2=self.use2)
+        np = NPNearest(self.path, caching=False)
+        t = time.perf_counter()
+        i = 0
+        for k in np.db.keys():
+            if i % max(10, int(len(np.db) / 100)) == 0:
+                print(f"NN {i + 1}/{len(np.db)} in {time.perf_counter() - t:.1f} s")
+            i+=1
+            res = np.search(k, use2=False)
+            res = [l for l in res if l[1] > config.product_nn_thresold]
+            if len(res) > 0:
+                self.np.search(k, use2=self.use2)
 
 
 if __name__ == '__main__':

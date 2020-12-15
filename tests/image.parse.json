@@ -1,6 +1,7 @@
 [
     {
         "106": {
+            "fid": 1,
             "id": 106,
             "path": "./ski.jpg",
             "size": 0,
@@ -8,8 +9,6 @@
             "dh": null,
             "ph": null,
             "wh": null,
-            "wdh": null,
-            "zh": null,
             "a2h": null,
             "fv": null,
             "pids": [
@@ -19,6 +18,7 @@
             "name": "SKI.JPG"
         },
         "107": {
+            "fid": 1,
             "id": 107,
             "path": "./ski2.jpg",
             "size": 0,
@@ -26,8 +26,6 @@
             "dh": null,
             "ph": null,
             "wh": null,
-            "wdh": null,
-            "zh": null,
             "a2h": null,
             "fv": null,
             "pids": [
@@ -37,6 +35,7 @@
             "name": "SKI2.JPG"
         },
         "108": {
+            "fid": 1,
             "id": 108,
             "path": "./ski3.jpg",
             "size": 0,
@@ -44,8 +43,6 @@
             "dh": null,
             "ph": null,
             "wh": null,
-            "wdh": null,
-            "zh": null,
             "a2h": null,
             "fv": null,
             "pids": [
@@ -55,6 +52,7 @@
             "name": "SKI3.JPG"
         },
         "109": {
+            "fid": 1,
             "id": 109,
             "path": "./ski_copy.jpg",
             "size": 0,
@@ -62,8 +60,6 @@
             "dh": null,
             "ph": null,
             "wh": null,
-            "wdh": null,
-            "zh": null,
             "a2h": null,
             "fv": null,
             "pids": [
@@ -73,6 +69,7 @@
             "name": "SKI_COPY.JPG"
         },
         "110": {
+            "fid": 1,
             "id": 110,
             "path": "./tumblr1.jpg",
             "size": 0,
@@ -80,8 +77,6 @@
             "dh": null,
             "ph": null,
             "wh": null,
-            "wdh": null,
-            "zh": null,
             "a2h": null,
             "fv": null,
             "pids": [
@@ -91,6 +86,7 @@
             "name": "TUMBLR1.JPG"
         },
         "111": {
+            "fid": 1,
             "id": 111,
             "path": "./tumblr2.jpg",
             "size": 0,
@@ -98,8 +94,6 @@
             "dh": null,
             "ph": null,
             "wh": null,
-            "wdh": null,
-            "zh": null,
             "a2h": null,
             "fv": null,
             "pids": [

@@ -2,10 +2,12 @@ import unittest
 import numpy as np
 import config
 import cyrilload
+import nprest
 from entities import Product, Car
 from npproductparser import USE, NPParser
 from npproductcompare import NPComparer
 from npproductnearest import NPNearest, NPNearestPool, NPNearestNN
+
 
 
 class ProductTests(unittest.TestCase):
@@ -144,10 +146,13 @@ class ProductTests(unittest.TestCase):
         self.assertIsNotNone(p)
 
     def test_npnearestnn(self):
-        np = NPNearestNN("tests/data.h.pickle")
+        np = NPNearestNN("tests/data.h.pickle", use2=True)
         np.train()
-        self.assertEqual(3, len(np.np.cache))
+        self.assertEqual(2, len(np.np.cache))
         np.save()
+        np.load()
+        self.assertEqual(2, len(np.np.cache))
+
 
     def test_size(self):
         np = NPNearest("tests/data.h.pickle")

@@ -6,7 +6,7 @@ import json
 import threading
 import logging
 import socket
-from npproductnearest import NPNearestPool
+from npproductnearest import NPNearestPool, NPNearestNN
 from npproductcompare import NPComparer
 # from npproductparser import NPParser
 # from npimnearest import NPImageNearest
@@ -67,12 +67,12 @@ def get_product(id, instance):
     except KeyError:
         return flask.abort(404)
 
-@app.route("/product/<instance>", methods=['PUT', 'POST'])
-def add_update_product(instance):
-    p = flask.request.json
-    #npproductparser.h_product(p)
-    npproductpool[instance].np.db[p.id]=p
-    del npproductpool[instance].np.cache[p.id]
+# @app.route("/product/<instance>", methods=['PUT', 'POST'])
+# def add_update_product(instance):
+#     p = flask.request.json
+#     #npproductparser.h_product(p)
+#     npproductpool[instance].np.db[p.id]=p
+#     del npproductpool[instance].np.cache[p.id]
 
 
 # @app.route("/product/<int:pid>/car/<int:cid>/<instance>", methods=['PUT'])
@@ -88,15 +88,15 @@ def add_update_product(instance):
 #     except KeyError:
 #         return flask.abort(404)
 
-@app.route("/product/<int:id>/<instance>", methods=['DELETE'])
-def delete_product(id, instance):
-    try:
-        p = npproductpool[instance].np[id]
-        del npproductpool[instance].np.db[p.id]
-        del npproductpool[instance].np.cache[p.id]
-        return flask.jsonify(True)
-    except KeyError:
-        return flask.abort(404)
+# @app.route("/product/<int:id>/<instance>", methods=['DELETE'])
+# def delete_product(id, instance):
+#     try:
+#         p = npproductpool[instance].np[id]
+#         del npproductpool[instance].np.db[p.id]
+#         del npproductpool[instance].np.cache[p.id]
+#         return flask.jsonify(True)
+#     except KeyError:
+#         return flask.abort(404)
 
 @app.route("/product/nearests/<int:id>/<int:nb>/<instance>", methods=['GET'])
 def product_nearests_nb(id, nb, instance):
@@ -111,6 +111,17 @@ def product_nearests_nb(id, nb, instance):
 @app.route("/product/nearests/<int:id>/<instance>", methods=['GET'])
 def product_nearests(id, instance):
     return product_nearests_nb(id, 10, instance)
+
+@app.route("/product/nearests/<instance>", methods=['GET'])
+def product_nn(instance):
+    res = {}
+    for k in npproductpool[instance].np.cache.keys():
+        for l in npproductpool[instance].np.cache[k]:
+            if l[1]>config.product_nn_thresold:
+                if l[0] not in res:
+                    res[l[0]] = []
+                res[l[0]].append(l)
+    return flask.jsonify(res)
 
 @app.route("/product/compare/<int:id1>/<int:id2>/<instance>", methods=['GET'])
 def compare(id1, id2, instance):
@@ -177,6 +188,8 @@ def reset(instance):
     logging.warning("Reset")
     with lock:
         npproductpool[instance].np.reset()
+    with lock:
+        npproductpool.get_instance_nn(instance).load()
     # with lock:
     #     npim.reset()
     return flask.jsonify(npproductpool[instance].np.length)
@@ -186,6 +199,9 @@ def reset_all():
     logging.warning("Reset All")
     with lock:
         npproductpool.reset()
+    for instance in config.pool:
+        with lock:
+            npproductpool.get_instance_nn(instance).load()
     # with lock:
     #     npim.reset()
     return flask.jsonify(len(npproductpool.pool))
@@ -210,6 +226,8 @@ if __name__ == '__main__':
         cli.show_server_banner = lambda *x: None
         lock = threading.RLock()
         npproductpool = NPNearestPool()
+        for instance in config.pool:
+            npproductpool.get_instance_nn(instance).load()
         #npproductparser = NPParser()
         #npim = NPImageNearest(config.image_h_file)
         app.run(host='0.0.0.0', port=config.port, threaded=True, debug=config.debug, use_reloader=False)

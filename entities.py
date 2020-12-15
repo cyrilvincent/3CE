@@ -63,7 +63,7 @@ class NPImage:
     POC
     """
 
-    def __init__(self, id, path, size = 0):
+    def __init__(self, id, path, fid, size=0):
         """
         Image
         :param id: image id
@@ -73,12 +73,11 @@ class NPImage:
         :arg dh: like ah but works with gradients : bad for all image but the best for photoshop image (lot of false negative, but very good positives)
         :arg ph: like ah but in frequencies domain (cosine transform) : bad for all image but good for photoshop image (dh redundant to remove ?)
         :arg wh: like ph with better transform : cost a lot, good like ah
-        :arg wdh: optimization of wh : cost++, good but lot of false positives
-        :arg zh: ah with z-scaler
         :arg pids: product id list
         :arg name: image name
         :arg ext: image extension
         """
+        self.fid = fid
         self.id = id
         self.path = path if path.startswith("./") else f"./{path}"
         self.size = size
@@ -86,8 +85,6 @@ class NPImage:
         self.dh = None
         self.ph = None
         self.wh = None
-        self.wdh = None
-        self.zh = None
         self.a2h = None
         self.fv = None
         self.pids = []
@@ -95,7 +92,7 @@ class NPImage:
         self.name = path.split("/")[-1].upper()
 
     def __sub__(self, other):
-        res = {"dah":None, "ddh":None,"dph":None,"dwh":None,"dwdh":None, "dzh":None, "da2h":None, "dfv":None, "dsize":None,"dn":None}
+        res = {"dah":None, "ddh":None,"dph":None,"dwh":None, "da2h":None, "dfv":None, "dsize":None,"dn":None}
         res["dsize"] = abs(self.size - other.size)
         if self.ah is not None and other.ah is not None:
             res["dah"] = round(1 - (self.ah - other.ah) / len(self.ah.hash) ** 2, 3)
@@ -105,10 +102,6 @@ class NPImage:
             res["dph"] = round(1 - (self.ph - other.ph) / len(self.ph.hash) ** 2, 3)
         if self.wh is not None and other.wh is not None:
             res["dwh"] = round(1 - (self.wh - other.wh) / len(self.wh.hash) ** 2, 3)
-        if self.wdh is not None and other.wdh is not None:
-            res["dwdh"] = round(1 - (self.wdh - other.wdh) / len(self.wdh.hash) ** 2, 3)
-        if self.zh is not None and other.zh is not None:
-            res["dzh"] = round(1 - (self.zh - other.zh) / len(self.zh.hash) ** 2, 3)
         if self.a2h is not None and other.a2h is not None:
             res["da2h"] = round(1 - (self.a2h - other.a2h) / len(self.a2h.hash) ** 2, 3)
         if self.fv is not None and other.fv is not None:

@@ -1,7 +1,7 @@
-product_id	image_id	image_path
-53	106	./ski.jpg
-53	107	./ski2.jpg
-54	108	./ski3.jpg
-54	109	./ski_copy.jpg
-55	110	./tumblr1.jpg
-55	111	./tumblr2.jpg
+family_id	product_id	image_id	image_path
+1	53	106	./ski.jpg
+1	53	107	./ski2.jpg
+1	54	108	./ski3.jpg
+1	54	109	./ski_copy.jpg
+1	55	110	./tumblr1.jpg
+1	55	111	./tumblr2.jpg

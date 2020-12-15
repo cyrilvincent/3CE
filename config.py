@@ -2,7 +2,7 @@ import logging
 import os
 
 debug = True
-version = "1.0.0-DEV"
+version = "1.1.0-DEV"
 port = 5000
 indexer_port = 5001
 pool = ["data"]
@@ -13,6 +13,7 @@ tf_use = "hubmodule/universal-sentence-encoder.4"
 #tf_use = "hubmodule/universal-sentence-encoder-multilingual-large_3"
 tf_fv = "hubmodule/feature-vector.4"
 product_thresold = 0.5
+product_nn_thresold = 0.9
 image_thresold = 0.75
 use2_limit = 150000
 logging.basicConfig(filename=None, level=logging.INFO)

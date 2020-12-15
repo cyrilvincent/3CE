@@ -5,8 +5,8 @@ import shutil
 import urllib.request
 import logging
 import socket
-from npproductparser import NPParser, USE
-from npproductnearest import NPNearestPool
+from npproductparser import NPParser
+from npproductnearest import NPNearestPool, NPNearestNN
 
 app: flask.Flask = flask.Flask(__name__)
 
@@ -15,11 +15,11 @@ def autodoc():
     s=f"<html><body><h1>NP Rest Indexer V{config.version}</h1>"
     host = socket.gethostname()
     ip = socket.gethostbyname(host)
-    s += f"<p>{host}@{ip}:{config.port}</p>"
+    s += f"<p>{host}@{ip}:{config.indexer_port}</p>"
     l = list(app.url_map.iter_rules())
     l.sort(key=lambda x: x.rule)
     for rule in l:
-        s += f"<a href='http://{ip}:{config.port}{rule.rule}'>{rule.rule.replace('<', '&lt;').replace('>', '&gt;')}</a> {rule.methods}<br/>"
+        s += f"<a href='http://{ip}:{config.indexer_port}{rule.rule}'>{rule.rule.replace('<', '&lt;').replace('>', '&gt;')}</a> {rule.methods}<br/>"
     s+="</body></html>"
     return s
 
@@ -53,6 +53,11 @@ def index(instance):
     except:
         logging.error("Cannot copy temp to h")
     try:
+        logging.info(f"Indexer NN")
+        use2 = len(npparser.db) < config.use2_limit
+        nn = NPNearestNN(name+".h.pickle", use2=use2)
+        nn.train()
+        nn.save()
         logging.info(f"Call reset")
         npproductpool[instance].reset()
         with urllib.request.urlopen(f"http://localhost:{config.port}/reset/{instance}") as response:
@@ -88,6 +93,6 @@ if __name__ == '__main__':
         cli.show_server_banner = lambda *x: None
         npparser = NPParser()
         npproductpool = NPNearestPool()
-        app.run(host='0.0.0.0', port=config.indexer_port, threaded=False, debug=config.debug, use_reloader=False)
+        app.run(host='0.0.0.0', port=config.indexer_port, threaded=True, debug=config.debug, use_reloader=False)
     except Exception as ex:
         logging.fatal(ex)

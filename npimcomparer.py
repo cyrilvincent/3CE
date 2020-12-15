@@ -12,12 +12,11 @@ class NPImageComparer:
     Compare to products
     """
     def __init__(self):
-        self.weights = {"ah": 1.0, "dh": 1.0, "ph": 0.0, "wh": 1.0, "wdh": 0.1, "zh": 0.5, "a2h": 0.5, "fv": 3.0, "name": .3}
+        self.weights = {"ah": 1.0, "dh": 1.0, "ph": 0.0, "wh": 1.0, "a2h": 0.5, "fv": 3.0, "name": .3}
         # ah = average : good for all images but false negative for rephotoshop image
         # dh = ah but in gradients : bad for all image but the best for photoshop image (lot of false negative, but very good positives)
         # ph = ah but in frequencies domain (cosine transform) : bad for all image but good for photoshop image (dh redundant to remove)
         # wh = ph with Fourier : cost a lot, good like ah
-        # wdh = optimization of wh : cost++, good but lot of false positives
 
     def diff(self, i1: NPImage, i2: NPImage) -> List[List[float]]:
         dico = i1 - i2
@@ -48,18 +47,12 @@ class NPImageComparer:
             res.append([dscore, self.weights["dh"]])
         ascore = 1 - (i1.ah - i2.ah) / 64
         res.append([ascore, self.weights["ah"]])
-        if i1.zh is not None and i2.zh is not None:
-            score = 1 - (i1.zh - i2.zh) / 64  # Like ah, useful ?
-            res.append([score, self.weights["zh"]])
         # if i1.ph is not None and i2.ph is not None: # To remove
         #     score = 1 - (i1.ph - i2.ph) / 64
         #     res.append([score, self.weights["ph"]])
         if i1.wh is not None and i2.wh is not None:
             score = 1 - (i1.wh - i2.wh) / 64  # Good like ah but expensive
             res.append([score, self.weights["wh"]])
-        # if i1.wdh is not None and i2.wdh is not None:
-        #     score = 1 - (i1.wdh - i2.wdh) / 196 #Lot of false positive, expansive, useful ?
-        #     res.append([score, self.weights["wdh"]])
         if i1.a2h is not None and i2.a2h is not None:
             score = 1 - (i1.a2h - i2.a2h) / 256  # Lot of false positive, expansive, useful ?
             res.append([score, self.weights["a2h"]])

@@ -66,12 +66,6 @@ class NPImageService:
         """
         return imagehash.whash(self.pil)
 
-    def wdh(self):
-        return imagehash.whash(self.pil, mode="db4")
-
-    def zh(self):
-        return imagehash.average_hash(self.ztransform())
-
     def fv(self):
         """
         https://towardsdatascience.com/image-similarity-detection-in-action-with-tensorflow-2-0-b8d9a78b2509
@@ -81,23 +75,6 @@ class NPImageService:
             self.tfimg = self.load_img(self.path)
         features = NPImageService.model(self.tfimg)
         return np.squeeze(features)
-
-    def alpharemover(self, image):
-        if image.mode != 'RGBA':
-            return image
-        canvas = Image.new('RGBA', image.size, (255, 255, 255, 255))
-        canvas.paste(image, mask=image)
-        return canvas.convert('RGB')
-
-    def ztransform(self):
-        image = self.alpharemover(self.pil)
-        image = image.convert("L").resize((8, 8), Image.ANTIALIAS)
-        data = image.getdata()
-        quantiles = np.arange(100)
-        quantiles_values = np.percentile(data, quantiles)
-        zdata = (np.interp(data, quantiles_values, quantiles) / 100 * 255).astype(np.uint8)
-        image.putdata(zdata)
-        return image
 
     def load_img(self, path):
         img = tf.io.read_file(path)
@@ -134,7 +111,7 @@ class NPImageParser:
             for row in r:
                 iid = int(row["image_id"])
                 if iid not in self.dbi:
-                    self.dbi[iid] = entities.NPImage(iid, row["image_path"])
+                    self.dbi[iid] = entities.NPImage(iid, row["image_path"], int(row["family_id"]))
                     self.nbi += 1
                 pid = int(row["product_id"])
                 if pid not in self.dbi[iid].pids:
@@ -156,12 +133,11 @@ class NPImageParser:
         cyrilload.save(self.db, name, prefix, method)
         print(f"Saved in {time.perf_counter() - t:.1f} s")
 
-    def h(self, impath, dh=True, ph=False, wh=False, wdh=False, zh=False, a2h=False, fv=True) -> None:
+    def h(self, impath, dh=True, ph=False, wh=False, a2h=False, fv=True) -> None:
         """
         Use hashing
         """
         print(f"Hashing with ImageHash model")
-        count = len(p.dbi)
         t = time.perf_counter()
         i = 0
         for k in self.dbi.keys():
@@ -178,10 +154,6 @@ class NPImageParser:
                     im.ph = ih.ph()  # 8x8 36s/1000?
                 if wh:
                     im.wh = ih.wh()  # Haar 8x8 408s/1000
-                if wdh:
-                    im.wdh = ih.wdh()  # Daubechies 14x14 369s/1000
-                if zh:
-                    im.zh = ih.zh()  # z-transform 64s/1000?
                 if a2h:
                     im.a2h = ih.a2h()  # ah 16x16 <64s/1000?
                 if fv:
@@ -209,14 +181,12 @@ if __name__ == '__main__':
     count = len(p.dbi)
     p.save()
     p.save(method="jsonpickle")
-    wdh = count < 6000  # A virer trop lent
     wh = count < 10000  # A virer ?
     ph = count < 3000  # A virer doublon en moins perf que dh
     dh = count < 50000
-    zh = count < 40000  # A virer ressemble trop à ah ?
     a2h = count < 30000  # A virer donne trop de poids à ah ?
     fv = count < 100000
-    p.h("images/", dh=dh, ph=ph, wh=wh, wdh=wdh, a2h=a2h, fv=fv)  # All 70s / 103 soit 12min / 1000 et 2h / 10000
+    p.h("images/", dh=dh, ph=ph, wh=wh, a2h=a2h, fv=fv)  # All 70s / 103 soit 12min / 1000 et 2h / 10000
     p.save(prefix="h")                                          # Sans wdh 32s / 63 soit 9 min / 1000 et <1.5h / 10000 et 15h
                                                                 # Sans w*h 6.3s / 63 soit 100s / 1000 et 17 min / 10000 et <3h pour 100000
                                                                 # Que ah + fv 10s / 63 soit 159s / 1000 et 27 min / 10000 et <5h pour 100000
