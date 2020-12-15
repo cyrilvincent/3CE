@@ -25,7 +25,6 @@ class ImageTests(unittest.TestCase):
         self.assertEqual("00000000fcffffff", str(np.ah()))
         self.assertEqual("00000000000000000000010000000000fd80fffcfdffff3fffffffffffffffff", str(np.a2h()))
         self.assertEqual("f0e8f0d0d8cce6f0", str(np.dh()))
-        self.assertEqual("c13b0cf35b2cb2c9", str(np.ph()))
         self.assertEqual("00001000feffffff", str(np.wh()))
         self.assertEqual(1792, len(np.fv()))
 
