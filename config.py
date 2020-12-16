@@ -9,12 +9,15 @@ pool = ["data"]
 product_h_file = "data/{instance}.h.pickle"
 product_data_file = "data/{instance}.txt"
 image_h_file = "data/{instance}-images.h.pickle"
+image_data_file = "data/{instance}-images.txt"
 tf_use = "hubmodule/universal-sentence-encoder.4"
 #tf_use = "hubmodule/universal-sentence-encoder-multilingual-large_3"
 tf_fv = "hubmodule/feature-vector.4"
 product_thresold = 0.5
 product_nn_thresold = 0.9
 image_thresold = 0.75
+image_nn_thresold = 0.9
 use2_limit = 150000
+product_nn_limit = 1000000
 logging.basicConfig(filename=None, level=logging.INFO)
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"

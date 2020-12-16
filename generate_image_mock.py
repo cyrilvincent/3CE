@@ -1,6 +1,6 @@
 import os
 
-with open("data/imagemock.txt", "w") as f:
+with open("data/mock-image.txt", "w") as f:
     f.write("family_id\tproduct_id\timage_id\timage_path\n")
     i = 0
     for file  in os.listdir("images"):

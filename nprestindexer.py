@@ -45,19 +45,20 @@ def index(instance):
         logging.fatal(ex)
     try:
         shutil.move(name+".h.pickle",name+".bak.pickle")
-    except:
-        logging.warning("Cannot copy h to bak")
-    try:
         logging.info(f"Creating {name}.h.pickle")
         shutil.move(name+".temp.pickle",name+".h.pickle")
     except:
-        logging.error("Cannot copy temp to h")
+        logging.error("Cannot move h")
+    if len(npparser.db) < config.product_nn_limit:
+        try:
+            use2 = len(npparser.db) < config.use2_limit
+            logging.info(f"Indexer NN with use2: {use2}")
+            nn = NPNearestNN(name+".h.pickle", use2=use2)
+            nn.train()
+            nn.save()
+        except Exception as ex:
+            logging.error(f"NN NOK {ex}")
     try:
-        logging.info(f"Indexer NN")
-        use2 = len(npparser.db) < config.use2_limit
-        nn = NPNearestNN(name+".h.pickle", use2=use2)
-        nn.train()
-        nn.save()
         logging.info(f"Call reset")
         npproductpool[instance].reset()
         with urllib.request.urlopen(f"http://localhost:{config.port}/reset/{instance}") as response:

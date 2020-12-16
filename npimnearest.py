@@ -8,7 +8,6 @@ import logging
 from entities import NPImage
 from typing import List
 from npfalsepositives import NPFalsePositives
-from npimnearesthtml import image_scores_to_html
 
 
 class NPImageNearest:
@@ -61,7 +60,7 @@ class NPImageNearest:
     def get_pids(self):
         return list(self.db[1].keys())
 
-    def search_by_im(self, id: int, take=10, thresold=0.75) -> List[List[float]]:
+    def search_by_im(self, id: int, take=10, thresold=0.75, fast=False) -> List[List[float]]:
         if id in self.cache.keys():
             return self.cache[id][:take]
         else:
@@ -71,7 +70,7 @@ class NPImageNearest:
                 im2 = self.get_im_by_iid(k)
                 if im.id != im2.id:
                     if not self.fp.match(im.id, im2.id):
-                        score = self.comp.compare(im, im2)
+                        score = self.comp.compare(im, im2, fast)
                         if score > thresold:
                             res.append([k, score])
             res.sort(key=lambda x: x[1], reverse=True)
@@ -81,12 +80,12 @@ class NPImageNearest:
             res = res[:take]
             return res
 
-    def search_by_product(self, pid: int, take=10, thresold=0.75):
+    def search_by_product(self, pid: int, take=10, thresold=0.75, fast=False):
         iids = self.get_iids_by_pid(pid)
         print(f"Found {len(iids)} images: {iids}")
         res = []
         for iid in iids:
-            res.append(self.search_by_im(iid, take * 2, thresold))
+            res.append(self.search_by_im(iid, take * 2, thresold, fast))
         dico = {}
         for pres in res:
             for t in pres:
@@ -106,6 +105,17 @@ class NPImageNearest:
         l = l[:take]
         return l
 
+    def search_families(self, iid: int, take=10, thresold=0.75, fast=False):
+        dico = {}
+        res = self.search_by_im(iid, take, thresold, fast)
+        for t in res:
+            im = self.get_im_by_iid(t[0])
+            if im.fid not in dico:
+                dico[im.fid] = t[1]
+            else:
+                dico[im.fid] = max(1.0, max(t[1], dico[im.fid]) + 0.02)
+        return dico
+
 
 class NPImageNearestPool:
 
@@ -113,9 +123,12 @@ class NPImageNearestPool:
         self.pool = {}
         for instance in config.pool:
             path = config.image_h_file.replace("{instance}", instance)
-            self.pool[instance] = NPImageNearest(path)
+            self.pool[instance] = NPImageNearestNN(path)
 
     def get_instance(self, instance: str):
+        return self.get_instance_nn(instance).np
+
+    def get_instance_nn(self, instance: str):
         if instance in self.pool:
             return self.pool[instance]
         else:
@@ -124,7 +137,7 @@ class NPImageNearestPool:
             raise ValueError(msg)
 
     def __getitem__(self, item):
-        return self.get_instance(item)
+        return self.get_instance_nn(item)
 
     @property
     def comp(self):
@@ -134,15 +147,41 @@ class NPImageNearestPool:
         for k in self.pool.keys():
             self.pool[k].reset()
 
+class NPImageNearestNN:
+
+    def __init__(self, path):
+        self.np = NPImageNearest(path)
+        self.path = path
+
+    def reset(self):
+        self.np.reset()
+
+    def save(self):
+        cyrilload.save(self.np.cache, self.np.path.replace(".h.pickle", ".nn"))
+
+    def load(self):
+        self.np.cache = cyrilload.load(self.np.path.replace(".h.pickle", ".nn.pickle"))
+
+    def train(self, fast=False):
+        t = time.perf_counter()
+        i = 0
+        for k in self.np.db[0].keys():
+            if i % max(10, int(len(self.np.db[0]) / 100)) == 0:
+                print(f"NN {i + 1}/{len(self.np.db[0])} in {time.perf_counter() - t:.1f} s")
+            i+=1
+            self.np.search_by_im(k, fast)
 
 if __name__ == '__main__':
     print("NPImageNearest")
     print("==============")
-    np = NPImageNearest("data/imagemock.h.pickle")
+    nn = NPImageNearestNN("data/mock-image.h.pickle")
+    np = nn.np
     byproduct = len(sys.argv) > 1 and sys.argv[1] == "--product"
 
     res = np.search_by_product(6, 10, 0.75)
     print(res)
+
+    nn.train(False) #100*100 = 1s 1000*1000 = 100s 10000*10000 = 7500s faire que ah : ne change rien
 
     # Recherche par image
     if not byproduct:
@@ -154,7 +193,6 @@ if __name__ == '__main__':
                 im = np.get_im_by_iid(id)
                 print(f'Image {id} {im.path}')
                 res = np.search_by_im(id)
-                image_scores_to_html(im, res)
             except Exception as ex:
                 print(f"Image {id} does not exist", ex)
                 res = []

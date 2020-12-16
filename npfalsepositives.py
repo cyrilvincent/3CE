@@ -19,7 +19,7 @@ class NPFalsePositives:
 
     def save(self):
         cyrilload.save(NPFalsePositives.set, self.fppath, prefix="fp")
-        cyrilload.save(NPFalsePositives.set, self.fppath, prefix="fp", method="json")
+        #cyrilload.save(NPFalsePositives.set, self.fppath, prefix="fp", method="json")
 
     def load(self):
         try:
