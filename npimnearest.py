@@ -188,14 +188,14 @@ class NPImageNearestNN:
 if __name__ == '__main__':
     print("NPImageNearest")
     print("==============")
-    nn = NPImageNearestNN("data/mock-image.h.pickle")
+    nn = NPImageNearestNN("data/chuv-image.h.pickle")
     np = nn.np
     byproduct = len(sys.argv) > 1 and sys.argv[1] == "--product"
 
     res = np.search_by_product(6, 10, 0.75)
     print(res)
 
-    nn.train(False) # fast=False 100*100 = 1.1s 1000*1000 = 110s 5000²=2750s 10000*10000 = 8250s
+    nn.train(False) # fast=False 100*100 = 1.1s 307²=18.7s 1000*1000 = 198s 4000²=3168s 10000*10000 = 19800s
                     # fast=True 100*100 = 0.2s 1000²=20s 10000²=2000s 15000²=4500s
 
     # Recherche par image

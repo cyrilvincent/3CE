@@ -24,7 +24,6 @@ class ImageTests(unittest.TestCase):
         self.assertIsNotNone(np.pil)
         self.assertEqual("00000000fcffffff", str(np.ah()))
         self.assertEqual("f0e8f0d0d8cce6f0", str(np.dh()))
-        self.assertEqual("00001000feffffff", str(np.wh()))
         self.assertEqual(1792, len(np.fv()))
 
     def test_npimageparser(self):
@@ -80,6 +79,7 @@ class ImageTests(unittest.TestCase):
 
     def test_pool(self):
         config.image_h_file = "tests/{instance}-image.h.pickle"
+        config.pool = ["data"]
         pool = NPImageNearestPool()
         np = pool.get_instance("data")
         score = np.search_by_product(53)
@@ -87,6 +87,7 @@ class ImageTests(unittest.TestCase):
 
     def test_nn(self):
         config.image_h_file = "tests/{instance}-image.h.pickle"
+        config.pool = ["data"]
         pool = NPImageNearestPool()
         np = pool.get_instance_nn("data")
         np.train()
@@ -96,6 +97,7 @@ class ImageTests(unittest.TestCase):
 
     def test_family(self):
         config.image_h_file = "tests/{instance}-image.h.pickle"
+        config.pool = ["data"]
         pool = NPImageNearestPool()
         np = pool.get_instance("data")
         score = np.search_families(107)

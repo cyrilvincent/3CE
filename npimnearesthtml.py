@@ -100,7 +100,8 @@ def categorize_to_html(np):
 if __name__ == '__main__':
     print("NPImageNearestHTML")
     print("==================")
-    np = npimnearest.NPImageNearest("data/imagemock.h.pickle")
-    # images_to_html(np)
-    products_to_html(np)
+    np = npimnearest.NPImageNearest("data/chuv-image.h.pickle")
+    images_to_html(np)
+    #products_to_html(np)
     # categorize_to_html(np)
+

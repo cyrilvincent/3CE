@@ -45,13 +45,6 @@ class NPImageService:
         """
         return imagehash.dhash(self.pil)
 
-    def wh(self):
-        """
-        #https://fullstackml.com/wavelet-image-hash-in-python-3504fdd282b5
-        :return:
-        """
-        return imagehash.whash(self.pil)
-
     def fv(self):
         """
         https://towardsdatascience.com/image-similarity-detection-in-action-with-tensorflow-2-0-b8d9a78b2509
@@ -137,13 +130,11 @@ class NPImageParser:
             try:
                 ih = NPImageService(impath + im.path)
                 im.size = ih.size
-                im.ah = ih.ah()  # 8x8 64s/1000
+                im.ah = ih.ah()  # 8x8 7.8s/1000
                 if dh:
-                    im.dh = ih.dh()  # 8x8
-                if wh:
-                    im.wh = ih.wh()  # Haar 8x8 408s/1000
+                    im.dh = ih.dh()  # 8x8 0.7s/1000
                 if fv:
-                    im.fv = ih.fv()  # Tensorflow Feature Vector 1792x1 95s/1000
+                    im.fv = ih.fv()  # Tensorflow Feature Vector 1792x1 22s/1000
             except Exception as ex:
                 print(f"Error with {im}: {ex}")
             i += 1
@@ -164,19 +155,13 @@ if __name__ == '__main__':
     print("================")
     p = NPImageParser()
     p.save_empty()
-    p.parse("data/mock-image.txt")  # Found 63 images in 0s x
+    p.parse("data/chuv-image.txt")
     count = len(p.dbi)
     p.save()
     p.save(method="jsonpickle")
-    wh = count < 4000  # A virer ?
-    dh = count < 28000
-    fv = count < 38000
-    p.h("images/", dh=dh, wh=wh, fv=fv)  # All 70s / 103 soit 12min / 1000 et 2h / 10000
-    p.save(prefix="h")                                          # Sans wdh 32s / 63 soit 9 min / 1000 et <1.5h / 10000 et 15h
-                                                                # Sans w*h 6.3s / 63 soit 100s / 1000 et 17 min / 10000 et <3h pour 100000
-                                                                # Que ah + fv 10s / 63 soit 159s / 1000 et 27 min / 10000 et <5h pour 100000
-                                                                # Que ah 4s / 63 soit 64s / 1000 et 11 min / 10000 et <2h pour 100000
-
-
+    dh = count < 400000
+    fv = count < 100000
+    p.h("images/", dh=dh, fv=fv)  # 307 im in 9.7s, 32s/1000, 320s/10000, 3200/100000
+    p.save(prefix="h")
 
 

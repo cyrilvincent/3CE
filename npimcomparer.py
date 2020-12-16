@@ -12,7 +12,7 @@ class NPImageComparer:
     Compare to products
     """
     def __init__(self):
-        self.weights = {"ah": 1.0, "dh": 1.0, "wh": 1.0, "fv": 3.0, "name": 0.1}
+        self.weights = {"ah": 0.4, "dh": 0.3, "fv": 1.0, "name": 0.05}
         # ah = average : good for all images but false negative for rephotoshop image
         # dh = ah but in gradients : bad for all image but the best for photoshop image (lot of false negative, but very good positives)
         # ph = ah but in frequencies domain (cosine transform) : bad for all image but good for photoshop image (dh redundant to remove)
@@ -40,16 +40,11 @@ class NPImageComparer:
         if score == 0:
             return 1.0  # perfect
         res = []
-        if i1.dh is not None and i2.dh is not None and not fast:
-            dscore = 1 - (i1.dh - i2.dh) / 64
-            if dscore > 0.84:  # Lot of false negative but perfect positives
-                return (1 + dscore) / 2
-            res.append([dscore, self.weights["dh"]])
         ascore = 1 - (i1.ah - i2.ah) / 64
         res.append([ascore, self.weights["ah"]])
-        if i1.wh is not None and i2.wh is not None and not fast:
-            score = 1 - (i1.wh - i2.wh) / 64  # Good like ah but expensive
-            res.append([score, self.weights["wh"]])
+        if i1.dh is not None and i2.dh is not None and not fast:
+            dscore = 1 - (i1.dh - i2.dh) / 64
+            res.append([dscore, self.weights["dh"]])
         if i1.fv is not None and i2.fv is not None and not fast:
             score = 1 - spatial.distance.cosine(i1.fv, i2.fv)
             w = self.weights["fv"]
