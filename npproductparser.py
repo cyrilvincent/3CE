@@ -125,6 +125,10 @@ class NPParser:
         except Exception as ex:
             logging.error(ex)
 
+    def save_empty(self):
+        db: Dict[int, Product] = {}
+        cyrilload.save(db, "data/empty", method="pickle")
+
     def h(self) -> None:
         """
         Use hashing
@@ -175,6 +179,7 @@ if __name__ == '__main__':
     parser.add_argument("-n", "--nohash", action="store_true", help="Not use USE hashing")
     args = parser.parse_args()
     p = NPParser()
+    p.save_empty()
     # p.train(config.data_file)
     p.parse(args.path)  # Found 3904 products * 15
     p.normalize()

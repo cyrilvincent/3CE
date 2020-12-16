@@ -185,11 +185,21 @@ class NPNearestNN:
         for k in np.db.keys():
             if i % max(10, int(len(np.db) / 100)) == 0:
                 print(f"NN {i + 1}/{len(np.db)} in {time.perf_counter() - t:.1f} s")
-            i+=1
+            i += 1
             res = np.search(k, use2=False)
             res = [l for l in res if l[1] > config.product_nn_thresold]
             if len(res) > 0:
                 self.np.search(k, use2=self.use2)
+
+    def predict(self):
+        res = {}
+        for k in self.np.cache.keys():
+            for l in self.np.cache[k]:
+                if l[1] > config.product_nn_thresold:
+                    if l[0] not in res:
+                        res[l[0]] = []
+                    res[l[0]].append(l)
+        return res
 
 
 if __name__ == '__main__':

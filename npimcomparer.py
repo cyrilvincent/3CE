@@ -24,7 +24,7 @@ class NPImageComparer:
         dico["dn"] = round(np.compare_value_gestalt(i1.name.split(".")[0], i2.name.split(".")[0]), 3)
         return dico
 
-    def compare(self, i1: NPImage, i2: NPImage, fast = False) -> List[List[float]]:
+    def compare(self, i1: NPImage, i2: NPImage, fast=False) -> List[List[float]]:
         """
         https://tech.okcupid.com/evaluating-perceptual-image-hashes-okcupid/
         http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html

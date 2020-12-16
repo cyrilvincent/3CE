@@ -163,13 +163,27 @@ class NPImageNearestNN:
         self.np.cache = cyrilload.load(self.np.path.replace(".h.pickle", ".nn.pickle"))
 
     def train(self, fast=False):
+        np = NPImageNearest(self.path)
         t = time.perf_counter()
         i = 0
-        for k in self.np.db[0].keys():
+        for k in np.db[0].keys():
             if i % max(10, int(len(self.np.db[0]) / 100)) == 0:
                 print(f"NN {i + 1}/{len(self.np.db[0])} in {time.perf_counter() - t:.1f} s")
             i+=1
-            self.np.search_by_im(k, fast)
+            res = np.search_by_im(k, thresold=config.image_nn_thresold, fast=fast)
+            if len(res) > 0:
+                self.np.search_by_im(k)
+
+    def predict(self):
+        res = {}
+        for k in self.np.cache.keys():
+            for l in self.np.cache[k]:
+                if l[1] > config.image_nn_thresold:
+                    if l[0] not in res:
+                        res[l[0]] = []
+                    res[l[0]].append(l)
+        return res
+
 
 if __name__ == '__main__':
     print("NPImageNearest")
@@ -181,7 +195,8 @@ if __name__ == '__main__':
     res = np.search_by_product(6, 10, 0.75)
     print(res)
 
-    nn.train(False) #100*100 = 1s 1000*1000 = 100s 10000*10000 = 7500s faire que ah : ne change rien
+    nn.train(False) # fast=False 100*100 = 1.1s 1000*1000 = 110s 5000²=2750s 10000*10000 = 8250s
+                    # fast=True 100*100 = 0.2s 1000²=20s 10000²=2000s 15000²=4500s
 
     # Recherche par image
     if not byproduct:

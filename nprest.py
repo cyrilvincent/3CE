@@ -114,13 +114,7 @@ def product_nearests(id, instance):
 
 @app.route("/product/nearests/<instance>", methods=['GET'])
 def product_nn(instance):
-    res = {}
-    for k in npproductpool[instance].np.cache.keys():
-        for l in npproductpool[instance].np.cache[k]:
-            if l[1]>config.product_nn_thresold:
-                if l[0] not in res:
-                    res[l[0]] = []
-                res[l[0]].append(l)
+    res=npproductpool[instance].predict()
     return flask.jsonify(res)
 
 @app.route("/product/compare/<int:id1>/<int:id2>/<instance>", methods=['GET'])
@@ -221,15 +215,13 @@ if __name__ == '__main__':
     print("=======")
     print(f"V{config.version}")
     logging.info('Starting NPRest')
-    try:
-        cli = sys.modules['flask.cli']
-        cli.show_server_banner = lambda *x: None
-        lock = threading.RLock()
-        npproductpool = NPNearestPool()
-        for instance in config.pool:
+    cli = sys.modules['flask.cli']
+    cli.show_server_banner = lambda *x: None
+    lock = threading.RLock()
+    npproductpool = NPNearestPool()
+    for instance in config.pool:
+        try:
             npproductpool.get_instance_nn(instance).load()
-        #npproductparser = NPParser()
-        #npim = NPImageNearest(config.image_h_file)
-        app.run(host='0.0.0.0', port=config.port, threaded=True, debug=config.debug, use_reloader=False)
-    except Exception as ex:
-        logging.fatal(ex)
+        except Exception as ex:
+            logging.error(f"Cannot load {instance}: {ex}")
+    app.run(host='0.0.0.0', port=config.port, threaded=True, debug=config.debug, use_reloader=False)

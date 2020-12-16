@@ -89,11 +89,8 @@ if __name__ == '__main__':
     print("===============")
     print(f"V{config.version}")
     logging.info("NPRestIndexer")
-    try:
-        cli = sys.modules['flask.cli']
-        cli.show_server_banner = lambda *x: None
-        npparser = NPParser()
-        npproductpool = NPNearestPool()
-        app.run(host='0.0.0.0', port=config.indexer_port, threaded=True, debug=config.debug, use_reloader=False)
-    except Exception as ex:
-        logging.fatal(ex)
+    cli = sys.modules['flask.cli']
+    cli.show_server_banner = lambda *x: None
+    npparser = NPParser()
+    npproductpool = NPNearestPool()
+    app.run(host='0.0.0.0', port=config.indexer_port, threaded=True, debug=config.debug, use_reloader=False)

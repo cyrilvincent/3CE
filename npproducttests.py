@@ -152,13 +152,15 @@ class ProductTests(unittest.TestCase):
         np.save()
         np.load()
         self.assertEqual(2, len(np.np.cache))
-
+        res = np.predict()
+        self.assertEqual(0, len(res))
 
     def test_size(self):
         np = NPNearest("tests/data.h.pickle")
         self.assertEqual(3, np.length)
         self.assertEqual((3, 8), np.shape)
         self.assertEqual(24, np.size)
+
 
 
 if __name__ == '__main__':

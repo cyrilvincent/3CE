@@ -90,7 +90,9 @@ class ImageTests(unittest.TestCase):
         pool = NPImageNearestPool()
         np = pool.get_instance_nn("data")
         np.train()
-        self.assertEqual(6, len(np.np.cache))
+        self.assertEqual(2, len(np.np.cache))
+        res = np.predict()
+        self.assertEqual(2, len(res))
 
     def test_family(self):
         config.image_h_file = "tests/{instance}-image.h.pickle"
