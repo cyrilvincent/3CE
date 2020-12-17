@@ -2,7 +2,7 @@ import logging
 import os
 
 debug = True
-version = "1.1.0-DEV"
+version = "1.1.1-DEV"
 port = 5000
 indexer_port = 5001
 pool = ["chuv"]
