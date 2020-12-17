@@ -1,5 +1,4 @@
 import unittest
-import numpy as np
 import config
 import cyrilload
 from entities import NPImage
@@ -10,17 +9,21 @@ from npimnearest import NPImageNearest, NPImageNearestPool
 
 class ImageTests(unittest.TestCase):
 
+    def setUp(self) -> None:
+        config.image_h_file = "tests/{instance}-image.h.pickle"
+        config.pool = ["data"]
+
     def test_config(self):
         print(f"V{config.version}")
 
     def test_npimage(self):
-        np = NPImage(1, "tests/images/ski.jpg",0)
+        np = NPImage(1, "tests/images/ski.jpg", 0)
         self.assertEqual("JPG", np.ext)
-        self.assertEqual("SKI.JPG",np.name)
+        self.assertEqual("SKI.JPG", np.name)
 
     def test_npimageservice(self):
         np = NPImageService("tests/images/ski.jpg")
-        self.assertEqual(484720,np.size)
+        self.assertEqual(484720, np.size)
         self.assertIsNotNone(np.pil)
         self.assertEqual("00000000fcffffff", str(np.ah()))
         self.assertEqual("f0e8f0d0d8cce6f0", str(np.dh()))
@@ -30,7 +33,7 @@ class ImageTests(unittest.TestCase):
         np = NPImageParser()
         np.parse("tests/data-image.txt")
         self.assertEqual(6, len(np.dbi))
-        np.save("parse","jsonpickle")
+        np.save("parse", "jsonpickle")
         np.h("tests/images")
         np.save("h")
 
@@ -78,16 +81,12 @@ class ImageTests(unittest.TestCase):
         self.assertEqual(109, score[0][0])
 
     def test_pool(self):
-        config.image_h_file = "tests/{instance}-image.h.pickle"
-        config.pool = ["data"]
         pool = NPImageNearestPool()
         np = pool.get_instance("data")
         score = np.search_by_product(53)
         self.assertEqual(54, score[0][0])
 
     def test_nn(self):
-        config.image_h_file = "tests/{instance}-image.h.pickle"
-        config.pool = ["data"]
         pool = NPImageNearestPool()
         np = pool.get_instance_nn("data")
         np.train()
@@ -96,8 +95,6 @@ class ImageTests(unittest.TestCase):
         self.assertEqual(2, len(res))
 
     def test_family(self):
-        config.image_h_file = "tests/{instance}-image.h.pickle"
-        config.pool = ["data"]
         pool = NPImageNearestPool()
         np = pool.get_instance("data")
         score = np.search_families(107)

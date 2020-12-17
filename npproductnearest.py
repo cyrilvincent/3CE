@@ -89,7 +89,7 @@ class NPNearest:
             res.append([pid2, score])
         return res
 
-    def search(self, pid: int, take=10, main=False, use2=True, fast=True) -> List[List[float]]:
+    def search(self, pid: int, threshold=config.product_threshold, take=10, main=False, use2=True, fast=True) -> List[List[float]]:
         """
         The main search method
         Perf pb for 100k (7s)
@@ -104,7 +104,7 @@ class NPNearest:
         if pid in self.cache.keys():
             return self.cache[pid][:take]
         else:
-            coef = 0.8 if use2 or fast else 0.5
+            coef = 0.8 if use2 else 0.5
             take_coef = 4 if use2 or fast else 65536
             p = self[pid]
             res1 = []
@@ -112,7 +112,7 @@ class NPNearest:
                 p2 = self[k]
                 if p.id != p2.id:
                     score = self.comp.compare_product(p, p2, main, use2)
-                    if score > config.product_thresold * coef:
+                    if score > threshold * coef:
                         res1.append([k, score])
             res1.sort(key=lambda x: x[1], reverse=True)
             res1 = res1[:(take * take_coef)]
@@ -125,7 +125,7 @@ class NPNearest:
                     v = x[1][1]
                 res.append([x[0][0], v])
             res.sort(key=lambda x: x[1], reverse=True)
-            res = [r for r in res if r[1] > config.product_thresold]
+            res = [r for r in res if r[1] > threshold]
             if self.caching:
                 with NPNearest.lock:
                     self.cache[pid] = res
@@ -183,7 +183,7 @@ class NPNearestNN:
     def load(self):
         self.np.cache = cyrilload.load(self.np.path.replace(".h.pickle", ".nn.pickle"))
 
-    def train(self):
+    def train(self, threshold=config.product_nn_threshold):
         np = NPNearest(self.path, caching=False)
         t = time.perf_counter()
         i = 0
@@ -191,8 +191,7 @@ class NPNearestNN:
             if i % max(10, int(len(np.db) / 100)) == 0:
                 print(f"NN {i + 1}/{len(np.db)} in {time.perf_counter() - t:.1f} s")
             i += 1
-            res = np.search(k, use2=False)
-            res = [l for l in res if l[1] > config.product_nn_thresold]
+            res = np.search(k, threshold=threshold, use2=False)
             if len(res) > 0:
                 self.np.search(k, use2=self.use2)
 
@@ -200,7 +199,7 @@ class NPNearestNN:
         res = {}
         for k in self.np.cache.keys():
             for l in self.np.cache[k]:
-                if l[1] > config.product_nn_thresold:
+                if l[1] > config.product_nn_threshold:
                     if l[0] not in res:
                         res[l[0]] = []
                     res[l[0]].append(l)
@@ -230,7 +229,7 @@ if __name__ == '__main__':
         try:
             p = np[pid]
             print(f'Product {pid} "{p.l[0].val[:60]}"')
-            res = np.search(pid, 10, main, True)
+            res = np.search(pid, config.product_threshold, 10, main, True)
         except:
             print(f"Product {pid} does not exist")
             res = []

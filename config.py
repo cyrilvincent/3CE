@@ -13,10 +13,10 @@ image_data_file = "data/{instance}-image.txt"
 tf_use = "hubmodule/universal-sentence-encoder.4"
 #tf_use = "hubmodule/universal-sentence-encoder-multilingual-large_3"
 tf_fv = "hubmodule/feature-vector.4"
-product_thresold = 0.5
-product_nn_thresold = 0.9
-image_thresold = 0.82
-image_nn_thresold = 0.92
+product_threshold = 0.5
+product_nn_threshold = 0.9
+image_threshold = 0.82
+image_nn_threshold = 0.92
 use2_limit = 150000
 product_nn_limit = 1000000
 logging.basicConfig(filename=None, level=logging.INFO)

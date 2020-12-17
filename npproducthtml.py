@@ -21,7 +21,7 @@ def to_html(np):
         i+=1
         if i == 10:
             break
-        scores = np.search(k, 10,use2=False,fast=True)
+        scores = np.search(k, config.product_threshold, 10, use2=False, fast=True)
         #scores_to_html(np, p, scores)
 
 def scores_to_html(np, p, scores):

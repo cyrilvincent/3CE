@@ -102,7 +102,7 @@ def get_product(id, instance):
 def product_nearests_nb(id, nb, instance):
     try:
         use2 = npproductpool[instance].np.size < config.use2_limit
-        res = npproductpool[instance].np.search(id, take=nb, use2=use2, fast=True)
+        res = npproductpool[instance].np.search(id, threshold=config.product_threshold, take=nb, use2=use2, fast=True)
         return flask.jsonify(res)
     except KeyError:
         logging.warning(f"nbrest.nearests id:{id} not found")

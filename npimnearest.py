@@ -67,7 +67,7 @@ class NPImageNearest:
     def get_pids(self):
         return list(self.db[1].keys())
 
-    def search_by_im(self, id: int, take=10, thresold=config.image_thresold, fast=False) -> List[List[float]]:
+    def search_by_im(self, id: int, take=10, threshold=config.image_threshold, fast=False) -> List[List[float]]:
         if id in self.cache.keys():
             return self.cache[id][:take]
         else:
@@ -78,7 +78,7 @@ class NPImageNearest:
                 if im.id != im2.id:
                     if not self.fp.match(im.id, im2.id):
                         score = self.comp.compare(im, im2, fast)
-                        if score > thresold:
+                        if score > threshold:
                             res.append([k, score])
             res.sort(key=lambda x: x[1], reverse=True)
             if self.caching:
@@ -87,7 +87,7 @@ class NPImageNearest:
             res = res[:take]
             return res
 
-    def search_by_product(self, pid: int, take=10, thresold=config.image_thresold, fast=False):
+    def search_by_product(self, pid: int, take=10, thresold=config.image_threshold, fast=False):
         iids = self.get_iids_by_pid(pid)
         print(f"Found {len(iids)} images: {iids}")
         res = []
@@ -112,7 +112,7 @@ class NPImageNearest:
         l = l[:take]
         return l
 
-    def search_families(self, iid: int, take=10, thresold=config.image_thresold, fast=False):
+    def search_families(self, iid: int, take=10, thresold=config.image_threshold, fast=False):
         dico = {}
         res = self.search_by_im(iid, take, thresold, fast)
         for t in res:
@@ -154,6 +154,7 @@ class NPImageNearestPool:
         for k in self.pool.keys():
             self.pool[k].reset()
 
+
 class NPImageNearestNN:
 
     def __init__(self, path):
@@ -169,7 +170,7 @@ class NPImageNearestNN:
     def load(self):
         self.np.cache = cyrilload.load(self.np.path.replace(".h.pickle", ".nn.pickle"))
 
-    def train(self, fast=False):
+    def train(self, threshold=config.image_nn_threshold, fast=False):
         np = NPImageNearest(self.path)
         t = time.perf_counter()
         i = 0
@@ -177,15 +178,15 @@ class NPImageNearestNN:
             if i % max(10, int(len(self.np.db[0]) / 100)) == 0:
                 print(f"NN {i + 1}/{len(self.np.db[0])} in {time.perf_counter() - t:.1f} s")
             i+=1
-            res = np.search_by_im(k, thresold=config.image_nn_thresold, fast=fast)
+            res = np.search_by_im(k, threshold=threshold, fast=fast)
             if len(res) > 0:
                 self.np.search_by_im(k, fast=fast)
 
-    def predict(self):
+    def predict(self, threshold=config.image_nn_threshold):
         res = {}
         for k in self.np.cache.keys():
             for l in self.np.cache[k]:
-                if l[1] > config.image_nn_thresold:
+                if l[1] > threshold:
                     if l[0] not in res:
                         res[l[0]] = []
                     res[l[0]].append(l)
