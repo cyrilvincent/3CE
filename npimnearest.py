@@ -38,7 +38,14 @@ class NPImageNearest:
         Reset the cache
         """
         t = time.perf_counter()
-        self.db = cyrilload.load(self.path)
+        try:
+            self.db = [{}, {}]
+            self.db = cyrilload.load(self.path)
+        except FileNotFoundError:
+            logging.warning(f"File not found {self.path}")
+            cyrilload.save(self.db, self.path.split(".")[0], prefix="h", method="pickle")
+        except Exception as ex:
+            logging.error(f"Cannot open {self.path}: {ex}")
         with NPImageNearest.lock:
             self.cache = {}
         self.comp = npimcomparer.NPImageComparer()
@@ -60,7 +67,7 @@ class NPImageNearest:
     def get_pids(self):
         return list(self.db[1].keys())
 
-    def search_by_im(self, id: int, take=10, thresold=0.75, fast=False) -> List[List[float]]:
+    def search_by_im(self, id: int, take=10, thresold=config.image_thresold, fast=False) -> List[List[float]]:
         if id in self.cache.keys():
             return self.cache[id][:take]
         else:
@@ -80,7 +87,7 @@ class NPImageNearest:
             res = res[:take]
             return res
 
-    def search_by_product(self, pid: int, take=10, thresold=0.75, fast=False):
+    def search_by_product(self, pid: int, take=10, thresold=config.image_thresold, fast=False):
         iids = self.get_iids_by_pid(pid)
         print(f"Found {len(iids)} images: {iids}")
         res = []
@@ -105,7 +112,7 @@ class NPImageNearest:
         l = l[:take]
         return l
 
-    def search_families(self, iid: int, take=10, thresold=0.75, fast=False):
+    def search_families(self, iid: int, take=10, thresold=config.image_thresold, fast=False):
         dico = {}
         res = self.search_by_im(iid, take, thresold, fast)
         for t in res:
@@ -172,7 +179,7 @@ class NPImageNearestNN:
             i+=1
             res = np.search_by_im(k, thresold=config.image_nn_thresold, fast=fast)
             if len(res) > 0:
-                self.np.search_by_im(k)
+                self.np.search_by_im(k, fast=fast)
 
     def predict(self):
         res = {}
@@ -192,11 +199,8 @@ if __name__ == '__main__':
     np = nn.np
     byproduct = len(sys.argv) > 1 and sys.argv[1] == "--product"
 
-    res = np.search_by_product(6, 10, 0.75)
-    print(res)
-
-    nn.train(False) # fast=False 100*100 = 1.1s 307²=18.7s 1000*1000 = 198s 4000²=3168s 10000*10000 = 19800s
-                    # fast=True 100*100 = 0.2s 1000²=20s 10000²=2000s 15000²=4500s
+    nn.train(False) # fast=False 305²=16.3s 1000*1000 = 175s 5000²=2800 10000*10000 = 17500s
+                   # fast=True 305²=6.9s 10000²=74s 5000²=1850s
 
     # Recherche par image
     if not byproduct:

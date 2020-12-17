@@ -88,17 +88,19 @@ class NPImageParser:
         with open(path) as f:
             r = csv.DictReader(f, delimiter="\t")
             for row in r:
-                iid = int(row["image_id"])
-                if iid not in self.dbi:
-                    self.dbi[iid] = entities.NPImage(iid, row["image_path"], int(row["family_id"]))
-                    self.nbi += 1
-                pid = int(row["product_id"])
-                if pid not in self.dbi[iid].pids:
-                    self.dbi[iid].pids.append(pid)
-                if pid not in self.dbp:
-                    self.dbp[pid] = []
-                if iid not in self.dbp[pid]:
-                    self.dbp[pid].append(iid)
+                ipath = row["Image-Path"].strip().replace("\\","/")
+                if ipath != "#N/A" and ipath != "":
+                    iid = int(row["Image-ID"])
+                    if iid not in self.dbi:
+                        self.dbi[iid] = entities.NPImage(iid, ipath, int(row["Famille-ID"]))
+                        self.nbi += 1
+                    pid = int(row["Product-ID"])
+                    if pid not in self.dbi[iid].pids:
+                        self.dbi[iid].pids.append(pid)
+                    if pid not in self.dbp:
+                        self.dbp[pid] = []
+                    if iid not in self.dbp[pid]:
+                        self.dbp[pid].append(iid)
         print(f"Found {self.nbi} images in {time.perf_counter() - t:.1f} s")
 
     def save(self, prefix="", method="pickle") -> None:
@@ -136,19 +138,9 @@ class NPImageParser:
                 if fv:
                     im.fv = ih.fv()  # Tensorflow Feature Vector 1792x1 22s/1000
             except Exception as ex:
-                print(f"Error with {im}: {ex}")
+                logging.warning(f"Error with {im}: {ex}")
             i += 1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
-
-    def train(self, path: str):
-        """
-        Main method to parse, normalize, hash and save
-        :param path: The file to parse
-        """
-        self.parse(path)
-        self.h("images/")
-        self.save(prefix="h")
-
 
 if __name__ == '__main__':
     print("NP Images Parser")
@@ -161,7 +153,7 @@ if __name__ == '__main__':
     p.save(method="jsonpickle")
     dh = count < 400000
     fv = count < 100000
-    p.h("images/", dh=dh, fv=fv)  # 307 im in 9.7s, 32s/1000, 320s/10000, 3200/100000
+    p.h("images/chuv/", dh=dh, fv=fv)  # 307 im in 9.7s, 32s/1000, 320s/10000, 3200/100000
     p.save(prefix="h")
 
 

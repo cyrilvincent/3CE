@@ -2,6 +2,7 @@ import cyrilload
 import argparse
 import numpy as np
 import threading
+import config
 
 class NPFalsePositives:
 
@@ -35,32 +36,6 @@ class NPFalsePositives:
         except:
             pass
 
-    # def retrain(self, id1, id2, db): # Non fiable !
-    #     im1 = db[0][id1]
-    #     res1 = []
-    #     for k in db[0].keys():
-    #         im = db[0][k]
-    #         if im1.id != im.id:
-    #             score = (im1.ah - im.ah) / 64
-    #             if score > 0.95:
-    #                 res1.append(k)
-    #     im2 = db[0][id2]
-    #     res2 = []
-    #     for k in db[0].keys():
-    #         im = db[0][k]
-    #         if im2.id != im.id:
-    #             score = (im2.ah - im.ah) / 64
-    #             if score > 0.95:
-    #                 res2.append(k)
-    #     res = list(np.intersect1d(res1, res2))
-    #     res.append(id1)
-    #     res.append(id2)
-    #     for i in res:
-    #         for j in res:
-    #             if i != j:
-    #                 #self.add(i, j)
-    #                 print(i, j)
-
     def remove(self, id1, id2):
         try:
             with NPFalsePositives.lock:
@@ -74,9 +49,8 @@ class NPFalsePositives:
 if __name__ == '__main__':
     print("NP Ids False Positive")
     print("=====================")
-    fp = NPFalsePositives("data/imagemock.h.pickle")
-    print(fp.set)
     parser = argparse.ArgumentParser(description="Add id1 & id2 to blacklist")
+    parser.add_argument("instance", type=str, help="instance")
     parser.add_argument("id1", type=int, help="id 1", default=-1)
     parser.add_argument("id2", type=int, help="id 2", default=-1)
     parser.add_argument("-r","--remove", action="store_true", help="Remove id1 & id2 from blacklist")
@@ -84,6 +58,7 @@ if __name__ == '__main__':
     parser.add_argument("-l", "--list", action="store_true", help="List the blacklist")
     parser.add_argument("-m", "--match", action="store_true", help="Check if id1 & id2 are in the list")
     args = parser.parse_args()
+    fp = NPFalsePositives(config.image_h_file.replace("{instance}",args.instance))
     if args.clear:
         fp.reset()
         fp.save()
@@ -95,10 +70,9 @@ if __name__ == '__main__':
     elif args.list:
         pass
     else:
-        print(f"Add {args.id1} {args.id2} to FP")
+        print(f"Add {args.id1} {args.id2} to FP {args.instance}")
         fp.add(args.id1, args.id2)
-        db = cyrilload.load("data/imagemock.h.pickle")
-        #fp.retrain(args.id1, args.id1, db)
+        fp.db = cyrilload.load(config.image_h_file.replace("{instance}",args.instance))
         fp.save()
     print(fp.set)
 

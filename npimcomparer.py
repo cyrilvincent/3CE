@@ -12,7 +12,7 @@ class NPImageComparer:
     Compare to products
     """
     def __init__(self):
-        self.weights = {"ah": 0.4, "dh": 0.3, "fv": 1.0, "name": 0.05}
+        self.weights = {"ah": 0.6, "dh": 0.4, "fv": 1.0, "name": 0.05}
         # ah = average : good for all images but false negative for rephotoshop image
         # dh = ah but in gradients : bad for all image but the best for photoshop image (lot of false negative, but very good positives)
         # ph = ah but in frequencies domain (cosine transform) : bad for all image but good for photoshop image (dh redundant to remove)
@@ -49,9 +49,9 @@ class NPImageComparer:
             score = 1 - spatial.distance.cosine(i1.fv, i2.fv)
             w = self.weights["fv"]
             if score > 0.9:
-                w *= 2
+                w *= 1.5
             if score > 0.95:
-                w *= 5
+                w *= 2
             res.append([score, w])
         score = sum([x[0] * x[1] for x in res]) / sum([x[1] for x in res])
         if 0.8 > score > 0.5:
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     parser.add_argument("id1", help="Image id")
     parser.add_argument("id2", help="Image id to compare")
     args = parser.parse_args()
-    db = cyrilload.load("data/mock-image.h.pickle")
+    db = cyrilload.load("data/chuv-image.h.pickle")
     i1 = db[0][int(args.id1)]
     if i1 is None:
         print(f"{args.id1} does not exist")

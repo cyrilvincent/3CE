@@ -140,6 +140,8 @@ class ProductTests(unittest.TestCase):
         self.assertEqual(0.6, score)
 
     def test_pool(self):
+        config.product_h_file = "tests/{instance}.h.pickle"
+        config.pool = ["data"]
         np = NPNearestPool()
         npn = np["data"].np
         p = npn[164113]

@@ -52,12 +52,17 @@ class NPNearest:
         Reset the cache
         """
         t = time.perf_counter()
-        self.db = cyrilload.load(self.path)
+        try:
+            self.db = {}
+            self.db = cyrilload.load(self.path)
+        except FileNotFoundError:
+            logging.warning(f"File not found {self.path}")
+            cyrilload.save(self.db, self.path.split(".")[0], prefix="h", method="pickle")
+        except Exception as ex:
+            logging.error(f"Cannot open {self.path}: {ex}")
         with NPNearest.lock:
             self.cache = {}
         self.comp = npproductcompare.NPComparer()
-        # for k in list(self.db.keys())[:1]:
-        #     self.search(k)
         logging.info(f"Loaded {len(self.db)} products in {time.perf_counter() - t:.1f} s")
 
     def __getitem__(self, pid: int) -> Product:

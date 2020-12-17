@@ -9,7 +9,7 @@ def images_to_html(np):
         f.write("<HTML><BODY><H1>NP Image Nearest Index</H1>\n")
         for iid in np.db[0].keys():
             im = np.get_im_by_iid(iid)
-            f.write(f"<a href='ioutput_{iid}.html'>Image {iid} <img src='../images/{im.path}' height='50'/></a><br/>\n")
+            f.write(f"<a href='ioutput_{iid}.html'>Image {iid} <img src='../images/chuv/{im.path}' height='50'/></a><br/>\n")
         f.write("</BODY></HTML>")
     for iid in np.db[0].keys():
         scores = np.search_by_im(iid)
@@ -22,11 +22,11 @@ def image_scores_to_html(im, scores):
         f.write("<HTML><BODY><H1>NP Image Nearest</H1>\n")
         f.write(f"<p><a href='iindex.html'>Image Index</a>")
         f.write(f"<p><a href='pindex.html'>Product Index</a>")
-        f.write(f"<p>Search Nearests images of {im.id} {im.name} <a href='../images/{im.path}'><img src='../images/{im.path}' height=100 /></a>\n")
+        f.write(f"<p>Search Nearests images of {im.id} {im.name} <a href='../images/chuv/{im.path}'><img src='../images/chuv/{im.path}' height=100 /></a>\n")
         f.write(f"<p>Found {len(scores)} image(s)\n")
         for t in scores:
             im2 = np.get_im_by_iid(t[0])
-            f.write(f"<p>Image: {im2.id} <a href='ioutput_{im2.id}.html'>{im2.name}</a> at {t[1]*100:.0f}%  <a href='../images/{im2.path}'><img src='../images/{im2.path}' height=100 /></a>\n")
+            f.write(f"<p>Image: {im2.id} <a href='ioutput_{im2.id}.html'>{im2.name}</a> at {t[1]*100:.0f}%  <a href='../images/chuv/{im2.path}'><img src='../images/chuv/{im2.path}' height=100 /></a>\n")
             f.write(f"{npimcomparer.NPImageComparer().diff(im, im2)}")
         f.write("</BODY></HTML>")
 
@@ -39,7 +39,7 @@ def products_to_html(np):
             f.write(f"<a href='poutput_{pid}.html'>Product {pid}</a> ")
             for iid in np.db[1][pid]:
                 im = np.get_im_by_iid(iid)
-                f.write(f"<a href='poutput_{pid}.html'><img src='../images/{im.path}' height='50'/></a> ")
+                f.write(f"<a href='poutput_{pid}.html'><img src='../images/chuv/{im.path}' height='50'/></a> ")
             f.write("<br/>\n")
         f.write("</BODY></HTML>")
     for pid in np.db[1].keys():
@@ -54,14 +54,14 @@ def product_scores_to_html(np, pid, scores):
         f.write(f"<p>Search Nearests products of product {pid}</p>")
         for iid in np.db[1][pid]:
             im = np.get_im_by_iid(iid)
-            f.write(f"<a href='ioutput_{im.id}.html'><img src='../images/{im.path}' height='100'/></a> ")
+            f.write(f"<a href='ioutput_{im.id}.html'><img src='../images/chuv/{im.path}' height='100'/></a> ")
         f.write("<br/>\n")
         f.write(f"<p>Found {len(scores)} product(s)\n")
         for t in scores:
             f.write(f"<p><a href='poutput_{t[0]}.html'>Product {t[0]}</a>  at {t[1]*100:.0f}% ")
             for iid in np.db[1][t[0]]:
                 im = np.get_im_by_iid(iid)
-                f.write(f"<a href='ioutput_{im.id}.html'><img src='../images/{im.path}' alt='{im.id}' height='100'/></a>")
+                f.write(f"<a href='ioutput_{im.id}.html'><img src='../images/chuv/{im.path}' alt='{im.id}' height='100'/></a>")
             f.write(f"</p>\n")
         f.write("</BODY></HTML>")
 
@@ -102,6 +102,6 @@ if __name__ == '__main__':
     print("==================")
     np = npimnearest.NPImageNearest("data/chuv-image.h.pickle")
     images_to_html(np)
-    #products_to_html(np)
+    products_to_html(np)
     # categorize_to_html(np)
 

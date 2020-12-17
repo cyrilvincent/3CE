@@ -1,4 +1,4 @@
-family_id	product_id	image_id	image_path
+Famille-ID	Product-ID	Image-ID	Image-Path
 1	53	106	./ski.jpg
 1	53	107	./ski2.jpg
 1	54	108	./ski3.jpg
