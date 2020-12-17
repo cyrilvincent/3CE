@@ -1,6 +1,7 @@
 from typing import List
 from scipy import spatial
 
+
 class Car:
     """
     Caracteristic entity
@@ -23,20 +24,21 @@ class Car:
     def __repr__(self):
         return f"C{self.id}"
 
+
 class Product:
     """
     Product entity
     """
 
-    def __init__(self, id:int):
+    def __init__(self, id: int):
         """
         Product(id)->Car
         :param id: id
         """
         self.id = id
-        self.l:List[Car] = []
+        self.l: List[Car] = []
 
-    def get_car_by_id(self, id:int)->Car:
+    def get_car_by_id(self, id: int) -> Car:
         """
         Return the car by cid
         :param id: cid
@@ -47,12 +49,12 @@ class Product:
                 return c
         return None
 
-    def contains(self, c:Car)->bool:
+    def contains(self, c: Car) -> bool:
         """
         :param c: The car
         :return: bool
         """
-        return self.get_car_by_id(c.id) != None
+        return self.get_car_by_id(c.id) is not None
 
     def __repr__(self):
         return f"P{self.id}"

@@ -11,6 +11,8 @@ from npproductnearest import NPNearest, NPNearestPool, NPNearestNN
 
 class ProductTests(unittest.TestCase):
 
+    pickle = "tests/data.h.pickle"
+
     def setUp(self) -> None:
         config.product_h_file = "tests/{instance}.h.pickle"
         config.pool = ["data"]
@@ -78,7 +80,7 @@ class ProductTests(unittest.TestCase):
         self.assertAlmostEqual(0.65, score, delta=1e-2)
 
     def test_npcompare_compare_product_to_scores(self):
-        db = cyrilload.load("tests/data.h.pickle")
+        db = cyrilload.load(ProductTests.pickle)
         np = NPComparer()
         scores = np.compare_product_to_scores(db[164114], db[164115])
         self.assertEqual(6, len(scores))
@@ -86,7 +88,7 @@ class ProductTests(unittest.TestCase):
         self.assertAlmostEqual(0.1, scores[0][1], delta=1e-2)
 
     def test_npcompare_compare_product_gestalt_to_scores(self):
-        db = cyrilload.load("tests/data.h.pickle")
+        db = cyrilload.load(ProductTests.pickle)
         np = NPComparer()
         scores = np.compare_product_gestalt_to_scores(db[164114], db[164115])
         self.assertEqual(6, len(scores))
@@ -94,19 +96,19 @@ class ProductTests(unittest.TestCase):
         self.assertAlmostEqual(0.29, scores[0][1], delta=1e-2)
 
     def test_npcompare_compare_product(self):
-        db = cyrilload.load("tests/data.h.pickle")
+        db = cyrilload.load(ProductTests.pickle)
         np = NPComparer()
         score = np.compare_product(db[164114], db[164115])
         self.assertAlmostEqual(0.62, score, delta=1e-2)
 
     def test_npcompare_compare_product_gestalt(self):
-        db = cyrilload.load("tests/data.h.pickle")
+        db = cyrilload.load(ProductTests.pickle)
         np = NPComparer()
         score = np.compare_product_gestalt(db[164114], db[164115])
         self.assertAlmostEqual(0.92, score, delta=1e-2)
 
     def test_npnearest_search_gestalt(self):
-        np = NPNearest("tests/data.h.pickle")
+        np = NPNearest(ProductTests.pickle)
         l = np.get_ids()
         self.assertEqual(3, len(l))
         p = np[164114]
@@ -118,7 +120,7 @@ class ProductTests(unittest.TestCase):
         self.assertAlmostEqual(0.67, scores[1][1], delta=1e-2)
 
     def test_npnearest(self):
-        np = NPNearest("tests/data.h.pickle")
+        np = NPNearest(ProductTests.pickle)
         scores = np.search(164114)
         self.assertEqual(164115, scores[0][0])
         self.assertAlmostEqual(0.77, scores[0][1], delta=1e-2)
@@ -126,7 +128,7 @@ class ProductTests(unittest.TestCase):
         self.assertAlmostEqual(0.58, scores[1][1], delta=1e-2)
 
     def test_npnearest_false(self):
-        np = NPNearest("tests/data.h.pickle")
+        np = NPNearest(ProductTests.pickle)
         scores = np.search(164114, use2=False)
         self.assertEqual(164115, scores[0][0])
         self.assertAlmostEqual(0.92, scores[0][1], delta=1e-2)
@@ -134,7 +136,7 @@ class ProductTests(unittest.TestCase):
         self.assertAlmostEqual(0.67, scores[1][1], delta=1e-2)
 
     def test_float_value(self):
-        np = NPNearest("tests/data.h.pickle")
+        np = NPNearest(ProductTests.pickle)
         p = np[164113]
         car = p.l[3]
         self.assertEqual(1012, car.id)
@@ -149,7 +151,7 @@ class ProductTests(unittest.TestCase):
         self.assertIsNotNone(p)
 
     def test_npnearestnn(self):
-        np = NPNearestNN("tests/data.h.pickle", use2=True)
+        np = NPNearestNN(ProductTests.pickle, use2=True)
         np.train()
         self.assertEqual(2, len(np.np.cache))
         np.save()
@@ -159,7 +161,7 @@ class ProductTests(unittest.TestCase):
         self.assertEqual(0, len(res))
 
     def test_size(self):
-        np = NPNearest("tests/data.h.pickle")
+        np = NPNearest(ProductTests.pickle)
         self.assertEqual(3, np.length)
         self.assertEqual((3, 8), np.shape)
         self.assertEqual(24, np.size)

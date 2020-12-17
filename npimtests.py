@@ -9,6 +9,8 @@ from npimnearest import NPImageNearest, NPImageNearestPool
 
 class ImageTests(unittest.TestCase):
 
+    pickle = "tests/data-image.h.pickle"
+
     def setUp(self) -> None:
         config.image_h_file = "tests/{instance}-image.h.pickle"
         config.pool = ["data"]
@@ -38,7 +40,7 @@ class ImageTests(unittest.TestCase):
         np.save("h")
 
     def test_npimcomparer_comp(self):
-        db = cyrilload.load("tests/data-image.h.pickle")
+        db = cyrilload.load(ImageTests.pickle)
         i1 = db[0][106]
         i2 = db[0][109]
         np = NPImageComparer()
@@ -47,7 +49,7 @@ class ImageTests(unittest.TestCase):
         self.assertEqual(1, score["dfv"])
 
     def test_npimcomparer(self):
-        db = cyrilload.load("tests/data-image.h.pickle")
+        db = cyrilload.load(ImageTests.pickle)
         i1 = db[0][106]
         i2 = db[0][109]
         np = NPImageComparer()
@@ -55,7 +57,7 @@ class ImageTests(unittest.TestCase):
         self.assertEqual(1, score)
 
     def test_npimnearest_byimage(self):
-        np = NPImageNearest("tests/data-image.h.pickle")
+        np = NPImageNearest(ImageTests.pickle)
         score = np.search_by_im(106)
         self.assertEqual(109, score[0][0])
         self.assertEqual(107, score[1][0])
@@ -65,13 +67,13 @@ class ImageTests(unittest.TestCase):
         self.assertAlmostEqual(0.85, score[0][1], delta=1e-2)
 
     def test_npimnearest_byproduct(self):
-        np = NPImageNearest("tests/data-image.h.pickle")
+        np = NPImageNearest(ImageTests.pickle)
         score = np.search_by_product(53)
         self.assertEqual(54, score[0][0])
         self.assertAlmostEqual(1.0, score[0][1], delta=1e-2)
 
     def test_npimnearest_falsepositive(self):
-        np = NPImageNearest("tests/data-image.h.pickle")
+        np = NPImageNearest(ImageTests.pickle)
         np.fp.add(106, 109)
         score = np.search_by_im(106)
         self.assertEqual(107, score[0][0])

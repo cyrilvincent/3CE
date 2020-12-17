@@ -201,7 +201,7 @@ if __name__ == '__main__':
     byproduct = len(sys.argv) > 1 and sys.argv[1] == "--product"
 
     nn.train(False) # fast=False 305²=16.3s 1000*1000 = 175s 5000²=2800 10000*10000 = 17500s
-                   # fast=True 305²=6.9s 10000²=74s 5000²=1850s
+                   # fast=True 305²=6.9s 1000²=74s 5000²=1850s
 
     # Recherche par image
     if not byproduct:
