@@ -6,35 +6,37 @@ import json
 import threading
 import logging
 import socket
-from npproductnearest import NPNearestPool, NPNearestNN
+from npproductnearest import NPNearestPool
 from npproductcompare import NPComparer
-# from npproductparser import NPParser
-# from npimnearest import NPImageNearest
-# from npimcomparer import NPImageComparer
+
 
 def jsonify(o):
     js = jsonpickle.dumps(o, False)
     dico = json.loads(js)
     return flask.jsonify(dico)
 
-app:flask.Flask = flask.Flask(__name__)
+
+app: flask.Flask = flask.Flask(__name__)
+
 
 @app.route("/", methods=['GET'])
 def autodoc():
-    s=f"<html><body><h1>NP Rest V{config.version}</h1>"
+    s = f"<html><body><h1>NP Rest V{config.version}</h1>"
     host = socket.gethostname()
     ip = socket.gethostbyname(host)
-    s+= f"<p>{host}@{ip}:{config.port}</p>"
+    s += f"<p>{host}@{ip}:{config.port}</p>"
     l = list(app.url_map.iter_rules())
     l.sort(key=lambda x: x.rule)
     for rule in l:
         s += f"{rule.methods} <a href='http://{ip}:{config.port}{rule.rule}'>{rule.rule.replace('<','&lt;').replace('>','&gt;')}</a><br/>"
-    s+="</body></html>"
+    s += "</body></html>"
     return s
+
 
 @app.route("/ping", methods=['GET'])
 def ping():
     return "pong"
+
 
 @app.route("/version", methods=['GET'])
 def version():
@@ -50,14 +52,17 @@ def version():
 #     json = flask.request.json
 #     return flask.jsonify([npproductpool.comp.compare_value_gestalt(s1, s2) for s1, s2 in zip(json[0], json[1])])
 
+
 @app.route("/pool", methods=['GET'])
 def get_pool():
     return flask.jsonify(config.pool)
+
 
 @app.route("/product/all/<instance>", methods=['GET'])
 def get_all(instance):
     l = npproductpool[instance].np.get_ids()
     return flask.jsonify(l)
+
 
 @app.route("/product/<int:id>/<instance>", methods=['GET'])
 def get_product(id, instance):
@@ -98,24 +103,32 @@ def get_product(id, instance):
 #     except KeyError:
 #         return flask.abort(404)
 
-@app.route("/product/nearests/<int:id>/<int:nb>/<instance>", methods=['GET'])
-def product_nearests_nb(id, nb, instance):
+@app.route("/product/nearests/<int:id>/<int:nb>/<int:threshold>/<instance>", methods=['GET'])
+def product_nearests_nb(id, nb, threshold, instance):
     try:
         use2 = npproductpool[instance].np.size < config.use2_limit
-        res = npproductpool[instance].np.search(id, threshold=config.product_threshold, take=nb, use2=use2, fast=True)
+        res = npproductpool[instance].np.search(id, threshold=threshold, take=nb, use2=use2, fast=True)
         return flask.jsonify(res)
     except KeyError:
         logging.warning(f"nbrest.nearests id:{id} not found")
         return flask.abort(404)
 
+
 @app.route("/product/nearests/<int:id>/<instance>", methods=['GET'])
 def product_nearests(id, instance):
-    return product_nearests_nb(id, 10, instance)
+    return product_nearests_nb(id, 10, config.product_threshold, instance)
+
+
+@app.route("/product/nearests/<int:threshold>/<instance>", methods=['GET'])
+def product_nn_threshold(threshold, instance):
+    res = npproductpool[instance].predict(threshold)
+    return flask.jsonify(res)
+
 
 @app.route("/product/nearests/<instance>", methods=['GET'])
 def product_nn(instance):
-    res=npproductpool[instance].predict()
-    return flask.jsonify(res)
+    return product_nn_threshold(config.product_nn_threshold, instance)
+
 
 @app.route("/product/compare/<int:id1>/<int:id2>/<instance>", methods=['GET'])
 def compare(id1, id2, instance):
@@ -123,11 +136,12 @@ def compare(id1, id2, instance):
         p1 = npproductpool[instance].np[id1]
         p2 = npproductpool[instance].np[id2]
         comparer = NPComparer()
-        res = {}
-        res["USE"] = {"score" : comparer.compare_product(p1, p2), "details" : comparer.compare_product_to_scores(p1, p2)}
-        res["Gestalt"] = {"score" : comparer.compare_product_gestalt(p1, p2), "details" : comparer.compare_product_gestalt_to_scores(p1, p2)}
-        res["Total"] = (comparer.compare_product(p1, p2) + comparer.compare_product_gestalt(p1, p2)) / 2
-        res["Cids"] = [c.id for c in p1.l]
+        res = {
+            "USE": {"score": comparer.compare_product(p1, p2), "details": comparer.compare_product_to_scores(p1, p2)},
+            "Gestalt": {"score": comparer.compare_product_gestalt(p1, p2),
+                        "details": comparer.compare_product_gestalt_to_scores(p1, p2)},
+            "Total": (comparer.compare_product(p1, p2) + comparer.compare_product_gestalt(p1, p2)) / 2,
+            "Cids": [c.id for c in p1.l]}
         return flask.jsonify(res)
     except KeyError:
         return flask.abort(404)
@@ -188,6 +202,7 @@ def reset(instance):
     #     npim.reset()
     return flask.jsonify(npproductpool[instance].np.length)
 
+
 @app.route("/reset/all", methods=['GET'])
 def reset_all():
     logging.warning("Reset All")
@@ -200,6 +215,7 @@ def reset_all():
     #     npim.reset()
     return flask.jsonify(len(npproductpool.pool))
 
+
 @app.route("/shutdown", methods=['GET'])
 def shutdown():
     func = flask.request.environ.get('werkzeug.server.shutdown')
@@ -209,6 +225,7 @@ def shutdown():
     logging.info("Shutdown")
     func()
     return "OK"
+
 
 if __name__ == '__main__':
     print("NP REST")

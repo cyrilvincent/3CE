@@ -195,11 +195,11 @@ class NPNearestNN:
             if len(res) > 0:
                 self.np.search(k, use2=self.use2)
 
-    def predict(self):
+    def predict(self, threshold=config.product_nn_threshold):
         res = {}
         for k in self.np.cache.keys():
             for l in self.np.cache[k]:
-                if l[1] > config.product_nn_threshold:
+                if l[1] > threshold:
                     if l[0] not in res:
                         res[l[0]] = []
                     res[l[0]].append(l)

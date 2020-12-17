@@ -1,5 +1,5 @@
 import argparse
-from pocs.POC_USE import use
+from pocs.POC import use
 import numpy as np
 import npproductcompare
 #import tensorflow_text
