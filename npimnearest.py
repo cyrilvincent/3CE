@@ -5,6 +5,7 @@ import config
 import threading
 import sys
 import logging
+import argparse
 from entities import NPImage
 from typing import List
 from npfalsepositives import NPFalsePositives
@@ -196,15 +197,21 @@ class NPImageNearestNN:
 if __name__ == '__main__':
     print("NPImageNearest")
     print("==============")
-    nn = NPImageNearestNN("data/chuv-image.h.pickle")
+    parser = argparse.ArgumentParser(description="Search nearests images or products")
+    parser.add_argument("instance", help="Instance")
+    parser.add_argument("-p", "--product", help="Search by product", action="store_true")
+    parser.add_argument("-i", "--image", help="Search by image (default)", action="store_true")
+    parser.add_argument("-n", "--nn", help="With NN", action="store_true")
+    args = parser.parse_args()
+    print(f"Search nearests on {args.instance}")
+    nn = NPImageNearestNN(f"data/{args.instance}-image.h.pickle")
     np = nn.np
-    byproduct = len(sys.argv) > 1 and sys.argv[1] == "--product"
-
-    nn.train(False) # fast=False 305²=16.3s 1000*1000 = 175s 5000²=2800 10000*10000 = 17500s
-                   # fast=True 305²=6.9s 1000²=74s 5000²=1850s
+    if args.nn:
+        nn.train(False)  # fast=False 305²=16.3s 1000*1000 = 175s 5000²=2800 10000*10000 = 17500s
+                         # fast=True 305²=6.9s 1000²=74s 5000²=1850s
 
     # Recherche par image
-    if not byproduct:
+    if not args.product:
         print(np.get_iids())
         while True:
             id = int(input("ImageID: "))
@@ -231,9 +238,7 @@ if __name__ == '__main__':
                 res = np.search_by_product(id)
             except Exception as ex:
                 print(f"Product {id} does not exist", ex)
-                res=[]
+                res = []
             print(res)
-            print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.3f} s")  # 0.003s/63 0.2s/4000 0.5s/10000 5s/100000
+            print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.3f} s") # 0.003s/63 0.2s/4000 0.5s/10000 5s/100000
             print()
-
-

@@ -5,13 +5,11 @@ import config
 import sys
 import threading
 import logging
+import argparse
 from entities import Product
 from typing import List
 
-__version__ = config.version
 
-
-# noinspection SpellCheckingInspection
 class NPNearest:
     """
     High level class, main program
@@ -209,18 +207,15 @@ class NPNearestNN:
 if __name__ == '__main__':
     print("NPNearest")
     print("=========")
-    print(f"V{__version__}")
-    main = False
-    product_h_file = "data/data.h.pickle"
-    try:
-        main = sys.argv[1] == "--mainonly"
-        if main:
-            print("Main only")
-        muse = sys.argv[1] == "--muse"
-        if muse:
-            product_h_file = product_h_file.replace(".h.", ".linux.h.")
-    except:
-        pass
+    print(f"V{config.version}")
+    parser = argparse.ArgumentParser(description="Product nearests")
+    parser.add_argument("instance", help="Instance")
+    parser.add_argument("-m", "--main", action="store_true", help="Compare main charac only")
+    parser.add_argument("-u", "--muse", action="store_true", help="Use MUSE insted of USE")
+    args = parser.parse_args()
+    product_h_file = config.product_h_file.replace("{instance}", args.instance)
+    if args.muse:
+        product_h_file = product_h_file.replace(".h.", ".linux.h.")
     np = NPNearest(product_h_file)
 
     while True:
@@ -229,7 +224,7 @@ if __name__ == '__main__':
         try:
             p = np[pid]
             print(f'Product {pid} "{p.l[0].val[:60]}"')
-            res = np.search(pid, config.product_threshold, 10, main, True)
+            res = np.search(pid, config.product_threshold, 10, args.main, True)
         except:
             print(f"Product {pid} does not exist")
             res = []

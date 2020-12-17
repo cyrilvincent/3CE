@@ -7,6 +7,7 @@ import entities
 import numpy as np
 import os
 import tensorflow as tf
+import argparse
 from typing import Dict
 from PIL import Image
 from absl import logging
@@ -145,15 +146,19 @@ class NPImageParser:
 if __name__ == '__main__':
     print("NP Images Parser")
     print("================")
+    parser = argparse.ArgumentParser(description="Image TXT Parser to h.pickle")
+    parser.add_argument("instance", help="Instance")
+    parser.add_argument("-p", "--path", help="Path to the txt file", default="data/data.txt")
+    args = parser.parse_args()
     p = NPImageParser()
     p.save_empty()
-    p.parse("data/chuv-image.txt")
+    p.parse(f"data/{args.instance}-image.txt")
     count = len(p.dbi)
     p.save()
     p.save(method="jsonpickle")
     dh = count < 400000
     fv = count < 100000
-    p.h("images/chuv/", dh=dh, fv=fv)  # 307 im in 9.7s, 32s/1000, 320s/10000, 3200/100000
+    p.h(f"{config.image_path}/{args.instance}/", dh=dh, fv=fv)  # 307 im in 9.7s, 32s/1000, 320s/10000, 3200s/100000
     p.save(prefix="h")
 
 

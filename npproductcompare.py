@@ -173,11 +173,12 @@ if __name__ == '__main__':
     print("=========")
     print(f"V{config.version}")
     parser = argparse.ArgumentParser(description="Compare pid1 & pid2")
+    parser.add_argument("instance", help="Instance")
     parser.add_argument("pid1", help="Product id")
     parser.add_argument("pid2", help="Product id to compare")
     parser.add_argument("-m", "--muse", action="store_true", help="Use MUSE insted of USE")
     args = parser.parse_args()
-    product_h_file = "data/data.h.pickle"
+    product_h_file = config.product_h_file.replace("{instance}",args.instance)
     if args.muse:
         product_h_file = product_h_file.replace(".h.", ".linux.h.")
     db = cyrilload.load(product_h_file)

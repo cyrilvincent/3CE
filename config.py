@@ -19,5 +19,6 @@ image_threshold = 0.82
 image_nn_threshold = 0.92
 use2_limit = 150000
 product_nn_limit = 1000000
+image_path = "./images"
 logging.basicConfig(filename=None, level=logging.INFO)
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"

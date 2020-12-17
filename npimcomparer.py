@@ -29,7 +29,6 @@ class NPImageComparer:
         https://tech.okcupid.com/evaluating-perceptual-image-hashes-okcupid/
         http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
         http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
-        http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
         https://fullstackml.com/wavelet-image-hash-in-python-3504fdd282b5
         :param i1:
         :param i2:
@@ -38,7 +37,7 @@ class NPImageComparer:
         np = NPComparer()
         score = i1.size - i2.size
         if score == 0:
-            return 1.0  # perfect
+            return 1.0
         res = []
         ascore = 1 - (i1.ah - i2.ah) / 64
         res.append([ascore, self.weights["ah"]])

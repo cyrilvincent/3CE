@@ -10,9 +10,6 @@ from entities import Product, Car
 from typing import Dict, List
 
 
-__version__ = config.version
-
-
 class USE:
     """
     Google Universal Sentence Encoder
@@ -173,18 +170,15 @@ class NPParser:
 if __name__ == '__main__':
     print("NP Products Parser")
     print("==================")
-    print(f"V{__version__}")
+    print(f"V{config.version}")
     parser = argparse.ArgumentParser(description="TXT Parser to h.pickle")
-    parser.add_argument("-p", "--path", help="Path to the txt file", default="data/data.txt")
+    parser.add_argument("instance", help="Instance")
     parser.add_argument("-n", "--nohash", action="store_true", help="Not use USE hashing")
     args = parser.parse_args()
     p = NPParser()
     p.save_empty()
-    # p.train(config.data_file)
-    p.parse(args.path)  # Found 3904 products * 15
+    p.parse(f"data/{args.instance}.txt")  # Found 3904 products * 15
     p.normalize()
-    # p.save()
-    # p.save(method="jsonpickle")
     if not args.nohash:
         p.h()  # 57s / 10000*5 soit 342s pour 100K*3, 12s / 3904*8 Always use USE
     p.save(prefix="h")
