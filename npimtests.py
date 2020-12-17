@@ -16,9 +16,6 @@ class ImageTests(unittest.TestCase):
         config.image_h_file = "tests/{instance}-image.h.pickle"
         config.pool = ["data"]
 
-    def test_config(self):
-        print(f"V{config.version}")
-
     def test_npimage(self):
         np = NPImage(1, "tests/images/ski.jpg", 0)
         self.assertEqual("JPG", np.ext)
