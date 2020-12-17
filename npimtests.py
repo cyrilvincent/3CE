@@ -5,6 +5,7 @@ from entities import NPImage
 from npimparser import NPImageService, NPImageParser
 from npimcomparer import NPImageComparer
 from npimnearest import NPImageNearest, NPImageNearestPool
+from npimagebarcode import NpImageBarcode, NpImageOcr
 
 
 class ImageTests(unittest.TestCase):
@@ -101,6 +102,20 @@ class ImageTests(unittest.TestCase):
         np = pool.get_instance("data")
         score = np.search_families(107)
         self.assertEqual(1, list(score.keys())[0])
+
+    def test_barcode(self):
+        np = NpImageBarcode()
+        res = np.predict("tests/images/07323190073177_BOITE_01.JPG")
+        self.assertEqual("0107323190073177172205281019F011", res)
+        res = np.predict("tests/images/ski.jpg")
+        self.assertIsNone(res)
+
+    def test_ocr(self):
+        np = NpImageOcr()
+        res = np.predict_string("tests/images/07323190073177_BOITE_01.JPG")
+        self.assertEqual("biogel indicator underglove pi surgical with coating blue polyisoprene used", res)
+        res = np.predict_string("tests/images/ski.jpg")
+        self.assertEqual("", res)
 
 
 if __name__ == '__main__':
