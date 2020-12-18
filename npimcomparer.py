@@ -1,6 +1,7 @@
 import argparse
 import sys
 import cyrilload
+import math
 from entities import NPImage
 from typing import List
 from npproductcompare import NPComparer
@@ -12,7 +13,7 @@ class NPImageComparer:
     Compare to products
     """
     def __init__(self):
-        self.weights = {"ah": 0.6, "dh": 0.4, "fv": 1.0, "name": 0.05}
+        self.weights = {"ah": 0.6, "dh": 0.4, "fv": 1.0, "name": 0.05, "ean": 0.1}
         # ah = average : good for all images but false negative for rephotoshop image
         # dh = ah but in gradients : bad for all image but the best for photoshop image (lot of false negative, but very good positives)
         # ph = ah but in frequencies domain (cosine transform) : bad for all image but good for photoshop image (dh redundant to remove)
@@ -30,6 +31,7 @@ class NPImageComparer:
         http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
         http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html
         https://fullstackml.com/wavelet-image-hash-in-python-3504fdd282b5
+        :param fast:
         :param i1:
         :param i2:
         :return:
@@ -38,6 +40,8 @@ class NPImageComparer:
         score = i1.size - i2.size
         if score == 0:
             return 1.0
+        if i1.sean is not None and i1.sean == i2.sean:
+            return 0.99
         res = []
         ascore = 1 - (i1.ah - i2.ah) / 64
         res.append([ascore, self.weights["ah"]])
@@ -56,6 +60,9 @@ class NPImageComparer:
         if 0.8 > score > 0.5:
             vscore = np.compare_value_gestalt(i1.name.split(".")[0], i2.name.split(".")[0])
             score = score + vscore * self.weights["name"]
+            if i1.iean is not None and i2.iean is not None:
+                escore = max(1 - math.log(abs(i1.iean - i2.iean)) / 10, 0)
+                score = score + escore * self.weights["ean"]
         return score
 
 

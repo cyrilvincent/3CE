@@ -11,6 +11,7 @@ import argparse
 from typing import Dict
 from PIL import Image
 from absl import logging
+from npimagebarcode import NpImageBarcode
 
 
 class NPImageService:
@@ -55,6 +56,14 @@ class NPImageService:
             self.tfimg = self.load_img(self.path)
         features = NPImageService.model(self.tfimg)
         return np.squeeze(features)
+
+    def ean(self):
+        np = NpImageBarcode()
+        sean = np.predict(self.path)
+        # if sean is not None:
+        #     print(f"Found EAN: {sean}")
+        iean = np.parse_int(sean)
+        return sean, iean
 
     def load_img(self, path):
         img = tf.io.read_file(path)
@@ -119,7 +128,7 @@ class NPImageParser:
         db = [{}, {}]
         cyrilload.save(db, "data/empty-image", method="pickle")
 
-    def h(self, impath, dh=True, wh=False, fv=True) -> None:
+    def h(self, impath, dh=True, fv=True, ean=True) -> None:
         """
         Use hashing
         """
@@ -138,10 +147,13 @@ class NPImageParser:
                     im.dh = ih.dh()  # 8x8 0.7s/1000
                 if fv:
                     im.fv = ih.fv()  # Tensorflow Feature Vector 1792x1 22s/1000
+                if ean:
+                    im.sean, im.iean = ih.ean()
             except Exception as ex:
                 logging.warning(f"Error with {im}: {ex}")
             i += 1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
+
 
 if __name__ == '__main__':
     print("NP Images Parser")
@@ -158,7 +170,10 @@ if __name__ == '__main__':
     p.save(method="jsonpickle")
     dh = count < 400000
     fv = count < 100000
-    p.h(f"{config.image_path}/{args.instance}/", dh=dh, fv=fv)  # 307 im in 9.7s, 32s/1000, 320s/10000, 3200s/100000
+    ean = count < 50000
+    p.h(f"{config.image_path}/{args.instance}/", dh=dh, fv=fv, ean=ean)
+    # 305 in 9.7s, 32s/1000, 320s/10000, 3200s/100000
+    # ean in 18.7s
     p.save(prefix="h")
 
 

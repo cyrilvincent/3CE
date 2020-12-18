@@ -104,6 +104,8 @@ class ImageTests(unittest.TestCase):
         np = NpImageBarcode()
         res = np.predict("tests/images/07323190073177_BOITE_01.JPG")
         self.assertEqual("0107323190073177172205281019F011", res)
+        res = np.parse_int(res)
+        self.assertEqual(1073231900731771722052810190011, res)
         res = np.predict("tests/images/ski.jpg")
         self.assertIsNone(res)
 

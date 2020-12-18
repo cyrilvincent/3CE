@@ -7,7 +7,7 @@ class Car:
     Caracteristic entity
     """
 
-    def __init__(self, id:int, val:str, w=1.0, main=False):
+    def __init__(self, id: int, val: str, w=1.0, main=False):
         """
         Car(id,val,w,main)
         :param id: cid
@@ -86,24 +86,23 @@ class NPImage:
         self.ah = None
         self.dh = None
         self.fv = None
+        self.sean = None
+        self.iean = None
         self.pids = []
         self.ext = path.split(".")[-1].upper()
         self.name = path.split("/")[-1].upper()
 
     def __sub__(self, other):
-        res = {"dah":None, "ddh":None, "dfv":None, "dsize":None,"dn":None}
-        res["dsize"] = abs(self.size - other.size)
+        res = {"dah": None, "ddh": None, "dfv": None, "dsize": abs(self.size - other.size), "dn": None, "dean": None}
         if self.ah is not None and other.ah is not None:
             res["dah"] = round(1 - (self.ah - other.ah) / len(self.ah.hash) ** 2, 3)
         if self.dh is not None and other.dh is not None:
             res["ddh"] = round(1 - (self.dh - other.dh) / len(self.dh.hash) ** 2, 3)
         if self.fv is not None and other.fv is not None:
             res["dfv"] = round(1 - spatial.distance.cosine(self.fv, other.fv), 3)
+        if self.iean is not None and other.iean is not None:
+            res["dean"] = abs(self.iean - other.iean)
         return res
 
     def __repr__(self):
         return f"{self.name}"
-
-
-
-
