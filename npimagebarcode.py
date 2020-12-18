@@ -32,7 +32,6 @@ class NpImageBarcode:
         return res
 
 
-
 class NpImageOcr:
     pipeline = keras_ocr.pipeline.Pipeline()
 

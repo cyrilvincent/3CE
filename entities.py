@@ -1,3 +1,4 @@
+import math
 from typing import List
 from scipy import spatial
 
@@ -101,7 +102,7 @@ class NPImage:
         if self.fv is not None and other.fv is not None:
             res["dfv"] = round(1 - spatial.distance.cosine(self.fv, other.fv), 3)
         if self.iean is not None and other.iean is not None:
-            res["dean"] = abs(self.iean - other.iean)
+            res["dean"] = round(max(1 - math.log(abs(self.iean - other.iean + 0.1)) / 10, 0), 3) + 0.01 if len(self.sean) == len(other.sean) else 0
         return res
 
     def __repr__(self):

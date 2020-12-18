@@ -2,6 +2,7 @@ import argparse
 import sys
 import cyrilload
 import math
+import config
 from entities import NPImage
 from typing import List
 from npproductcompare import NPComparer
@@ -57,11 +58,12 @@ class NPImageComparer:
                 w *= 2
             res.append([score, w])
         score = sum([x[0] * x[1] for x in res]) / sum([x[1] for x in res])
-        if 0.8 > score > 0.5:
+        if 0.9 > score > 0.7 and not fast:
             vscore = np.compare_value_gestalt(i1.name.split(".")[0], i2.name.split(".")[0])
             score = score + vscore * self.weights["name"]
             if i1.iean is not None and i2.iean is not None:
-                escore = max(1 - math.log(abs(i1.iean - i2.iean)) / 10, 0)
+                escore = max(1 - math.log(abs(i1.iean - i2.iean + 0.1)) / 10, 0)
+                escore = escore + 0.1 if len(i1.sean) == len(i2.sean) else escore
                 score = score + escore * self.weights["ean"]
         return score
 

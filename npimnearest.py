@@ -178,7 +178,7 @@ class NPImageNearestNN:
         for k in np.db[0].keys():
             if i % max(10, int(len(self.np.db[0]) / 100)) == 0:
                 print(f"NN {i + 1}/{len(self.np.db[0])} in {time.perf_counter() - t:.1f} s")
-            i+=1
+            i += 1
             res = np.search_by_im(k, threshold=threshold, fast=fast)
             if len(res) > 0:
                 self.np.search_by_im(k, fast=fast)
@@ -207,8 +207,8 @@ if __name__ == '__main__':
     nn = NPImageNearestNN(f"data/{args.instance}-image.h.pickle")
     np = nn.np
     if args.nn:
-        nn.train(False)  # fast=False 305²=16.3s 1000*1000 = 175s 5000²=2800 10000*10000 = 17500s
-                         # fast=True 305²=6.9s 1000²=74s 5000²=1850s
+        nn.train(fast=False)  # fast=False 305²=11.7s 1000*1000 = 126s 5000²=3144
+                        # fast=True 305²=0.7s 1000²=7.5s 5000²=188s 10000²=752 20000²=3009
 
     # Recherche par image
     if not args.product:
