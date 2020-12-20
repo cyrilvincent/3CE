@@ -226,7 +226,7 @@ if __name__ == '__main__':
                 print(f"Image {id} does not exist", ex)
                 res = []
             print(res)
-            print(f"Found {len(res)} images(s) in {time.perf_counter() - t:.3f} s") # 0.003s/63 0.2s/4000 0.5s/10000 5s/100000
+            print(f"Found {len(res)} images(s) in {time.perf_counter() - t:.3f} s")  # 0.003s/63 0.2s/4000 0.5s/10000 5s/100000
             for im2 in res:
                 print(f'ID {im2[0]} at {im2[1] * 100:.0f}% "{np.get_im_by_iid(im2[0]).name}" {np.comp.diff(im, np.get_im_by_iid(im2[0]))} ')
             print()
