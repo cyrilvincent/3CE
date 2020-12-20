@@ -181,7 +181,7 @@ class NPImageNearestNN:
             i += 1
             res = np.search_by_im(k, threshold=threshold, fast=fast)
             if len(res) > 0:
-                self.np.search_by_im(k, fast=fast)
+                self.np.search_by_im(k, fast=False)
 
     def predict(self, threshold=config.image_nn_threshold):
         res = {}
@@ -207,8 +207,10 @@ if __name__ == '__main__':
     nn = NPImageNearestNN(f"data/{args.instance}-image.h.pickle")
     np = nn.np
     if args.nn:
-        nn.train(fast=False)  # fast=False 305²=11.7s 1000*1000 = 126s 5000²=3144
-                        # fast=True 305²=0.7s 1000²=7.5s 5000²=188s 10000²=752 20000²=3009
+        nn.train(fast=True)  # fast=False 305²=11.7s 1000*1000 = 126s 5000²=3144
+                        # fast=True 305²=3.5s 1000²=36s 5000²=925s 10000²=3762
+                        # fast=Truex2 305²=0.7s 1000²=7.5s 5000²=188s 10000²=752 20000²=3009
+
 
     # Recherche par image
     if not args.product:
@@ -224,7 +226,7 @@ if __name__ == '__main__':
                 print(f"Image {id} does not exist", ex)
                 res = []
             print(res)
-            print(f"Found {len(res)} images(s) in {time.perf_counter() - t:.3f} s")  # 0.003s/63 0.2s/4000 0.5s/10000 5s/100000
+            print(f"Found {len(res)} images(s) in {time.perf_counter() - t:.3f} s") # 0.003s/63 0.2s/4000 0.5s/10000 5s/100000
             for im2 in res:
                 print(f'ID {im2[0]} at {im2[1] * 100:.0f}% "{np.get_im_by_iid(im2[0]).name}" {np.comp.diff(im, np.get_im_by_iid(im2[0]))} ')
             print()
@@ -240,5 +242,5 @@ if __name__ == '__main__':
                 print(f"Product {id} does not exist", ex)
                 res = []
             print(res)
-            print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.3f} s") # 0.003s/63 0.2s/4000 0.5s/10000 5s/100000
+            print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.3f} s")
             print()
