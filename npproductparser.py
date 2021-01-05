@@ -174,6 +174,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="TXT Parser to h.pickle")
     parser.add_argument("instance", help="Instance")
     parser.add_argument("-n", "--nohash", action="store_true", help="Not use USE hashing")
+    parser.add_argument("-nn", "--nn", action="store_true", help="NN hashing")
     args = parser.parse_args()
     p = NPParser()
     p.save_empty()
@@ -184,3 +185,10 @@ if __name__ == '__main__':
     p.save(prefix="h")
     if len(p.db.keys()) < 1000:
         p.save(prefix="h", method="jsonpickle")
+    if args.nn:
+        import npproductnearest
+        use2 = len(p.db) < config.use2_limit
+        logging.info(f"Indexer NN with use2: {use2}")
+        nn = npproductnearest.NPNearestNN(f"data/{args.instance}.h.pickle", use2=use2)
+        nn.train()
+        nn.save()

@@ -2,7 +2,6 @@ import time
 import npproductcompare
 import cyrilload
 import config
-import sys
 import threading
 import logging
 import argparse
