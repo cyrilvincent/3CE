@@ -205,7 +205,7 @@ def reset(instance):
 
 @app.route("/reset/all", methods=['GET'])
 def reset_all():
-    logging.warning("Reset All")
+    logging.info("Reset All")
     with lock:
         npproductpool.reset()
     for instance in config.pool:
@@ -220,11 +220,10 @@ def reset_all():
 def shutdown():
     func = flask.request.environ.get('werkzeug.server.shutdown')
     if func is None:
-        logging.error(f"Cannot shutdown")
-        raise RuntimeError('Not running with the Werkzeug Server')
-    logging.info("Shutdown")
-    func()
-    return "OK"
+        return "NOK"
+    else:
+        func()
+        return "OK"
 
 
 if __name__ == '__main__':

@@ -177,7 +177,7 @@ class NPImageNearestNN:
         i = 0
         for k in np.db[0].keys():
             if i % max(10, int(len(self.np.db[0]) / 100)) == 0:
-                print(f"NN {i + 1}/{len(self.np.db[0])} in {time.perf_counter() - t:.1f} s")
+                print(f"NN {i + 1} / {len(self.np.db[0])} in {time.perf_counter() - t:.1f} s")
             i += 1
             res = np.search_by_im(k, threshold=threshold, fast=fast)
             if len(res) > 0:

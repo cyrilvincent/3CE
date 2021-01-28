@@ -85,10 +85,10 @@ def index_all():
 def shutdown():
     func = flask.request.environ.get('werkzeug.server.shutdown')
     if func is None:
-        logging.error(f"Cannot shutdown")
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
-    return "OK"
+        return "NOK"
+    else:
+        func()
+        return "OK"
 
 if __name__ == '__main__':
     print("NP Rest Indexer")

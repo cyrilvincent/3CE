@@ -91,6 +91,7 @@ class NPNearest:
         The main search method
         Perf pb for 100k (7s)
         Put the cache in static, NPParser serialize the cache before h process, then run search on pids in cache
+        :param threshold:
         :param fast:
         :param use2:
         :param pid: the product pid
@@ -186,7 +187,7 @@ class NPNearestNN:
         i = 0
         for k in np.db.keys():
             if i % max(10, int(len(np.db) / 100)) == 0:
-                print(f"NN {i + 1}/{len(np.db)} in {time.perf_counter() - t:.1f} s")
+                print(f"NN {i + 1} / {len(np.db)} in {time.perf_counter() - t:.1f} s")
             i += 1
             res = np.search(k, threshold=threshold, use2=False)
             if len(res) > 0:
