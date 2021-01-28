@@ -44,9 +44,9 @@ def index(instance):
     except Exception as ex:
         logging.fatal(ex)
     try:
-        shutil.move(name+".h.pickle",name+".bak.pickle")
+        shutil.move(name+".h.pickle", name+".bak.pickle")
         logging.info(f"Creating {name}.h.pickle")
-        shutil.move(name+".temp.pickle",name+".h.pickle")
+        shutil.move(name+".temp.pickle", name+".h.pickle")
     except:
         logging.error("Cannot move h")
     if len(npparser.db) < config.product_nn_limit:
@@ -58,14 +58,20 @@ def index(instance):
             nn.save()
         except Exception as ex:
             logging.error(f"NN NOK {ex}")
-    try:
-        logging.info(f"Call reset")
-        npproductpool[instance].reset()
-        with urllib.request.urlopen(f"http://localhost:{config.port}/reset/{instance}") as response:
-            nb = response.read()
-        print(f"Call reset ok: {nb}")
-    except Exception as ex:
-        logging.error(f"Call reset nok: {ex}")
+    logging.info(f"Call reset")
+    if instance not in config.pool:
+        logging.error(f"Instance {instance} not in config.pool, please update config.py")
+    else:
+        try:
+            npproductpool[instance].reset()
+        except Exception as ex:
+            logging.error(f"Call reset nok: {ex}")
+        try:
+            with urllib.request.urlopen(f"http://localhost:{config.port}/reset/{instance}") as response:
+                nb = response.read()
+                print(f"Call reset ok: {nb}")
+        except Exception as ex:
+            logging.warning(f"Call HTTP reset nok: {ex}, perhaps the server {config.port} is not started")
     return flask.jsonify(len(npparser.db))
 
 @app.route("/indexer/all", methods=['GET'])

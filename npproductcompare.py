@@ -134,7 +134,10 @@ class NPComparer:
         :return: The score
         """
         wscores = self.compare_product_to_scores(p1, p2, main, use2)
-        return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
+        if len(wscores) == 0:
+            return 0
+        else:
+            return sum([t[0]*t[1] for t in wscores]) / sum([t[1] for t in wscores])
 
     def compare_product_gestalt(self, p1: Product, p2: Product, main=False) -> float:
         """
@@ -145,7 +148,10 @@ class NPComparer:
         :return: The score
         """
         wscores = self.compare_product_gestalt_to_scores(p1, p2, main)
-        return sum([t[0]*t[1] for t in wscores]) / sum(t[1] for t in wscores)
+        if len(wscores) == 0:
+            return 0
+        else:
+            return sum([t[0]*t[1] for t in wscores]) / sum([t[1] for t in wscores])
 
 
 def display(p1: Product, p2: Product, res):
