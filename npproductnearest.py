@@ -197,9 +197,9 @@ class NPNearestNN:
         for k in self.np.cache.keys():
             for l in self.np.cache[k]:
                 if l[1] > threshold:
-                    if l[0] not in res:
-                        res[l[0]] = []
-                    res[l[0]].append(l)
+                    if k not in res:
+                        res[k] = []
+                    res[k].append(l)
         return res
 
 
