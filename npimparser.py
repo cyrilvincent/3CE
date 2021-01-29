@@ -124,9 +124,9 @@ class NPImageParser:
         cyrilload.save(self.db, name, prefix, method)
         print(f"Saved in {time.perf_counter() - t:.1f} s")
 
-    def save_empty(self):
+    def save_empty(self, path="data/empty-image"):
         db = [{}, {}]
-        cyrilload.save(db, "data/empty-image", method="pickle")
+        cyrilload.save(db, path, method="pickle")
 
     def h(self, impath, dh=True, fv=True, ean=True) -> None:
         """
@@ -161,9 +161,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Image TXT Parser to h.pickle")
     parser.add_argument("instance", help="Instance")
     parser.add_argument("-p", "--path", help="Path to the txt file", default="data/data.txt")
+    parser.add_argument("-e", "--empty", action="store_true", help="Create empty pickle")
     args = parser.parse_args()
     p = NPImageParser()
-    p.save_empty()
+    if args.empty:
+        p.save_empty()
     p.parse(f"data/{args.instance}-image.txt")
     count = len(p.dbi)
     p.save()

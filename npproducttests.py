@@ -166,6 +166,19 @@ class ProductTests(unittest.TestCase):
         self.assertEqual((3, 8), np.shape)
         self.assertEqual(24, np.size)
 
+    def test_compare_product_no_common_carac(self):
+        np = NPComparer()
+        p1 = Product(1)
+        p2 = Product(2)
+        res = np.compare_product(p1, p2)
+        self.assertEqual(0, res)
+        res = np.compare_product_gestalt(p1, p2)
+        self.assertEqual(0, res)
+
+    def test_save_empty(self):
+        np = NPParser()
+        np.save_empty("tests/empty")
+
 
 if __name__ == '__main__':
     unittest.main()

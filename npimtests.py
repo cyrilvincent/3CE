@@ -116,6 +116,10 @@ class ImageTests(unittest.TestCase):
         res = np.predict_string("tests/images/ski.jpg")
         self.assertEqual("", res)
 
+    def test_save_empty(self):
+        np = NPImageParser()
+        np.save_empty("data/empty-image")
+
 
 if __name__ == '__main__':
     unittest.main()
