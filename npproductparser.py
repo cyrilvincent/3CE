@@ -83,6 +83,8 @@ class NPParser:
                     pid = int(row["product_id"])
                     if pid not in self.db:
                         self.db[pid] = Product(pid)
+                        if "familly_id" in row:
+                            self.db[pid].fid = int(row["familly_id"])
                         self.nbp += 1
                         main = True
                     s = "" if row["valeur"] is None else row["valeur"].strip()

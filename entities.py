@@ -38,6 +38,7 @@ class Product:
         """
         self.id = id
         self.l: List[Car] = []
+        self.fid = None
 
     def get_car_by_id(self, id: int) -> Car:
         """

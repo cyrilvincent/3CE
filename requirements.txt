@@ -7,3 +7,6 @@ Pillow
 scikit-image
 jsonpickle
 flask
+pyzbar
+opencv-python
+keras_ocr

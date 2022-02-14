@@ -209,3 +209,5 @@ if __name__ == '__main__':
     print(f"Gestalt Score: {comparer.compare_product_gestalt(p1, p2) * 100:.0f}%")
     print()
     print(f"Final Score: {(comparer.compare_product(p1, p2) + comparer.compare_product_gestalt(p1, p2)) / 2 * 100:.0f}%")
+
+    # chuv 164113 164114

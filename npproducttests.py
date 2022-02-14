@@ -2,7 +2,9 @@ import unittest
 import numpy as np
 import config
 import cyrilload
+import tensorflow as tf
 from entities import Product, Car
+from npcartemplate import NPCarTemplate
 from npproductparser import USE, NPParser
 from npproductcompare import NPComparer
 from npproductnearest import NPNearest, NPNearestPool, NPNearestNN
@@ -19,6 +21,8 @@ class ProductTests(unittest.TestCase):
 
     def test_config(self):
         print(f"V{config.version}")
+        print(f"NP: {np.__version__}")
+        print(f"TF: {tf.__version__}")
 
     def test_car(self):
         p = Product(1)
@@ -178,6 +182,16 @@ class ProductTests(unittest.TestCase):
     def test_save_empty(self):
         np = NPParser()
         np.save_empty("tests/empty")
+
+    def test_search_longest_starts_with(self):
+        np = NPCarTemplate(None)
+        res = np.search_longest_starts_with("cyrila", "cyrilb")
+        self.assertEqual("cyril", res)
+
+    def test_search_longest_ends_with(self):
+        np = NPCarTemplate(None)
+        res = np.search_longest_ends_with("acyril", "bcyril")
+        self.assertEqual("cyril", res)
 
 
 if __name__ == '__main__':

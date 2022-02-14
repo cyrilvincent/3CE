@@ -214,8 +214,6 @@ if __name__ == '__main__':
     parser.add_argument("-u", "--muse", action="store_true", help="Use MUSE insted of USE")
     args = parser.parse_args()
     product_h_file = config.product_h_file.replace("{instance}", args.instance)
-    if args.muse:
-        product_h_file = product_h_file.replace(".h.", ".linux.h.")
     np = NPNearest(product_h_file)
 
     while True:
@@ -230,8 +228,10 @@ if __name__ == '__main__':
             res = []
         print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.1f} s")  # 1.7s / 10000*5 7s / 100K*2
         for p in res:
-            print(f'PID {p[0]} at {p[1]*100:.0f}% "{np[int(p[0])].l[0].val[:60]}"')
-        print()
+            print(f'PID {p[0]} @ {p[1]*100:.0f}% "{np[int(p[0])].l[0].val[:60]}"')
+        if len(res) > 0:
+            print("Found 1 familly")
+            print(f"FID {np[res[0][0]].fid} @ {res[0][1]*100:.0f}%")
 
         # use2=True
         # 3904*8 : 0.6s

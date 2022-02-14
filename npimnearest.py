@@ -121,7 +121,7 @@ class NPImageNearest:
             if im.fid not in dico:
                 dico[im.fid] = t[1]
             else:
-                dico[im.fid] = max(1.0, max(t[1], dico[im.fid]) + 0.02)
+                dico[im.fid] = min(1.0, max(t[1], dico[im.fid]) + 0.02)
         return dico
 
 
@@ -200,6 +200,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Search nearests images or products")
     parser.add_argument("instance", help="Instance")
     parser.add_argument("-p", "--product", help="Search by product", action="store_true")
+    parser.add_argument("-f", "--familly", help="Search by familly", action="store_true")
     parser.add_argument("-i", "--image", help="Search by image (default)", action="store_true")
     parser.add_argument("-n", "--nn", help="With NN", action="store_true")
     args = parser.parse_args()
@@ -213,7 +214,7 @@ if __name__ == '__main__':
 
 
     # Recherche par image
-    if not args.product:
+    if not args.product and not args.familly:
         print(np.get_iids())
         while True:
             id = int(input("ImageID: "))
@@ -230,8 +231,7 @@ if __name__ == '__main__':
             for im2 in res:
                 print(f'ID {im2[0]} at {im2[1] * 100:.0f}% "{np.get_im_by_iid(im2[0]).name}" {np.comp.diff(im, np.get_im_by_iid(im2[0]))} ')
             print()
-
-    else:
+    elif args.product:
         print(np.get_pids())
         while True:
             id = int(input("ProductID: "))
@@ -243,4 +243,20 @@ if __name__ == '__main__':
                 res = []
             print(res)
             print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.3f} s")
+            print()
+    else:
+        print(np.get_iids())
+        while True:
+            id = int(input("ImageID: "))
+            t = time.perf_counter()
+            try:
+                im = np.get_im_by_iid(id)
+                print(f'Image {id} {im.path}')
+                res = np.search_families(id)
+            except Exception as ex:
+                print(f"Image {id} does not exist", ex)
+                res = []
+            print(
+                f"Found {len(res)} famillies in {time.perf_counter() - t:.3f} s")
+            print(res)
             print()

@@ -33,20 +33,20 @@ if __name__ == '__main__':
     print("=======================")
     print(f"V{config.version}")
     cat = NpImageCategorize()
-    predicts = cat.predict('images/IMG_20160426_101138.jpg')
+    predicts = cat.predict('images/mock/IMG_20160426_101138.jpg')
     t = time.perf_counter()
-    predicts = cat.predict('images/IMG_20160426_101138.jpg') #1.4s, 71%
+    predicts = cat.predict('images/mock/IMG_20160426_101138.jpg') #1.4s, 71%
     labels = cat.labels(predicts)
     print(labels)
     print(f"{labels[0][1]} {labels[0][2]*100:.1f}%")
     print(f"Predict in {time.perf_counter() - t:.1f} s")
     t = time.perf_counter()
-    predicts = cat.predict('images/IMG_20160426_101138.jpg',"VGG16") #1.8s, 71%
+    predicts = cat.predict('images/mock/IMG_20160426_101138.jpg',"VGG16") #1.8s, 71%
     labels = cat.labels(predicts)
     print(f"{labels[0][1]} {labels[0][2]*100:.1f}%")
     print(f"Predict in {time.perf_counter() - t:.1f} s")
     t = time.perf_counter()
-    predicts = cat.predict('images/IMG_20160426_101138.jpg',"Xception") #1.6s, 79%
+    predicts = cat.predict('images/mock/IMG_20160426_101138.jpg',"Xception") #1.6s, 79%
     labels = cat.labels(predicts)
     print(f"{labels[0][1]} {labels[0][2]*100:.1f}%")
     print(f"Predict in {time.perf_counter() - t:.1f} s")

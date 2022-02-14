@@ -59,10 +59,10 @@ class ImageTests(unittest.TestCase):
         score = np.search_by_im(106)
         self.assertEqual(109, score[0][0])
         self.assertEqual(107, score[1][0])
-        self.assertAlmostEqual(0.84, score[1][1], delta=1e-2)
+        self.assertAlmostEqual(0.89, score[1][1], delta=1e-2)
         score = np.search_by_im(107)
         self.assertEqual(106, score[0][0])
-        self.assertAlmostEqual(0.85, score[0][1], delta=1e-2)
+        self.assertAlmostEqual(0.89, score[0][1], delta=1e-2)
 
     def test_npimnearest_byproduct(self):
         np = NPImageNearest(ImageTests.pickle)

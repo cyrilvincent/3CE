@@ -89,3 +89,5 @@ if __name__ == '__main__':
     res = comparer.diff(i1, i2)
     print(res)
     print(comparer.compare(i1, i2))
+
+    # 266846 266849
