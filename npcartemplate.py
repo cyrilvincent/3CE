@@ -1,13 +1,7 @@
-import time
-import npproductcompare
-import cyrilload
 import config
-import threading
-import logging
 import argparse
-from entities import Product, Car
+from entities import Car
 from typing import List, Tuple, Dict
-
 from npproductnearest import NPNearest
 
 
@@ -16,6 +10,7 @@ class NPCarTemplate:
     def __init__(self, np: NPNearest):
         self.np = np
         self.todo = "{{TODO}}"
+        self.max_product = 20
 
     def search_longest_starts_with(self, s1: str, s2: str) -> str:
         res = len(s1)
@@ -43,10 +38,8 @@ class NPCarTemplate:
     def get_template_by_car(self, c1: Car, c2: Car) -> str:
         if c1.val == c2.val:
             return c1.val
-        elif c1.val == "":
-            return c2.val
-        elif c2.val == "":
-            return c1.val
+        elif c1.val == "" or c2.val == "":
+            return ""
         res = self.search_match(c1.val, c2.val)
         if len(res[1]) > 1 :
             return res[0] + self.todo + res[1]
@@ -64,34 +57,47 @@ class NPCarTemplate:
                 res[cid] = cars1[cid].val
         return res
 
+    def take_min_templates(self, res: Dict[int, str], templates: Dict[int, str]):
+        for k in templates.keys():
+            if self.todo in templates[k]:
+                if self.todo not in res[k] or len(templates[k]) < len(res[k]):
+                    res[k] = templates[k]
+            elif templates[k] == "":
+                res[k] = ""
+
+    def cars_to_dict(self, l: List[Car]) -> Dict[int, Car]:
+        cars: Dict[int, Car] = {}
+        for c in l:
+            cars[c.id] = c
+        return cars
+
     def get_templates(self, fid: int) -> Dict[int, str]:
         pids = [k for k in self.np.db.keys() if self.np.db[k].fid == fid]
         if len(pids) < 2:
             return {}
-        cars1: Dict[int, Car] = {}
-        for c in self.np.db[pids[0]].l:
-            cars1[c.id] = c
-        cars2: Dict[int, Car] = {}
-        for c in self.np.db[pids[-1]].l:
-            cars2[c.id] = c
+        cars1 = self.cars_to_dict(self.np.db[pids[0]].l)
+        cars2 = self.cars_to_dict(self.np.db[pids[1]].l)
         res = self.get_templates_from_cars(cars1, cars2)
-        for i in range(1, min(10, len(pids)) - 1):
-            carsi: Dict[int, Car] = {}
-            for c in self.np.db[pids[i]].l:
-                carsi[c.id] = c
+        for i in range(2, min(self.max_product, len(pids))):
+            carsi = self.cars_to_dict(self.np.db[pids[i]].l)
             templates = self.get_templates_from_cars(cars1, carsi)
-            for k in templates.keys():
-                if self.todo in templates[k]:
-                    if self.todo not in res[k] or (len(templates[k]) < len(res[k])):
-                        res[k] = templates[k]
-                elif templates[k] == "":
-                    res[k] = ""
+            self.take_min_templates(res, templates)
         return res
 
 
 if __name__ == '__main__':
-    npn = NPNearest("data/chuv-light.h.pickle")
+    print("NP Car Template Maker")
+    print("=====================")
+    print(f"V{config.version}")
+    parser = argparse.ArgumentParser(description="Car Template maker")
+    parser.add_argument("instance", help="Instance")
+    parser.add_argument("fid", help="Familly id", type=int)
+    args = parser.parse_args()
+    product_h_file = config.product_h_file.replace("{instance}", args.instance)
+    npn = NPNearest(product_h_file)
     np = NPCarTemplate(npn)
-    res = np.get_templates(2)
+    res = np.get_templates(args.fid)
     print(res)
+
+    # chuv-light 1
 
