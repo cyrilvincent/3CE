@@ -2,15 +2,20 @@
 
 # 1 Trouver les n produits les plus proches
 outputs/products/index.html
+outputs/pindex.html
 
-# 2 Trouver automatiquement la famille d'un produit par son image
+# 2 Trouver automatiquement la famille d'une image
 python npimnearest.py --familly chuv
 Saisir 266763, 266846
 161853	190485	192947	266763	Articles\Image\07323190073177_BOITE_01.jpg => {161853: 1.0}
 161730	163415	164362	266846	Articles\Image\07640160162588_PIECE_01.jpg => 161840: 0.935517075372779 Bad, 161838: 0.8460339797579725 Good
 
-# 3 trouver le produit depuis une image
-outputs/pindex.html
+# 3 trouver le produit depuis une photo d'un smartphone
+python npphotonearest.py chuv tests/images/07323190073177_BOITE_01.jpg
+Verification : 161853	190485	192947	266763	Articles\Image\07323190073177_BOITE_01.jpg
+python npphotonearest.py chuv tests/images/biogel_photoshop.jpg
+python npphotonearest.py chuv tests/images/biogel_photoshop_2.jpg
+
 
 # 4 carac auto template
 # dataset : data/chuv-light.txt

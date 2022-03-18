@@ -3,15 +3,17 @@ import npimcomparer
 import cyrilload
 import config
 import threading
-import sys
 import logging
 import argparse
 from entities import NPImage
 from typing import List
 from npfalsepositives import NPFalsePositives
+from entities import NPImage
+from npimparser import NPImageService
+from npimnearest import NPImageNearest
 
 
-class NPImageNearest:
+class NPPhotoNearest:
     """
     High level class, main program
     """
@@ -73,24 +75,20 @@ class NPImageNearest:
             return self.cache[id][:take]
         else:
             im = self.get_im_by_iid(id)
-            res = self.search_by_npim(im, threshold, fast)
+            res = []
+            for k in self.db[0].keys():
+                im2 = self.get_im_by_iid(k)
+                if im.id != im2.id:
+                    if not self.fp.match(im.id, im2.id):
+                        score = self.comp.compare(im, im2, fast)
+                        if score > threshold:
+                            res.append([k, score])
+            res.sort(key=lambda x: x[1], reverse=True)
             if self.caching:
                 with NPImageNearest.lock:
                     self.cache[id] = res
             res = res[:take]
             return res
-
-    def search_by_npim(self, im: NPImage, threshold=config.image_threshold, fast=False) -> List[List[float]]:
-        res = []
-        for k in self.db[0].keys():
-            im2 = self.get_im_by_iid(k)
-            if im.id != im2.id:
-                if not self.fp.match(im.id, im2.id):
-                    score = self.comp.compare(im, im2, fast)
-                    if score > threshold:
-                        res.append([k, score])
-        res.sort(key=lambda x: x[1], reverse=True)
-        return res
 
     def search_by_product(self, pid: int, take=10, thresold=config.image_threshold, fast=False):
         iids = self.get_iids_by_pid(pid)
@@ -198,69 +196,26 @@ class NPImageNearestNN:
         return res
 
 
+# chuv tests/images/07323190073177_BOITE_01.jpg
+# chuv tests/images/biogel_photoshop.jpg
 if __name__ == '__main__':
-    print("NPImageNearest")
+    print("NPPhotoNearest")
     print("==============")
     parser = argparse.ArgumentParser(description="Search nearests images or products")
     parser.add_argument("instance", help="Instance")
-    parser.add_argument("-p", "--product", help="Search by product", action="store_true")
-    parser.add_argument("-f", "--familly", help="Search by familly", action="store_true")
-    parser.add_argument("-i", "--image", help="Search by image (default)", action="store_true")
-    parser.add_argument("-n", "--nn", help="With NN", action="store_true")
+    parser.add_argument("path", help="path")
     args = parser.parse_args()
     print(f"Search nearests on {args.instance}")
-    nn = NPImageNearestNN(f"data/{args.instance}-image.h.pickle")
-    np = nn.np
-    if args.nn:
-        nn.train(fast=True)  # fast=False 305²=11.7s 1000*1000 = 126s 5000²=3144
-                        # fast=True 305²=3.5s 1000²=36s 5000²=925s 10000²=3762
-                        # fast=Truex2 305²=0.7s 1000²=7.5s 5000²=188s 10000²=752 20000²=3009
+    t = time.perf_counter()
+    im = NPImage(0, args.path, None)
+    s = NPImageService(args.path)
+    im.size = s.size
+    im.ah = s.ah()
+    im.dh = s.dh()
+    im.fv = s.fv()
+    im.sean, im.iean = s.ean()
+    n = NPImageNearest(f"data/{args.instance}-image.h.pickle")
+    res = n.search_by_npim(im)
+    print(res)
 
 
-    # Recherche par image
-    if not args.product and not args.familly:
-        print(np.get_iids())
-        while True:
-            id = int(input("ImageID: "))
-            t = time.perf_counter()
-            try:
-                im = np.get_im_by_iid(id)
-                print(f'Image {id} {im.path}')
-                res = np.search_by_im(id)
-            except Exception as ex:
-                print(f"Image {id} does not exist", ex)
-                res = []
-            print(res)
-            print(f"Found {len(res)} images(s) in {time.perf_counter() - t:.3f} s")  # 0.003s/63 0.2s/4000 0.5s/10000 5s/100000
-            for im2 in res:
-                print(f'ID {im2[0]} at {im2[1] * 100:.0f}% "{np.get_im_by_iid(im2[0]).name}" {np.comp.diff(im, np.get_im_by_iid(im2[0]))} ')
-            print()
-    elif args.product:
-        print(np.get_pids())
-        while True:
-            id = int(input("ProductID: "))
-            t = time.perf_counter()
-            try:
-                res = np.search_by_product(id)
-            except Exception as ex:
-                print(f"Product {id} does not exist", ex)
-                res = []
-            print(res)
-            print(f"Found {len(res)} product(s) in {time.perf_counter() - t:.3f} s")
-            print()
-    else:
-        print(np.get_iids())
-        while True:
-            id = int(input("ImageID: "))
-            t = time.perf_counter()
-            try:
-                im = np.get_im_by_iid(id)
-                print(f'Image {id} {im.path}')
-                res = np.search_families(id)
-            except Exception as ex:
-                print(f"Image {id} does not exist", ex)
-                res = []
-            print(
-                f"Found {len(res)} famillies in {time.perf_counter() - t:.3f} s")
-            print(res)
-            print()

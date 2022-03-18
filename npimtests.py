@@ -5,8 +5,8 @@ from entities import NPImage
 from npimparser import NPImageService, NPImageParser
 from npimcomparer import NPImageComparer
 from npimnearest import NPImageNearest, NPImageNearestPool
-from npimagebarcode import NpImageBarcode, NpImageOcr
-
+from npimagebarcode import NpImageBarcode
+from npimageocr import NpImageOcr
 
 class ImageTests(unittest.TestCase):
 
