@@ -41,7 +41,9 @@ class NPCarTemplate:
         elif c1.val == "" or c2.val == "":
             return ""
         res = self.search_match(c1.val, c2.val)
-        if len(res[1]) > 1 :
+        if res[0] == "" and res[1] == "":
+            return ""
+        elif len(res[1]) > 1 :
             return res[0] + self.todo + res[1]
         elif res[0] != c1.val:
             return res[0] + self.todo

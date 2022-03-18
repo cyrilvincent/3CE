@@ -1,0 +1,31 @@
+# D'après CR_POC_IA.docx
+
+# 1 Trouver les n produits les plus proches
+outputs/products/index.html
+
+# 2 Trouver automatiquement la famille d'un produit par son image
+python npimnearest.py --familly chuv
+Saisir 266763, 266846
+161853	190485	192947	266763	Articles\Image\07323190073177_BOITE_01.jpg => {161853: 1.0}
+161730	163415	164362	266846	Articles\Image\07640160162588_PIECE_01.jpg => 161840: 0.935517075372779 Bad, 161838: 0.8460339797579725 Good
+
+# 3 trouver le produit depuis une image
+outputs/pindex.html
+
+# 4 carac auto template
+# dataset : data/chuv-light.txt
+python npcartemplate.py chuv-light 1
+python npcartemplate.py chuv-light 2
+
+# 5 OCR
+python npimageocr.py tests/images/07323190073177_BOITE_01.JPG
+python npimageocr.py tests/images/10884524000602_PIECE_01.jpg
+
+# 6 barcode
+python npimagebarcode.py tests/images/07323190073177_BOITE_01.JPG
+python npimagebarcode.py tests/images/07323190173723_PIECE_01.jpg
+
+
+
+
+
