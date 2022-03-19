@@ -12,6 +12,7 @@ from typing import Dict
 from PIL import Image
 from absl import logging
 from npimagebarcode import NpImageBarcode
+from npimageocr import NpImageOcr
 
 
 class NPImageService:
@@ -60,10 +61,17 @@ class NPImageService:
     def ean(self):
         np = NpImageBarcode()
         sean = np.predict(self.path)
-        # if sean is not None:
-        #     print(f"Found EAN: {sean}")
+        if sean is not None:
+            print(f"Found EAN: {sean}")
         iean = np.parse_int(sean)
         return sean, iean
+
+    def ocr(self):
+        np = NpImageOcr()
+        s = np.predict_string(self.path)
+        if s is not None:
+            print(f"Found OCR: {s}")
+        return s
 
     def load_img(self, path):
         img = tf.io.read_file(path)
@@ -128,7 +136,7 @@ class NPImageParser:
         db = [{}, {}]
         cyrilload.save(db, path, method="pickle")
 
-    def h(self, impath, dh=True, fv=True, ean=True) -> None:
+    def h(self, impath, dh=True, fv=True, ean=True, ocr=True) -> None:
         """
         Use hashing
         """
@@ -149,6 +157,8 @@ class NPImageParser:
                     im.fv = ih.fv()  # Tensorflow Feature Vector 1792x1 22s/1000
                 if ean:
                     im.sean, im.iean = ih.ean()
+                if ocr:
+                    im.ocr = ih.ocr()
             except Exception as ex:
                 logging.warning(f"Error with {im}: {ex}")
             i += 1
@@ -173,7 +183,8 @@ if __name__ == '__main__':
     dh = count < 400000
     fv = count < 100000
     ean = count < 50000
-    p.h(f"{config.image_path}/{args.instance}/", dh=dh, fv=fv, ean=ean)
+    ocr = count < 1000
+    p.h(f"{config.image_path}/{args.instance}/", dh=dh, fv=fv, ean=ean, ocr=ocr)
     # 305 in 9.7s, 32s/1000, 320s/10000, 3200s/100000
     # ean in 18.7s
     p.save(prefix="h")

@@ -16,9 +16,16 @@ class NpImageOcr:
         res = [p[0] for p in prediction_groups[0]]
         return list(dict.fromkeys(res))
 
-    def predict_string(self, path, limit=10):
+    def predict_string(self, path, limit=10, min=3):
         res = self.predict(path)
-        return " ".join(res[:limit])
+        s = ""
+        for r in res[:limit]:
+            if len(r) >= min:
+                s = s + " " + r
+        s = s.strip()
+        if len(s) == 0:
+            return None
+        return s
 
 # images/chuv/Articles/Image/07323190073177_BOITE_01.JPG 0.035s
 if __name__ == '__main__':

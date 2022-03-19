@@ -1,5 +1,6 @@
 import math
-from typing import List
+import difflib
+from typing import List, Optional
 from scipy import spatial
 
 
@@ -40,7 +41,7 @@ class Product:
         self.l: List[Car] = []
         self.fid = None
 
-    def get_car_by_id(self, id: int) -> Car:
+    def get_car_by_id(self, id: int) -> Optional[Car]:
         """
         Return the car by cid
         :param id: cid
@@ -90,21 +91,31 @@ class NPImage:
         self.fv = None
         self.sean = None
         self.iean = None
+        self.ocr = None
         self.pids = []
         self.ext = path.split(".")[-1].upper()
         self.name = path.split("/")[-1].upper()
 
     def __sub__(self, other):
-        res = {"dah": None, "ddh": None, "dfv": None, "dsize": abs(self.size - other.size), "dn": None, "dean": None}
+        res = {"dah": None, "ddh": None, "dfv": None, "dsize": abs(self.size - other.size), "dn": None, "dean": None, "docr": None}
         if self.ah is not None and other.ah is not None:
-            res["dah"] = round(1 - (self.ah - other.ah) / len(self.ah.hash) ** 2, 3)
+            res["dah"] = 1 - (self.ah - other.ah) / len(self.ah.hash) ** 2
         if self.dh is not None and other.dh is not None:
-            res["ddh"] = round(1 - (self.dh - other.dh) / len(self.dh.hash) ** 2, 3)
+            res["ddh"] = 1 - (self.dh - other.dh) / len(self.dh.hash) ** 2
         if self.fv is not None and other.fv is not None:
-            res["dfv"] = round(1 - spatial.distance.cosine(self.fv, other.fv), 3)
+            res["dfv"] = 1 - spatial.distance.cosine(self.fv, other.fv)
         if self.iean is not None and other.iean is not None:
-            res["dean"] = round(max(1 - math.log(abs(self.iean - other.iean + 0.1)) / 10, 0), 3) + 0.01 if len(self.sean) == len(other.sean) else 0
+            if len(self.sean) == len(other.sean) and self.iean >= 10000 and other.iean >= 10000:
+                res["dean"] = max(1 - math.log(abs(self.iean - other.iean + 0.1)) / 10, 0) + 0.01
+            else:
+                res["dean"] = 0.0
+        if self.ocr is not None and other.ocr is not None:
+            res["docr"] = self.gestalt(self.ocr, other.ocr) if len(self.ocr) > 2 else 0
         return res
+
+    def gestalt(self, s1: str, s2: str) -> float:
+        sm = difflib.SequenceMatcher(None, s1.upper(), s2.upper())
+        return sm.ratio()
 
     def __repr__(self):
         return f"{self.name}"
