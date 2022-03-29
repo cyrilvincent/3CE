@@ -210,13 +210,13 @@ if __name__ == '__main__':
     im = NPImage(0, args.path, None)
     s = NPImageService(args.path)
     im.size = s.size
-    # im.ah = s.ah()
+    im.ah = s.ah()
     im.fv = s.fv()
     im.sean, im.iean = s.ean()
     im.ocr = s.ocr()
     n = NPImageNearest(f"data/{args.instance}-image.h.pickle")
     res = n.search_by_npim(im, threshold=0.5)
-    print(res)
+    print(res[0])
     id = res[0][0]
     npi = n.get_im_by_iid(id)
     print(im - npi)

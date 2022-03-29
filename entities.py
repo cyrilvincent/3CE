@@ -68,7 +68,7 @@ class NPImage:
     POC
     """
 
-    def __init__(self, id, path, fid, size=0):
+    def __init__(self, id: int, path: str, fid: Optional[int], size=0):
         """
         Image
         :param id: image id
@@ -106,7 +106,7 @@ class NPImage:
             res["dfv"] = 1 - spatial.distance.cosine(self.fv, other.fv)
         if self.iean is not None and other.iean is not None:
             if len(self.sean) == len(other.sean) and self.iean >= 10000 and other.iean >= 10000:
-                res["dean"] = max(1 - math.log(abs(self.iean - other.iean + 0.1)) / 10, 0) + 0.01
+                res["dean"] = min(1.0, max(1 - math.log(abs(self.iean - other.iean + 0.1)) / 10, 0) + 0.01)
             else:
                 res["dean"] = 0.0
         if self.ocr is not None and other.ocr is not None:

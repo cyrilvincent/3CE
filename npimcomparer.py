@@ -11,7 +11,7 @@ class NPImageComparer:
     Compare to products
     """
     def __init__(self):
-        self.weights = {"ah": 0.6, "dh": 0.4, "fv": 1.0, "name": 0.05, "ean": 0.1, "ocr": 0.1}
+        self.weights = {"ah": 0.6, "dh": 0.4, "fv": 1.0, "name": 0.05, "ean": 0.4, "ocr": 0.2}
         # ah = average : good for all images but false negative for rephotoshop image
         # dh = ah but in gradients : bad for all image but the best for photoshop image (lot of false negative, but very good positives)
         # ph = ah but in frequencies domain (cosine transform) : bad for all image but good for photoshop image (dh redundant to remove)
@@ -39,7 +39,7 @@ class NPImageComparer:
         if scores["dsize"] == 0:
             return 1.0
         if scores["dean"] == 1:
-            return 0.99
+            return 1.0
         res = []
         if scores["dah"] is not None:
             res.append([scores["dah"], self.weights["ah"]])

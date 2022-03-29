@@ -3,7 +3,7 @@ import cv2
 import time
 import argparse
 import keras_ocr
-#
+
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
