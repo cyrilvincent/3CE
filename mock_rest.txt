@@ -1,0 +1,21 @@
+# Request
+# POST : {instance: str, name: str, content: byte[] en base64}
+# exemple : {instance: "dev-aldes", name: "toto.jpg", content: "base64"}
+#
+# Response
+# {products: [Product], colors: [Color]}
+# interface Product: {id: int, familly_id: int, familly_label: str, score: float, images: [Image], caracs: [Carac]}
+# interface Image: {id: int, name: str, score: float, size: int}
+# interface Carac: {id: int, label: str, value: str}
+# interface Color: {css_name: str, score: float, r:int, g:int, b:int}
+# exemple : {products: [
+#               {id: 123, familly_id: 456, familly_label: "toto", score: 0.86,
+#                   images: [
+#                       {id: 789, name: "titi.jpg", score: 0.85, size: 175000}
+#                   ],
+#                   caracs: [
+#                       {id: 12, label: "nom", value: "produit1"},
+#                       {id: 34, label: "ref", value: "1234"}
+#                   ]
+#               }]
+#            colors: [{css_name: "red", score: 0.87, r:255, g:0, b:0}]}
