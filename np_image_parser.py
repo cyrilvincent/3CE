@@ -1,5 +1,8 @@
+import base64
 import csv
 import time
+from io import BytesIO
+
 import cyrilload
 import config
 import imagehash
@@ -22,17 +25,16 @@ class NPImageService:
 
     model = None
 
-    def __init__(self, path): # sortir le path d'ici dans une méthode load
-        self.path = path
+    def __init__(self): # sortir le path d'ici dans une méthode load
+        self.path = None
         if NPImageService.model is None:
             t = time.perf_counter()
             print(f"Load TF FV model: ")
             NPImageService.model = tf.saved_model.load(config.tf_fv)
             print(f"Loaded in {time.perf_counter() - t:.1f} s")
             logging.set_verbosity(logging.ERROR)
-        # Sortir les 3 lignes suivantes dans une méthode load
-        self.pil = Image.open(path) # im = Image.open(BytesIO(base64.b64decode(b64)))
-        self.size = os.stat(path)[6]
+        self.pil = None
+        self.size = None
         self.tfimg = None
 
     def ah(self):
@@ -54,8 +56,8 @@ class NPImageService:
         https://towardsdatascience.com/image-similarity-detection-in-action-with-tensorflow-2-0-b8d9a78b2509
         :return:
         """
-        if self.tfimg is None:
-            self.tfimg = self.load_img(self.path)
+        # if self.tfimg is None:
+        #     self.tfimg = self.load_img(self.path)
         features = NPImageService.model(self.tfimg)
         return np.squeeze(features)
 
@@ -74,12 +76,30 @@ class NPImageService:
             print(f"Found OCR: {s}")
         return s
 
-    def load_img(self, path):
-        img = tf.io.read_file(path) # Peut être remplacé par tf.io.decode_base64
+    def load_tfimg(self, path):
+        img = tf.io.read_file(path)
         img = tf.io.decode_jpeg(img, channels=3)
         img = tf.image.resize_with_pad(img, 224, 224)
         img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
         return img
+
+    def load_tfimg_from_base64(self, b64: str):
+        img = tf.io.decode_base64(b64)
+        img = tf.io.decode_jpeg(img, channels=3)
+        img = tf.image.resize_with_pad(img, 224, 224)
+        img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
+        return img
+
+    def load(self, path):
+        self.path = path
+        self.pil = Image.open(path)
+        self.size = os.stat(path)[6]
+        self.tfimg = self.load_tfimg(path)
+
+    def load_from_base64(self, b64: str):
+        self.pil = Image.open(BytesIO(base64.b64decode(b64)))
+        self.size = self.pil.size
+        self.tfimg = self.load_tfimg(b64)
 
 
 class NPImageParser:
@@ -149,7 +169,8 @@ class NPImageParser:
                 print(f"Hash {i + 1}/{self.nbi} in {time.perf_counter() - t:.1f} s")
             im = self.dbi[k]
             try:
-                ih = NPImageService(impath + im.path)
+                ih = NPImageService()
+                ih.load(impath + im.path)
                 im.size = ih.size
                 im.ah = ih.ah()  # 8x8 7.8s/1000
                 if dh:

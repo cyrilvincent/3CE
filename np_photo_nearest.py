@@ -208,7 +208,8 @@ if __name__ == '__main__':
     print(f"Search nearests on {args.instance}")
     t = time.perf_counter()
     im = NPImage(0, args.path, None)
-    s = NPImageService(args.path)
+    s = NPImageService()
+    s.load(args.path)
     im.size = s.size
     im.ah = s.ah()
     im.fv = s.fv()

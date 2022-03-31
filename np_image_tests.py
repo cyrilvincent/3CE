@@ -2,6 +2,7 @@ import unittest
 import config
 import cyrilload
 from entities import NPImage
+from np_image_color_detect import ColorDetect, dictionary9
 from np_image_parser import NPImageService, NPImageParser
 from np_image_comparer import NPImageComparer
 from np_image_nearest import NPImageNearest, NPImageNearestPool
@@ -22,7 +23,8 @@ class ImageTests(unittest.TestCase):
         self.assertEqual("SKI.JPG", np.name)
 
     def test_npimageservice(self):
-        np = NPImageService("tests/images/ski.jpg")
+        np = NPImageService()
+        np.load("tests/images/ski.jpg")
         self.assertEqual(484720, np.size)
         self.assertIsNotNone(np.pil)
         self.assertEqual("00000000fcffffff", str(np.ah()))
@@ -119,6 +121,12 @@ class ImageTests(unittest.TestCase):
     def test_save_empty(self):
         np = NPImageParser()
         np.save_empty("data/empty-image")
+
+    def test_color(self):
+        cd = ColorDetect(dictionary9)
+        cd.load("tests/images/red.jpg")
+        res = cd.predict()
+        self.assertEqual("red", res[0][0])
 
 
 if __name__ == '__main__':
