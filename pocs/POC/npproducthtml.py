@@ -1,5 +1,5 @@
 import time
-import npproductnearest
+import np_product_nearest
 import config
 
 

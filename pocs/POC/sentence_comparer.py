@@ -1,7 +1,7 @@
 import argparse
 from pocs.POC import use
 import numpy as np
-import npproductcompare
+import np_product_compare
 #import tensorflow_text
 
 parser = argparse.ArgumentParser()

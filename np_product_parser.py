@@ -192,7 +192,7 @@ if __name__ == '__main__':
     if len(p.db.keys()) < 1000:
         p.save(prefix="h", method="jsonpickle")
     if args.nn:
-        import npproductnearest
+        import np_product_nearest
         use2 = len(p.db) < config.use2_limit
         logging.info(f"Indexer NN with use2: {use2}")
         nn = npproductnearest.NPNearestNN(f"data/{args.instance}.h.pickle", use2=use2)

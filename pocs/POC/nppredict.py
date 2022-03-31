@@ -1,7 +1,7 @@
 import time
 import cyrilload
 import config
-from npproductnearest import NPNearest
+from np_product_nearest import NPNearest
 
 __version__ = config.version
 

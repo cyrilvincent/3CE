@@ -4,10 +4,10 @@ import config
 import cyrilload
 import tensorflow as tf
 from entities import Product, Car
-from npcartemplate import NPCarTemplate
-from npproductparser import USE, NPParser
-from npproductcompare import NPComparer
-from npproductnearest import NPNearest, NPNearestPool, NPNearestNN
+from np_product_car_template import NPCarTemplate
+from np_product_parser import USE, NPParser
+from np_product_compare import NPComparer
+from np_product_nearest import NPNearest, NPNearestPool, NPNearestNN
 
 
 

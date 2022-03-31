@@ -3,7 +3,7 @@ import sys
 import cyrilload
 from entities import NPImage
 from typing import List
-from npproductcompare import NPComparer
+from np_product_compare import NPComparer
 
 
 class NPImageComparer:

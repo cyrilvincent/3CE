@@ -2,7 +2,7 @@ import config
 import argparse
 from entities import Car
 from typing import List, Tuple, Dict
-from npproductnearest import NPNearest
+from np_product_nearest import NPNearest
 
 
 class NPCarTemplate:

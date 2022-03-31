@@ -1,6 +1,5 @@
-import npimnearest
-import npimcomparer
-import npimcategorize
+import np_image_nearest
+import np_image_comparer
 
 
 def images_to_html(np):

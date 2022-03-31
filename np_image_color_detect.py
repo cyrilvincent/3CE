@@ -11,19 +11,19 @@ dictionary16 ={ # 16 colors
                     'white':([0, 0, 146], [180, 34, 255]), # /!\ Ce n'est pas du RGB mais du HSV
                     'black':([0, 0, 0], [180, 255, 26]),
                     'gray':([0, 0, 22], [180, 34, 146]), # Les angle H sont en degré sur 180 et non 360 mais S V en 255 et non en %
-                    'Light-red':([0,157, 25], [6,255,255]),
-                    'Light-Pink':([0,0, 25], [6,157,255]),
-                    'Orange':([6, 33, 168], [23, 255, 255]),
-                    'Brown':([6, 33, 25], [23, 255, 168]),
-                    'Yellow':([23, 33, 25], [32, 255, 255]),
-                    'Green':([32, 33, 25], [75, 255, 255]),
-                    'Blue-Green':([75, 33, 25], [90, 255, 255]),
-                    'Blue':([90,33, 45], [123, 255, 255]),
-                    'Purple':([123, 112, 25], [155, 255, 255]),
-                    'Light-Purple':([123, 33, 25], [155, 125, 255]),
-                    'Pink':([155,34, 25], [180,225,255]),
-                    'Deep-Pink':([175,0, 25], [180,157,255]),
-                    'Deep-red':([175,157, 25], [180,255,255]),
+                    'light-red':([0,157, 25], [6,255,255]),
+                    'light-Pink':([0,0, 25], [6,157,255]),
+                    'orange':([6, 33, 168], [23, 255, 255]),
+                    'brown':([6, 33, 25], [23, 255, 168]),
+                    'yellow':([23, 33, 25], [32, 255, 255]),
+                    'green':([32, 33, 25], [75, 255, 255]),
+                    'blue-Green':([75, 33, 25], [90, 255, 255]),
+                    'blue':([90,33, 45], [123, 255, 255]),
+                    'purple':([123, 112, 25], [155, 255, 255]),
+                    'light-Purple':([123, 33, 25], [155, 125, 255]),
+                    'pink':([155,34, 25], [180,225,255]),
+                    'deep-Pink':([175,0, 25], [180,157,255]),
+                    'deep-red':([175,157, 25], [180,255,255]),
 }
 
 dictionary9 ={ # 9 colors
@@ -48,6 +48,8 @@ class ColorDetect:
         self.color_dict = color_dict
         self.rgb_dict: Dict[str, Tuple[int, int, int]] = {}
         self.color_count_dict: Dict[str, int] = {}
+        self.shape = None
+        self.size = 0
         self._make_rgb_dict()
 
     def _make_rgb_dict(self):
@@ -69,20 +71,21 @@ class ColorDetect:
         self.image = cv2.imread(path)
 
     def load_from_base64(self, b64: str):
-        bytes = base64.b64decode(b64)
+        bytes = base64.b64decode(b64.encode("ascii"))
         array = np.frombuffer(bytes, np.uint8)
         self.image = cv2.imdecode(array, cv2.IMREAD_COLOR)
 
     def load_from_np(self, image: NDArray):
         self.image = image
 
-    def crop(self, ratio=0.2):
+    def crop(self, ratio: float):
         height, width, channels = self.image.shape
         croph = int(height * ratio / 2)
         cropw = int(width * ratio / 2)
-        self.image = self.image[croph:-croph, cropw:-cropw]
+        if croph > 0 and cropw > 0:
+            self.image = self.image[croph:-croph, cropw:-cropw]
 
-    def blur(self, ksize=11):
+    def blur(self, ksize: int):
         self.image = cv2.GaussianBlur(self.image, (ksize, ksize), 0)
 
     def create_mask(self, lower: List[int], upper: List[int], erode_dilate: int):
@@ -109,12 +112,15 @@ class ColorDetect:
         return collections.OrderedDict(
             {k: v / total for k, v in sorted(self.color_count_dict.items(), key=lambda item: item[1], reverse=True)})
 
-    def predict(self, blur=True, erode_dilate=3, fine_tuning=True) -> OrderedDict[str, int]:
+    def predict(self, crop=0.2, blur=11, erode_dilate=3, fine_tuning=True) -> List[Tuple[str, float]]:
         if self.image is None:
             raise ValueError("No image loaded")
-        self.crop()
-        if blur:
-            self.blur()
+        self.shape = self.image.shape
+        self.size = self.image.size
+
+        self.crop(crop)
+        if blur > 0:
+            self.blur(blur)
         self.hsv = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
         for key, (lower, upper) in self.color_dict.items():
             self.create_mask(lower, upper, erode_dilate)
@@ -123,24 +129,21 @@ class ColorDetect:
             if fine_tuning:
                 self.fine_tuning()
         res = self.softmax()
-        return res
+        colors = list(res)
+        scores = list(res.values())
+        return list(zip(colors, scores))
 
 if __name__ == '__main__':
     path = 'tests/images/tumblr1.jpg'
     print(path)
-    b64 = None
     with open(path, "rb") as f:
         bytes = f.read()
-        b64 = base64.b64encode(bytes)
+        b64 = base64.b64encode(bytes).decode("ascii")
     cd = ColorDetect(dictionary9)
     cd.load_from_base64(b64)
     res = cd.predict()
     print(res)
-    color = list(res)[0]
-    score = list(res.values())[0]
-    top3 = list(res)[:3]
-    top3_score = list(res.values())[:3]
-    print(f"the dominant color is: {color} @{score * 100:.0f}%")
-    print(cd.get_rgb(color))
-    print(top3)
-
+    print(f"the dominant color is: {res[0][0]} @{res[0][1] * 100:.0f}%")
+    print(cd.get_rgb(res[0][0]))
+    print(res[:3])
+    print(cd.shape, cd.size)

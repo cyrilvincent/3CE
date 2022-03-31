@@ -2,11 +2,11 @@ import unittest
 import config
 import cyrilload
 from entities import NPImage
-from npimparser import NPImageService, NPImageParser
-from npimcomparer import NPImageComparer
-from npimnearest import NPImageNearest, NPImageNearestPool
-from npimagebarcode import NpImageBarcode
-from npimageocr import NpImageOcr
+from np_image_parser import NPImageService, NPImageParser
+from np_image_comparer import NPImageComparer
+from np_image_nearest import NPImageNearest, NPImageNearestPool
+from np_image_barcode import NpImageBarcode
+from np_image_ocr import NpImageOcr
 
 class ImageTests(unittest.TestCase):
 

@@ -1,5 +1,5 @@
 import time
-import npproductcompare
+import np_product_compare
 import cyrilload
 import config
 import threading

@@ -6,8 +6,8 @@ import json
 import threading
 import logging
 import socket
-from npproductnearest import NPNearestPool
-from npproductcompare import NPComparer
+from np_product_nearest import NPNearestPool
+from np_product_compare import NPComparer
 
 
 def jsonify(o):

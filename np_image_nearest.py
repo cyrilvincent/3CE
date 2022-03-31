@@ -1,5 +1,5 @@
 import time
-import npimcomparer
+import np_image_comparer
 import cyrilload
 import config
 import threading
@@ -8,7 +8,7 @@ import logging
 import argparse
 from entities import NPImage
 from typing import List
-from npfalsepositives import NPFalsePositives
+from np_false_positives import NPFalsePositives
 
 
 class NPImageNearest:

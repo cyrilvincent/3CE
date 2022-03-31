@@ -11,8 +11,8 @@ import argparse
 from typing import Dict
 from PIL import Image
 from absl import logging
-from npimagebarcode import NpImageBarcode
-from npimageocr import NpImageOcr
+from np_image_barcode import NpImageBarcode
+from np_image_ocr import NpImageOcr
 
 
 class NPImageService:
