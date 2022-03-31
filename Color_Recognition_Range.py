@@ -4,21 +4,29 @@ import colorsys
 import numpy as np
 import cv2
 import base64
+import collections
 
 path = 'tests/images/tumblr1.jpg'
+print(path)
 # from base64
 b64 = None
 with open(path, "rb") as f:
     bytes = f.read()
     b64 = base64.b64encode(bytes)
-    print(b64)
+    # print(b64)
 
 bytes = base64.b64decode(b64)
 array = np.frombuffer(bytes, np.uint8)
 image = cv2.imdecode(array, cv2.IMREAD_COLOR)
 
 # load the image
-image = cv2.imread(path)
+# image = cv2.imread(path)
+
+height, width, channels = image.shape
+print(width, height, channels)
+croph = int(height * 0.05)
+cropw = int(width * 0.05)
+image = image[croph:-croph, cropw:-cropw]
 
 #==============================================================================
 # name = Color_Recognition_Range(image)
@@ -32,8 +40,9 @@ image = cv2.GaussianBlur(image, (11, 11), 0) # Optionnel inspiré de color_detec
 image_HSV = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)  
    
 dictionary ={ # 16 colors
-                    'White':([0, 0, 146], [180, 34, 255]), # /!\ Ce n'est pas du RGB mais du HSV
-                    # 'Gray':([0, 0, 22], [180, 34, 146]), # Les angle H sont en degré sur 180 et non 360 mais S V en 255 et non en %
+                    'white':([0, 0, 146], [180, 34, 255]), # /!\ Ce n'est pas du RGB mais du HSV
+                    'black':([0, 0, 0], [180, 255, 26]),
+                    'gray':([0, 0, 22], [180, 34, 146]), # Les angle H sont en degré sur 180 et non 360 mais S V en 255 et non en %
                     'Light-red':([0,157, 25], [6,255,255]),
                     'Light-Pink':([0,0, 25], [6,157,255]),
                     'Orange':([6, 33, 168], [23, 255, 255]),
@@ -47,20 +56,20 @@ dictionary ={ # 16 colors
                     'Pink':([155,34, 25], [180,225,255]),
                     'Deep-Pink':([175,0, 25], [180,157,255]),
                     'Deep-red':([175,157, 25], [180,255,255]),    
-                    # 'black':([0, 0, 0], [180, 255, 26]),
+
                     }
 
-# dictionary ={ # 9 colors
-#                     'White':([0, 0, 116], [180, 57, 255]),
-#                     'orange':([10, 38, 71], [20, 255, 255]),
-#                     'yellow':([18, 28, 20], [33, 255, 255]),
-#                     'green':([36, 10, 33], [88, 255, 255]),
-#                     'blue':([87,32, 17], [120, 255, 255]),
-#                     'purple':([138, 66, 39], [155, 255, 255]),
-#                     'red': ([0, 38, 56], [10, 255, 255]),
-#                     'red2':([170,112, 45], [180,255,255]),
-#                     # 'black':([0, 0, 0], [179, 255, 50]),
-#                     }
+dictionary ={ # 9 colors
+                    'white':([0, 0, 146], [180, 34, 255]),
+                    'black': ([0, 0, 0], [180, 255, 26]),
+                    'orange':([10, 38, 71], [20, 255, 255]),
+                    'yellow':([18, 28, 20], [33, 255, 255]),
+                    'green':([36, 10, 33], [88, 255, 255]),
+                    'blue':([87,32, 17], [120, 255, 255]),
+                    'purple':([138, 66, 39], [155, 255, 255]),
+                    'red': ([0, 38, 56], [10, 255, 255]),
+                    'red2':([170,112, 45], [180,255,255]),
+                    }
 
 
 #     dictionary ={ # 12 colors
@@ -84,7 +93,7 @@ dictionary ={ # 16 colors
 
 
 
-dico_avg = {}
+dico_rgb = {}
 for color in dictionary.keys():
     lower = dictionary[color][0]
     upper = dictionary[color][1]
@@ -92,10 +101,9 @@ for color in dictionary.keys():
     s = max(lower[1], upper[1])
     v = max(lower[2], upper[2])
     r, g, b = colorsys.hsv_to_rgb(h / 180, s / 255, v / 255)
-    dico_avg[color] = (int(np.round(r * 255)), int(np.round(g * 255)), int(np.round(b * 255)))
+    dico_rgb[color] = (int(np.round(r * 255)), int(np.round(g * 255)), int(np.round(b * 255)))
     
-color_name = []
-color_count =[]
+color_count_dico = {}
              
 # loop over the boundaries
 for key,(lower,upper) in dictionary.items():
@@ -119,26 +127,28 @@ for key,(lower,upper) in dictionary.items():
 
     count = cv2.countNonZero(mask)
 
-    color_count.append(count)
-
-    color_name.append(key)
-        
+    color_count_dico[key] = count
     
-color_count_array = np.array(color_count)
 # fusion red et red2 toujours mis à la fin
-if "red2" in dictionary:
-    color_count_array[-2] += color_count_array[-1]
-    color_count_array[-1] = 0
+if "red2" in color_count_dico:
+    color_count_dico["red"] += color_count_dico["red2"]
+    color_count_dico["red2"] = 0
+if "white" in color_count_dico:
+    color_count_dico["white"] /= 2
+if "black" in color_count_dico:
+    color_count_dico["black"] /= 2
+if "gray" in color_count_dico:
+    color_count_dico["gray"] /= 1.5
 
-print(color_count_array)
+print(color_count_dico)
+total = sum(color_count_dico.values())
+sorted = collections.OrderedDict({k: v / total for k, v in sorted(color_count_dico.items(), key=lambda item: item[1], reverse=True)})
+print(sorted)
+color = list(sorted)[0]
+score = list(sorted.values())[0]
+top3 = list(sorted)[:3]
+top3_score = list(sorted.values())[:3]
+print (f"the dominant color is: {color} @{score*100:.0f}%")
+print(dico_rgb[color])
+print(top3)
 
-i = 0
-for cc in color_count_array:
-    print(color_name[i], cc)
-    i+=1
-
-idx = np.argmax(color_count_array)
-
-color = color_name[idx]
-
-print ("the dominant color is:", color)

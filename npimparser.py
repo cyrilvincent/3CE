@@ -30,7 +30,8 @@ class NPImageService:
             NPImageService.model = tf.saved_model.load(config.tf_fv)
             print(f"Loaded in {time.perf_counter() - t:.1f} s")
             logging.set_verbosity(logging.ERROR)
-        self.pil = Image.open(path)
+        # Sortir les 3 lignes suivantes dans une méthode
+        self.pil = Image.open(path) # im = Image.open(BytesIO(base64.b64decode(b64)))
         self.size = os.stat(path)[6]
         self.tfimg = None
 
@@ -74,7 +75,7 @@ class NPImageService:
         return s
 
     def load_img(self, path):
-        img = tf.io.read_file(path)
+        img = tf.io.read_file(path) # Peut être remplacé par tf.io.decode_base64
         img = tf.io.decode_jpeg(img, channels=3)
         img = tf.image.resize_with_pad(img, 224, 224)
         img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
