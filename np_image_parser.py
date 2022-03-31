@@ -8,7 +8,7 @@ import numpy as np
 import os
 import tensorflow as tf
 import argparse
-from typing import Dict
+from typing import Dict, List
 from PIL import Image
 from absl import logging
 from np_image_barcode import NpImageBarcode
@@ -22,7 +22,7 @@ class NPImageService:
 
     model = None
 
-    def __init__(self, path):
+    def __init__(self, path): # sortir le path d'ici dans une méthode load
         self.path = path
         if NPImageService.model is None:
             t = time.perf_counter()
@@ -30,7 +30,7 @@ class NPImageService:
             NPImageService.model = tf.saved_model.load(config.tf_fv)
             print(f"Loaded in {time.perf_counter() - t:.1f} s")
             logging.set_verbosity(logging.ERROR)
-        # Sortir les 3 lignes suivantes dans une méthode
+        # Sortir les 3 lignes suivantes dans une méthode load
         self.pil = Image.open(path) # im = Image.open(BytesIO(base64.b64decode(b64)))
         self.size = os.stat(path)[6]
         self.tfimg = None
@@ -90,7 +90,7 @@ class NPImageParser:
 
     def __init__(self):
         self.dbi: Dict[int, entities.NPImage] = {}
-        self.dbp: Dict[int, int] = {}
+        self.dbp: Dict[int, List[int]] = {}
         self.db = [self.dbi, self.dbp]
         self.path = None
         self.nbi = 0

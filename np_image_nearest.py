@@ -3,7 +3,6 @@ import np_image_comparer
 import cyrilload
 import config
 import threading
-import sys
 import logging
 import argparse
 from entities import NPImage
@@ -49,7 +48,7 @@ class NPImageNearest:
             logging.error(f"Cannot open {self.path}: {ex}")
         with NPImageNearest.lock:
             self.cache = {}
-        self.comp = npimcomparer.NPImageComparer()
+        self.comp = np_image_comparer.NPImageComparer()
         print(f"Loaded {len(self.db[0])} images in {time.perf_counter() - t:.1f} s")
 
     @property

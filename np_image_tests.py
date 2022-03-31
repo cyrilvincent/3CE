@@ -59,10 +59,10 @@ class ImageTests(unittest.TestCase):
         score = np.search_by_im(106)
         self.assertEqual(109, score[0][0])
         self.assertEqual(107, score[1][0])
-        self.assertAlmostEqual(0.89, score[1][1], delta=1e-2)
+        self.assertAlmostEqual(0.84, score[1][1], delta=1e-2)
         score = np.search_by_im(107)
         self.assertEqual(106, score[0][0])
-        self.assertAlmostEqual(0.89, score[0][1], delta=1e-2)
+        self.assertAlmostEqual(0.84, score[0][1], delta=1e-2)
 
     def test_npimnearest_byproduct(self):
         np = NPImageNearest(ImageTests.pickle)
@@ -112,9 +112,9 @@ class ImageTests(unittest.TestCase):
     def test_ocr(self):
         np = NpImageOcr()
         res = np.predict_string("tests/images/07323190073177_BOITE_01.JPG")
-        self.assertEqual("biogel indicator underglove pi surgical with coating blue polyisoprene used", res)
+        self.assertEqual("biogel indicator underglove surgical with coating blue polyisoprene used", res)
         res = np.predict_string("tests/images/ski.jpg")
-        self.assertEqual("", res)
+        self.assertIsNone(res)
 
     def test_save_empty(self):
         np = NPImageParser()

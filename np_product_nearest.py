@@ -59,7 +59,7 @@ class NPNearest:
             logging.error(f"Cannot open {self.path}: {ex}")
         with NPNearest.lock:
             self.cache = {}
-        self.comp = npproductcompare.NPComparer()
+        self.comp = np_product_compare.NPComparer()
         logging.info(f"Loaded {len(self.db)} products in {time.perf_counter() - t:.1f} s")
 
     def __getitem__(self, pid: int) -> Product:
