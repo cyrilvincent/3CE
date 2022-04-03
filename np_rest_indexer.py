@@ -6,7 +6,8 @@ import urllib.request
 import logging
 import socket
 from np_product_parser import NPParser
-from np_product_nearest import NPNearestPool, NPNearestNN
+from np_product_nearest import NPNearestNN
+from np_pool import NPNearestPool
 
 app: flask.Flask = flask.Flask(__name__)
 

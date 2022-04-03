@@ -11,7 +11,7 @@ class NPImageComparer:
     Compare to products
     """
     def __init__(self):
-        self.weights = {"ah": 0.6, "dh": 0.4, "fv": 1.0, "name": 0.05, "ean": 0.4, "ocr": 0.2}
+        self.weights = {"ah": 0.5, "dh": 0.2, "fv": 1.0, "name": 0.1, "ean": 0.5, "ocr": 0.5, "color": 0.2}
         # ah = average : good for all images but false negative for rephotoshop image
         # dh = ah but in gradients : bad for all image but the best for photoshop image (lot of false negative, but very good positives)
         # ph = ah but in frequencies domain (cosine transform) : bad for all image but good for photoshop image (dh redundant to remove)
@@ -19,11 +19,9 @@ class NPImageComparer:
 
     def diff(self, i1: NPImage, i2: NPImage) -> List[List[float]]:
         dico = i1 - i2
-        np = NPComparer()
-        dico["dn"] = round(np.compare_value_gestalt(i1.name.split(".")[0], i2.name.split(".")[0]), 3)
         return dico
 
-    def compare(self, i1: NPImage, i2: NPImage, fast=False) -> float:
+    def compare(self, i1: NPImage, i2: NPImage, fast=False, name=True) -> float:
         """
         https://tech.okcupid.com/evaluating-perceptual-image-hashes-okcupid/
         http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
@@ -53,31 +51,36 @@ class NPImageComparer:
             if score > 0.95:
                 w *= 2
             res.append([score, w])
+        if scores["dn"] is not None and name:
+            score = scores["dn"]
+            res.append([score, self.weights["name"]])
         if scores["dean"] is not None and not fast:
             score = scores["dean"]
             w = self.weights["ean"]
             if score > 0.9:
                 w *= 2
+            if score > 0.95:
+                w *= 2
             res.append([score, w])
         if scores["docr"] is not None and not fast:
             score = scores["docr"]
             w = self.weights["ocr"]
-            if score > 0.7:
+            if score > 0.75:
                 w *= 2
+            if len(i2.ocr) > 7:
+                w *= 2
+            if score > 0.82 and len(i2.ocr) > 10:
+                w *= 2
+            if score > 0.9 and len(i2.ocr) > 10:
+                w *= 4
             res.append([score, w])
-        score = sum([x[0] * x[1] for x in res]) / sum([x[1] for x in res])
-        # if 0.9 > score > 0.7 and not fast:
-            # vscore = np.compare_value_gestalt(i1.name.split(".")[0], i2.name.split(".")[0])
-            # score = score + vscore * self.weights["name"]
-            # A sortir de ce if et revoir les poids
-            # if i1.sean is not None and i2.sean is not None:
-            #     escore = scores["dean"]
-            #     escore = escore + 0.1 if len(i1.sean) == len(i2.sean) else escore
-            #     score = score + escore * self.weights["ean"]
-            # if i1.ocr is not None and i2.ocr is not None:
-            #     oscore = scores["docr"]
-            #     if oscore > 0.7:
-            #         score = min(0.99, score + oscore * self.weights["ocr"])
+        if scores["dc"] is not None:
+            score = scores["dc"]
+            res.append([score, self.weights["color"]])
+        total = sum([x[1] for x in res])
+        if total == 0:
+            return 0
+        score = sum([x[0] * x[1] for x in res]) / total
         return score
 
 

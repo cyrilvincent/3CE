@@ -67,36 +67,36 @@ class NPImageNearest:
     def get_pids(self):
         return list(self.db[1].keys())
 
-    def search_by_im(self, id: int, take=10, threshold=config.image_threshold, fast=False) -> List[List[float]]:
+    def search_by_im(self, id: int, take=10, threshold=config.image_threshold, fast=False, name=False) -> List[List[float]]:
         if id in self.cache.keys():
             return self.cache[id][:take]
         else:
             im = self.get_im_by_iid(id)
-            res = self.search_by_npim(im, threshold, fast)
+            res = self.search_by_npim(im, threshold, fast, name)
             if self.caching:
                 with NPImageNearest.lock:
                     self.cache[id] = res
             res = res[:take]
             return res
 
-    def search_by_npim(self, im: NPImage, threshold=config.image_threshold, fast=False) -> List[List[float]]:
+    def search_by_npim(self, im: NPImage, threshold=config.image_threshold, fast=False, name=False) -> List[List[float]]:
         res = []
         for k in self.db[0].keys():
             im2 = self.get_im_by_iid(k)
             if im.id != im2.id:
                 if not self.fp.match(im.id, im2.id):
-                    score = self.comp.compare(im, im2, fast)
+                    score = self.comp.compare(im, im2, fast, name)
                     if score > threshold:
                         res.append([k, score])
         res.sort(key=lambda x: x[1], reverse=True)
         return res
 
-    def search_by_product(self, pid: int, take=10, thresold=config.image_threshold, fast=False):
+    def search_by_product(self, pid: int, take=10, thresold=config.image_threshold, fast=False, name=False):
         iids = self.get_iids_by_pid(pid)
         print(f"Found {len(iids)} images: {iids}")
         res = []
         for iid in iids:
-            res.append(self.search_by_im(iid, take * 2, thresold, fast))
+            res.append(self.search_by_im(iid, take * 2, thresold, fast, name))
         dico = {}
         for pres in res:
             for t in pres:
@@ -116,9 +116,9 @@ class NPImageNearest:
         l = l[:take]
         return l
 
-    def search_families(self, iid: int, take=10, thresold=config.image_threshold, fast=False):
+    def search_families(self, iid: int, take=10, thresold=config.image_threshold, fast=False, name=False):
         dico = {}
-        res = self.search_by_im(iid, take, thresold, fast)
+        res = self.search_by_im(iid, take, thresold, fast, name)
         for t in res:
             im = self.get_im_by_iid(t[0])
             if im.fid not in dico:

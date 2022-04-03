@@ -26,16 +26,28 @@ dictionary16 ={ # 16 colors
                     'deep-red':([175,157, 25], [180,255,255]),
 }
 
-dictionary9 ={ # 9 colors
+# https://www.rapidtables.com/convert/color/hsv-to-rgb.html
+dictionary10 ={ # 9 colors
                     'white':([0, 0, 146], [180, 34, 255]),
-                    'black': ([0, 0, 0], [180, 255, 26]),
-                    'orange':([10, 38, 71], [20, 255, 255]),
-                    'yellow':([18, 28, 20], [33, 255, 255]),
-                    'green':([36, 10, 33], [88, 255, 255]),
-                    'blue':([87,32, 17], [120, 255, 255]),
-                    'purple':([138, 66, 39], [155, 255, 255]),
-                    'red': ([0, 38, 56], [10, 255, 255]),
-                    'red2':([170,112, 45], [180,255,255]),
+                    'black': ([0, 0, 0], [180, 255, 63]),
+                    'gray':([0, 0, 64], [180, 34, 145]),
+                    'orange':([10, 38, 127], [20, 255, 255]),
+                    'yellow':([18, 28, 32], [33, 255, 255]),
+                    'green':([36, 25, 32], [88, 255, 255]),
+                    'blue':([87, 32, 32], [120, 255, 255]), # ([87, 32, 17], [120, 255, 255]),
+                    'purple':([138, 66, 32], [155, 255, 255]),
+                    'red': ([0, 38, 127], [10, 255, 255]),
+                    'red2':([170, 112, 127], [180,255,255]),
+    # Original
+    # 'White': ([0, 0, 116], [180, 57, 255]),
+    # 'Light-red': ([0, 38, 56], [10, 255, 255]),
+    # 'orange': ([10, 38, 71], [20, 255, 255]),
+    # 'yellow': ([18, 28, 20], [33, 255, 255]),
+    # 'green': ([36, 10, 33], [88, 255, 255]),
+    # 'blue': ([87, 32, 17], [120, 255, 255]),
+    # 'purple': ([138, 66, 39], [155, 255, 255]),
+    # 'Deep-red': ([170, 112, 45], [180, 255, 255]),
+    # 'black': ([0, 0, 0], [179, 255, 50]),
 }
 
 
@@ -96,28 +108,30 @@ class ColorDetect:
             self.mask = cv2.erode(self.mask, None, iterations=erode_dilate)
             self.mask = cv2.dilate(self.mask, None, iterations=erode_dilate)
 
-    def fine_tuning(self):
+    def bw_ratio(self, ratio):
+        if "white" in self.color_count_dict:
+            self.color_count_dict["white"] *= ratio
+        if "black" in self.color_count_dict:
+            self.color_count_dict["black"] *= ratio
+        if "gray" in self.color_count_dict:
+            self.color_count_dict["gray"] *= 1 - ((1- ratio) / 2)
+
+    def merge_reds(self):
         if "red2" in self.color_count_dict:
             self.color_count_dict["red"] += self.color_count_dict["red2"]
             self.color_count_dict["red2"] = 0
-        if "white" in self.color_count_dict:
-            self.color_count_dict["white"] /= 2
-        if "black" in self.color_count_dict:
-            self.color_count_dict["black"] /= 3
-        if "gray" in self.color_count_dict:
-            self.color_count_dict["gray"] /= 1.5
 
     def softmax(self) -> OrderedDict[str, int]:
         total = sum(self.color_count_dict.values())
         return collections.OrderedDict(
             {k: v / total for k, v in sorted(self.color_count_dict.items(), key=lambda item: item[1], reverse=True)})
 
-    def predict(self, crop=0.2, blur=11, erode_dilate=3, fine_tuning=True) -> List[Tuple[str, float]]:
+    def predict(self, crop=0.2, blur=11, erode_dilate=3, bw_ratio=0.6) -> List[Tuple[str, float]]:
+        # bw_ratio = 0.6 pour hashage, 0.8 ou 0.9 pour prediction
         if self.image is None:
             raise ValueError("No image loaded")
         self.shape = self.image.shape
         self.size = self.image.size
-
         self.crop(crop)
         if blur > 0:
             self.blur(blur)
@@ -126,22 +140,23 @@ class ColorDetect:
             self.create_mask(lower, upper, erode_dilate)
             count = cv2.countNonZero(self.mask)
             self.color_count_dict[key] = count
-            if fine_tuning:
-                self.fine_tuning()
+            self.merge_reds()
+            self.bw_ratio(bw_ratio)
+            # cv2.imwrite(f"tests/images/masks/test{key}_{count}.jpg", self.mask)
         res = self.softmax()
         colors = list(res)
         scores = list(res.values())
         return list(zip(colors, scores))
 
 if __name__ == '__main__':
-    path = 'tests/images/tumblr1.jpg'
+    path = 'tests/images/Velone-F400_Produit_001.png'
     print(path)
     with open(path, "rb") as f:
         bytes = f.read()
         b64 = base64.b64encode(bytes).decode("ascii")
-    cd = ColorDetect(dictionary9)
+    cd = ColorDetect(dictionary10)
     cd.load_from_base64(b64)
-    res = cd.predict()
+    res = cd.predict(crop=0.2, blur=11, erode_dilate=3, bw_ratio=0.8)
     print(res)
     print(f"the dominant color is: {res[0][0]} @{res[0][1] * 100:.0f}%")
     print(cd.get_rgb(res[0][0]))

@@ -212,16 +212,21 @@ if __name__ == '__main__':
     s.load(args.path)
     im.size = s.size
     im.ah = s.ah()
+    im.dh = s.dh()
     im.fv = s.fv()
     im.sean, im.iean = s.ean()
     im.ocr = s.ocr()
+    im.color = s.color()
+    print(im.color)
+    print(im.ocr)
     n = NPImageNearest(f"data/{args.instance}-image.h.pickle")
     res = n.search_by_npim(im, threshold=0.5)
+    print(res)
     print(res[0])
     id = res[0][0]
     npi = n.get_im_by_iid(id)
     print(im - npi)
-    print(npi.ocr)
+
 
     # [(x, n.db[0][x]) for x in n.db[0] if n.db[0][x].sean is not None]
     # [(267062, 30382903006008_BOITE_01.JPG), (267065, 30382903007005_BOITE_01.JPG), (266756, 07310791080062_BOITE_01.JPG), (266761, 07323190073115_BOITE_01.JPG), (266762, 07323190073146_BOITE_01.JPG), (266763, 07323190073177_BOITE_01.JPG), (266765, 07323190073238_BOITE_01.JPG), (266766, 07323190073269_BOITE_01.JPG), (266745, 05060097931996_BOITE_01.JPG), (266748, 05060097932023_BOITE_01.JPG), (266739, 05060097931255_BOITE_01.JPG), (266740, 05060097931262_BOITE_01.JPG), (266741, 05060097931279_BOITE_01.JPG), (266742, 05060097931286_BOITE_01.JPG), (266744, 05060097931309_BOITE_01.JPG), (266769, 07323190084128_BOITE_01.JPG), (266771, 07323190084227_BOITE_01.JPG), (267058, 20884523003564_BOITE_01.JPG)]

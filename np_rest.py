@@ -6,7 +6,7 @@ import json
 import threading
 import logging
 import socket
-from np_product_nearest import NPNearestPool
+from np_pool import NPNearestPool
 from np_product_compare import NPComparer
 
 

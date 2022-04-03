@@ -92,12 +92,13 @@ class NPImage:
         self.sean = None
         self.iean = None
         self.ocr = None
+        self.color = None
         self.pids = []
         self.ext = path.split(".")[-1].upper()
         self.name = path.split("/")[-1].upper()
 
     def __sub__(self, other):
-        res = {"dah": None, "ddh": None, "dfv": None, "dsize": abs(self.size - other.size), "dn": None, "dean": None, "docr": None}
+        res = {"dah": None, "ddh": None, "dfv": None, "dsize": abs(self.size - other.size), "dn": None, "dean": None, "docr": None, "dc": None}
         if self.ah is not None and other.ah is not None:
             res["dah"] = 1 - (self.ah - other.ah) / len(self.ah.hash) ** 2
         if self.dh is not None and other.dh is not None:
@@ -111,6 +112,10 @@ class NPImage:
                 res["dean"] = 0.0
         if self.ocr is not None and other.ocr is not None:
             res["docr"] = self.gestalt(self.ocr, other.ocr) if len(self.ocr) > 2 else 0
+        if hasattr(other, "color") and self.color is not None and other.color is not None:
+            res["dc"] = 1 if self.color == other.color else 0
+        if self.name is not None and other.name is not None:
+            res["dn"] = self.gestalt(self.name.split(".")[0], other.name.split(".")[0])
         return res
 
     def gestalt(self, s1: str, s2: str) -> float:

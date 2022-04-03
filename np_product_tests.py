@@ -7,7 +7,8 @@ from entities import Product, Car
 from np_product_car_template import NPCarTemplate
 from np_product_parser import USE, NPParser
 from np_product_compare import NPComparer
-from np_product_nearest import NPNearest, NPNearestPool, NPNearestNN
+from np_product_nearest import NPNearest, NPNearestNN
+from np_pool import NPNearestPool
 
 
 

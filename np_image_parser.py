@@ -16,6 +16,7 @@ from PIL import Image
 from absl import logging
 from np_image_barcode import NpImageBarcode
 from np_image_ocr import NpImageOcr
+from np_image_color_detect import ColorDetect, dictionary10
 
 
 class NPImageService:
@@ -36,6 +37,7 @@ class NPImageService:
         self.pil = None
         self.size = None
         self.tfimg = None
+        self.color_detect = ColorDetect(dictionary10)
 
     def ah(self):
         """
@@ -72,9 +74,12 @@ class NPImageService:
     def ocr(self):
         np = NpImageOcr()
         s = np.predict_string(self.path)
-        if s is not None:
-            print(f"Found OCR: {s}")
         return s
+
+    def color(self):
+        self.color_detect.load(self.path)
+        res = self.color_detect.predict()
+        return res[0][0]
 
     def load_tfimg(self, path):
         img = tf.io.read_file(path)
@@ -114,8 +119,9 @@ class NPImageParser:
         self.db = [self.dbi, self.dbp]
         self.path = None
         self.nbi = 0
+        self.num_row = 1
 
-    def parse(self, path: str) -> None:
+    def parse(self, path: str, encoding="utf-8") -> None:
         """
         Parser
         :param path: TXT file to parse
@@ -124,22 +130,29 @@ class NPImageParser:
         self.nbi = 0
         t = time.perf_counter()
         print(f"Parse {path}")
-        with open(path) as f:
+        with open(path, encoding=encoding) as f:
             r = csv.DictReader(f, delimiter="\t")
             for row in r:
-                ipath = row["Image-Path"].strip().replace("\\","/")
-                if ipath != "#N/A" and ipath != "":
-                    iid = int(row["Image-ID"])
-                    if iid not in self.dbi:
-                        self.dbi[iid] = entities.NPImage(iid, ipath, int(row["Famille-ID"]))
-                        self.nbi += 1
-                    pid = int(row["Product-ID"])
-                    if pid not in self.dbi[iid].pids:
-                        self.dbi[iid].pids.append(pid)
-                    if pid not in self.dbp:
-                        self.dbp[pid] = []
-                    if iid not in self.dbp[pid]:
-                        self.dbp[pid].append(iid)
+                self.num_row += 1
+                ipath = row["image_path"]
+                if ipath is not None:
+                    ipath = ipath.strip().replace("\\","/").replace(".eps", ".png")
+                    if ipath != "#N/A" and ipath != "":
+                        iid = int(row["image_id"]) # bug
+                        iid = self.num_row
+                        if iid not in self.dbi:
+                            self.dbi[iid] = entities.NPImage(iid, ipath, int(row["family_id"]))
+                            self.nbi += 1
+                        pid = int(row["product_id"])
+                        if pid not in self.dbi[iid].pids:
+                            self.dbi[iid].pids.append(pid)
+                        if pid not in self.dbp:
+                            self.dbp[pid] = []
+                        if iid not in self.dbp[pid]:
+                            self.dbp[pid].append(iid)
+                else:
+                    print(f"No image_path at row {self.num_row}")
+
         print(f"Found {self.nbi} images in {time.perf_counter() - t:.1f} s")
 
     def save(self, prefix="", method="pickle") -> None:
@@ -157,20 +170,21 @@ class NPImageParser:
         db = [{}, {}]
         cyrilload.save(db, path, method="pickle")
 
-    def h(self, impath, dh=True, fv=True, ean=True, ocr=True) -> None:
+    def h(self, impath, dh=True, fv=True, ean=True, ocr=True, color=True) -> None:
         """
         Use hashing
         """
-        print(f"Hashing with ImageHash model")
+        print(f"Hashing")
         t = time.perf_counter()
         i = 0
         for k in self.dbi.keys():
-            if i % max(10, int(self.nbi / 100)) == 0:
-                print(f"Hash {i + 1}/{self.nbi} in {time.perf_counter() - t:.1f} s")
+            if i % 10 == 0:
+                print(f"Hash {i + 1}/{self.nbi} in {time.perf_counter() - t:.0f} s")
             im = self.dbi[k]
             try:
                 ih = NPImageService()
                 ih.load(impath + im.path)
+                print(im.path[(im.path.rindex("/") + 1):])
                 im.size = ih.size
                 im.ah = ih.ah()  # 8x8 7.8s/1000
                 if dh:
@@ -179,10 +193,18 @@ class NPImageParser:
                     im.fv = ih.fv()  # Tensorflow Feature Vector 1792x1 22s/1000
                 if ean:
                     im.sean, im.iean = ih.ean()
+                if color:
+                    im.color = ih.color()
+                    print(im.color)
                 if ocr:
-                    im.ocr = ih.ocr()
+                    try:
+                        im.ocr = ih.ocr()
+                        if im.ocr is not None:
+                            print(im.ocr)
+                    except Exception as ex:
+                        print(f"Warning: OCR {im}: {ex}")
             except Exception as ex:
-                logging.warning(f"Error with {im}: {ex}")
+                print(f"Error: {im}: {ex}")
             i += 1
         print(f"Hashed in {time.perf_counter() - t:.1f} s")
 
@@ -198,15 +220,16 @@ if __name__ == '__main__':
     p = NPImageParser()
     if args.empty:
         p.save_empty()
-    p.parse(f"data/{args.instance}-image.txt")
+    p.parse(f"data/{args.instance}-image.txt", encoding="utf-8-sig")
     count = len(p.dbi)
     p.save()
     p.save(method="jsonpickle")
     dh = count < 400000
     fv = count < 100000
-    ean = count < 50000
+    ean = False and count < 50000
     ocr = count < 1000
-    p.h(f"{config.image_path}/{args.instance}/", dh=dh, fv=fv, ean=ean, ocr=ocr)
+    color = True
+    p.h(f"{config.image_path}/{args.instance}/", dh=dh, fv=fv, ean=ean, ocr=ocr, color=color)
     # 305 in 9.7s, 32s/1000, 320s/10000, 3200s/100000
     # ean in 18.7s
     p.save(prefix="h")

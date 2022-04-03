@@ -2,7 +2,7 @@ import unittest
 import config
 import cyrilload
 from entities import NPImage
-from np_image_color_detect import ColorDetect, dictionary9
+from np_image_color_detect import ColorDetect, dictionary10
 from np_image_parser import NPImageService, NPImageParser
 from np_image_comparer import NPImageComparer
 from np_image_nearest import NPImageNearest, NPImageNearestPool
@@ -123,7 +123,7 @@ class ImageTests(unittest.TestCase):
         np.save_empty("data/empty-image")
 
     def test_color(self):
-        cd = ColorDetect(dictionary9)
+        cd = ColorDetect(dictionary10)
         cd.load("tests/images/red.jpg")
         res = cd.predict()
         self.assertEqual("red", res[0][0])

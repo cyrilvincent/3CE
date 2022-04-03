@@ -8,5 +8,5 @@ scikit-image
 jsonpickle
 flask
 pyzbar
-opencv-python
+opencv-python==4.5.4.60
 keras_ocr
