@@ -25,10 +25,6 @@ class NPNearestPool:
     def __getitem__(self, item):
         return self.get_instance_nn(item)
 
-    @property
-    def comp(self):
-        return self.pool[config.pool[0]].np.comp
-
     def reset(self):
         for k in self.pool.keys():
             self.pool[k].reset()

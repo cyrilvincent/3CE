@@ -6,7 +6,7 @@ import threading
 import logging
 import argparse
 from entities import NPImage
-from typing import List
+from typing import List, Tuple
 from np_false_positives import NPFalsePositives
 
 
@@ -67,7 +67,7 @@ class NPImageNearest:
     def get_pids(self):
         return list(self.db[1].keys())
 
-    def search_by_im(self, id: int, take=10, threshold=config.image_threshold, fast=False, name=False) -> List[List[float]]:
+    def search_by_im(self, id: int, take=10, threshold=config.image_threshold, fast=False, name=False) -> List[Tuple[int, float]]:
         if id in self.cache.keys():
             return self.cache[id][:take]
         else:
@@ -79,7 +79,7 @@ class NPImageNearest:
             res = res[:take]
             return res
 
-    def search_by_npim(self, im: NPImage, threshold=config.image_threshold, fast=False, name=False) -> List[List[float]]:
+    def search_by_npim(self, im: NPImage, threshold=config.image_threshold, fast=False, name=False) -> List[Tuple[int, float]]:
         res = []
         for k in self.db[0].keys():
             im2 = self.get_im_by_iid(k)
@@ -87,11 +87,29 @@ class NPImageNearest:
                 if not self.fp.match(im.id, im2.id):
                     score = self.comp.compare(im, im2, fast, name)
                     if score > threshold:
-                        res.append([k, score])
+                        res.append((k, score))
         res.sort(key=lambda x: x[1], reverse=True)
         return res
 
-    def search_by_product(self, pid: int, take=10, thresold=config.image_threshold, fast=False, name=False):
+    def search_products_by_npim(self, im: NPImage, take=10, threshold=config.image_threshold, fast=False, name=False) -> List[Tuple[int, float]]:
+        res = self.search_by_npim(im, threshold - 0.05, fast, name)
+        dico = {}
+        for iid, score in res:
+            im = self.get_im_by_iid(iid)
+            pid = im.pids[0]
+            if pid not in dico:
+                dico[pid] = score
+            else:
+                dico[pid] = min(1.0, max(score, dico[pid]) + dico[pid] / 100)
+        l = []
+        for k in dico.keys():
+            if dico[k] > threshold:
+                l.append((k, dico[k]))
+        l.sort(key=lambda x: x[1], reverse=True)
+        l = l[:take]
+        return l
+
+    def search_by_product(self, pid: int, take=10, thresold=config.image_threshold, fast=False, name=False) -> List[Tuple[int, float]]:
         iids = self.get_iids_by_pid(pid)
         print(f"Found {len(iids)} images: {iids}")
         res = []
@@ -111,7 +129,7 @@ class NPImageNearest:
                                 dico[id] = 1.0
         l = []
         for k in dico.keys():
-            l.append([k, dico[k]])
+            l.append((k, dico[k]))
         l.sort(key=lambda x: x[1], reverse=True)
         l = l[:take]
         return l
@@ -149,10 +167,6 @@ class NPImageNearestPool:
 
     def __getitem__(self, item):
         return self.get_instance_nn(item)
-
-    @property
-    def comp(self):
-        return self.pool[config.pool[0]].comp
 
     def reset(self):
         for k in self.pool.keys():

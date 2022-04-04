@@ -83,14 +83,14 @@ class NPImageService:
 
     def load_tfimg(self, path):
         img = tf.io.read_file(path)
-        img = tf.io.decode_jpeg(img, channels=3)
+        img = tf.io.decode_image(img, channels=3)
         img = tf.image.resize_with_pad(img, 224, 224)
         img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
         return img
 
     def load_tfimg_from_base64(self, b64: str):
         img = tf.io.decode_base64(b64)
-        img = tf.io.decode_jpeg(img, channels=3)
+        img = tf.io.decode_image(img, channels=3)
         img = tf.image.resize_with_pad(img, 224, 224)
         img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
         return img
@@ -105,6 +105,15 @@ class NPImageService:
         self.pil = Image.open(BytesIO(base64.b64decode(b64)))
         self.size = self.pil.size
         self.tfimg = self.load_tfimg(b64)
+
+    def h(self, im: entities.NPImage):
+        im.size = self.size
+        im.ah = self.ah()
+        im.dh = self.dh()
+        im.fv = self.fv()
+        im.sean, im.iean = self.ean()
+        im.ocr = self.ocr()
+        im.color = self.color()
 
 
 class NPImageParser:

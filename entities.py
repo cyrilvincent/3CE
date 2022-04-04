@@ -24,7 +24,7 @@ class Car:
         self.h = None
 
     def __repr__(self):
-        return f"C{self.id}"
+        return f"C{self.id} {self.val}"
 
 
 class Product:
@@ -62,13 +62,19 @@ class Product:
     def __repr__(self):
         return f"P{self.id}"
 
+class Familly:
+
+    def __init__(self, id: int, label: str, parent_id: int):
+        self.id = id
+        self.label = label
+        self.parent_id = parent_id
+
+    def __repr__(self):
+        return f"F{self.id} {self.label}"
 
 class NPImage:
-    """
-    POC
-    """
 
-    def __init__(self, id: int, path: str, fid: Optional[int], size=0):
+    def __init__(self, id: int, path: str, fid: Optional[int], size=0, name="", ext="jpg"):
         """
         Image
         :param id: image id
@@ -84,7 +90,13 @@ class NPImage:
         """
         self.fid = fid
         self.id = id
-        self.path = path if path.startswith("./") else f"./{path}"
+        if path is not None:
+            self.path = path if path.startswith("./") else f"./{path}"
+            self.ext = path.split(".")[-1].upper()
+            self.name = path.split("/")[-1].upper()
+        else:
+            self.ext = ext
+            self.name = name
         self.size = size
         self.ah = None
         self.dh = None
@@ -94,8 +106,6 @@ class NPImage:
         self.ocr = None
         self.color = None
         self.pids = []
-        self.ext = path.split(".")[-1].upper()
-        self.name = path.split("/")[-1].upper()
 
     def __sub__(self, other):
         res = {"dah": None, "ddh": None, "dfv": None, "dsize": abs(self.size - other.size), "dn": None, "dean": None, "docr": None, "dc": None}
@@ -123,4 +133,4 @@ class NPImage:
         return sm.ratio()
 
     def __repr__(self):
-        return f"{self.name}"
+        return f"I{self.id} {self.name}"

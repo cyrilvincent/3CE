@@ -27,7 +27,7 @@ class NpKerasPredict:
         if not url_safe:
             b64 = b64.replace("+", "-").replace("/", "_")
         img = tf.io.decode_base64(b64)
-        img = tf.image.decode_jpeg(img, channels=3)
+        img = tf.image.decode_image(img, channels=3)
         img = tf.image.resize(img, target_size, method="nearest")
         img = keras.preprocessing.image.img_to_array(img)
         self.image = img
@@ -49,7 +49,7 @@ class NpKerasPredict:
 if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-    path = 'tests/images/aldes_cyril1.jpg'
+    path = 'tests/images/aldes_cyril2.jpg'
     print(path)
     with open(path, "rb") as f:
         bytes = f.read()

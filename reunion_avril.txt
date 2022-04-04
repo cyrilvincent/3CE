@@ -7,12 +7,13 @@ Image 3D
 Pas assez d'images réels
 Beaucoups n'ont pas de texte
 Certaines familles ont trop peu de photos : 13-Mesure et dans une moindre mesure 04-DoubleFlux
-Export des familles et leur parents en partant des produits
+Export des familles et leur parents en partant des produits : familly_id, familly_label, parent_id
 Bug dans l'export sur l'image id
 Couleur ?
 Appli à la plantnet : c'est avant tout une appli de labelisation
 
 Il faut faire une bd côté python (en fait sur les images directement)
-fid_level2/mobile_imagetimestamp_pid_pidlabel.jpg
+1er stockage, prédiction avant labelisation : mobile/guid.jpg ou png
+2ème stockage après labelisaton : fid_level2/mobile_pidlabel_pid_guid.jpg
 
-mock_rest.txt
+cf aldes_api.txt
