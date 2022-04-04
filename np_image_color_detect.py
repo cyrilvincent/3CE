@@ -82,8 +82,11 @@ class ColorDetect:
     def load(self, path: str):
         self.image = cv2.imread(path)
 
-    def load_from_base64(self, b64: str):
-        bytes = base64.b64decode(b64.encode("ascii"))
+    def load_from_base64(self, b64: str, url_safe=False):
+        if url_safe:
+            bytes = base64.urlsafe_b64decode(b64.encode("ascii"))
+        else:
+            bytes = base64.b64decode(b64.encode("ascii"))
         array = np.frombuffer(bytes, np.uint8)
         self.image = cv2.imdecode(array, cv2.IMREAD_COLOR)
 

@@ -1,5 +1,5 @@
 # Request
-# POST : {instance: str, name: str, content: byte[] en base64}
+# POST : {instance: str, name: str, content: byte[] en base64 urlsafe}  uses '-' instead of '+' and '_' instead of '/'.
 # exemple : {instance: "dev-aldes", name: "toto.jpg", content: "base64"}
 #
 # Response

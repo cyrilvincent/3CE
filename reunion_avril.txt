@@ -1,8 +1,8 @@
 576 images
 2 familles = on ne gère que corporate
 13 familles mais 1 n'a qu'une image => 12 familles soit 600 images = ok mais mal réparties
-Il faudrait 12*50 = 600 photos réels au minimum
-55 sous familles => il en faudrait 2750 => 2750 - 576 = 2200 photos en +
+Il faudrait 12*50 = 600 photos réelles au minimum
+55 sous familles => il en faudrait 2750 => 2750 - 576 - 600 = 1600 photos en +
 Image 3D
 Pas assez d'images réels
 Beaucoups n'ont pas de texte
@@ -13,4 +13,6 @@ Couleur ?
 Appli à la plantnet : c'est avant tout une appli de labelisation
 
 Il faut faire une bd côté python (en fait sur les images directement)
-fid_level2/imagetimestamp_pid_pidlabel.jpg
+fid_level2/mobile_imagetimestamp_pid_pidlabel.jpg
+
+mock_rest.txt
